@@ -1,0 +1,74 @@
+
+/* Modal animations */
+.modal-enter {
+    transition: opacity 0.3s ease;
+}
+
+.modal-enter-from {
+    opacity: 0;
+}
+
+.modal-enter-to {
+    opacity: 1;
+}
+
+/* Table styles */
+#announcementTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#announcementTable th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+#announcementTable td {
+    font-size: 0.875rem;
+}
+
+/* Channel badges */
+.channel-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+/* Tooltip styles */
+[title] {
+    position: relative;
+    cursor: pointer;
+}
+
+[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1C1C1D;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1C1C1D transparent transparent transparent;
+    margin-bottom: -5px;
+}

@@ -1,0 +1,165 @@
+.main-content {
+    margin-left: 250px;
+    padding: 20px 30px;
+}
+
+/* Card */
+.report-card {
+  margin-bottom: 30px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.report-header {
+  background: #1C1C1D;
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 8px;
+  border: 1px solid #1c1c1d46;
+}
+
+table th {
+  background: #1C1C1D;
+  border: 1px solid rgba(255, 255, 255, 0.425);
+  color: #fff;
+}
+/* Zebra rows like the screenshot */
+.status {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+
+}
+
+.status.active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* View link */
+.btn-view {
+    text-decoration: none;
+    background: #1C1C1D;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.btn-view:hover {
+    background: #333;
+}
+/* ===== Modal ===== */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    padding: 25px;
+    animation: slideUp 0.3s ease;
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+}
+
+.close {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #dc2626;
+}
+
+/* ===== Tabs ===== */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    background: #f3f4f6;
+}
+
+.tab:hover {
+    background: #e5e7eb;
+}
+
+.tab.active {
+    background: #1C1C1D;
+    color: #fff;
+}
+
+/* Tab Content */
+.tab-content {
+    background: #f9fafb;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .parent-table {
+        min-width: 100%;
+    }
+}

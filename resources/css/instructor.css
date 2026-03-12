@@ -1,0 +1,67 @@
+button:hover{
+    background-color: #1C1C1D;
+    color: #60d394;
+    transition: 0.2s;
+}
+button{
+    cursor: pointer;
+}
+
+table th{
+    background-color: #1C1C1D;
+    font-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.425);
+    color: #fff;
+    text-align: center;
+}
+table th, table td{
+    padding: 8px 25px;
+
+}
+table td{
+    border: 1px solid #1c1c1d46;
+}
+table{
+    border-collapse: collapse;
+}
+.btn-edit {
+    text-decoration: none;
+    background: #1C1C1D;
+    color: #faedcd;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.btn-delete {
+    text-decoration: none;
+    background: #1C1C1D;
+    color: #ff686b;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.btn-edit:hover {
+    background: #faedcd;
+    color: #1C1C1D;
+}
+.btn-delete:hover {
+    background: #ff686b;
+    color: #1C1C1D;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+
+}
+
+.status.active {
+    background: #d1fae5;
+    color: #065f46;
+}

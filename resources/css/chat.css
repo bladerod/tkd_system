@@ -1,0 +1,143 @@
+/* Layout */
+.chat-container {
+    display: flex;
+    height: calc(100vh - 100px);
+    gap: 20px;
+
+}
+
+/* Left Panel */
+.chat-list {
+    width: 280px;
+    background: #f3f3f3;
+    border-radius: 12px;
+    padding-left: 20px;
+}
+
+.chat-list h2 {
+    margin-bottom: 20px;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.chat-item:hover {
+    background: #e5e5e5;
+}
+
+.chat-item.active {
+    background: #ddd;
+}
+
+.chat-info h4 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.chat-info p {
+    margin: 0;
+    font-size: 12px;
+    color: gray;
+}
+
+/* Avatars */
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.avatar.parent { background: #7c5c5c; }
+.avatar.student { background: #7a8466; }
+.avatar.class { background: #4c2a2a; }
+.avatar.coach { background: #6b7c84; }
+
+/* Chat Window */
+.chat-window {
+    flex: 1;
+    background: #1C1C1D;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.chat-header {
+    background: #1C1C1D;
+    padding: 15px 20px;
+    color: white;
+}
+
+.chat-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Messages */
+.chat-messages {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Input */
+.chat-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #1C1C1D;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background-color: #fff;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.icon-btn:hover {
+    color: #8f8f91;
+}
+
+
+.send-btn {
+    background: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+
+}
+.send-btn:hover {
+    background: #8f8f91;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px 30px;
+    background-color: #e5e5e5;
+}

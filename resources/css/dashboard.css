@@ -1,0 +1,31 @@
+.icon{
+    cursor: pointer;
+}
+
+aside {
+    position: fixed;
+}
+.pan{
+    background-color: wheat;
+}
+.heatmap-cell {
+    width: 40px;
+    height: 40px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+.heatmap-cell:hover {
+    background-color: #1C1C1D;
+    opacity: 0.8;
+}
+.chart-bar {
+    height: 8px;
+    background-color: #1C1C1D;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.button{
+    cursor: pointer;
+}

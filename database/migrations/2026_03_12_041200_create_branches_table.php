@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programs', function (Blueprint $table) {
-    $table->id();
-    $table->string('name');
-    $table->text('description')->nullable();
-    $table->integer('sessions_per_week');
-    $table->decimal('monthly_fee_default', 10, 2);
-});
+        Schema::create('branches', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('programs');
+        Schema::dropIfExists('branches');
     }
 };

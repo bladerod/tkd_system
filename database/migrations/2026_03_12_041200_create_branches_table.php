@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 150);
+            $table->string('code', 50)->unique();
+            $table->text('address')->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('province', 100)->nullable();
+            $table->string('mobile', 20)->nullable();
+            $table->string('email', 100)->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

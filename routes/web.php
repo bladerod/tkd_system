@@ -140,4 +140,8 @@ Route::middleware(['auth'])->group(function () {
         return view('certificates');
     })->name('certificates');
 
+    Route::get('/test-edward', function () {
+    return "Test push successful!";
+});
+
 });

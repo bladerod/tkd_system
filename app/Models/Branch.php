@@ -2,32 +2,45 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Branch extends Model
 {
-    use HasFactory;
-
     protected $table = 'branches';
-    protected $primaryKey = 'id';
-    public $timestamps = true;
     
     protected $fillable = [
-        'name',
-        'code',
-        'address',
-        'city',
-        'mobile',
-        'email',
-        'status'
+        'name', 'code', 'address', 'city', 'province', 
+        'mobile', 'email', 'status'
     ];
 
-    /**
-     * Get the users for the branch.
-     */
+    protected $casts = [
+        'status' => 'boolean',
+        'created_at' => 'datetime',
+    ];
+
+    // Relationships
     public function users()
     {
-        return $this->hasMany(User::class, 'branch_id', 'id');
+        return $this->hasMany(User::class);
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    public function classes()
+    {
+        return $this->hasMany(Classes::class);
+    }
+
+    public function devices()
+    {
+        return $this->hasMany(Device::class);
+    }
+
+    public function announcements()
+    {
+        return $this->hasMany(Announcement::class, 'branch_id');
     }
 }

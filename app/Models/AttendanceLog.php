@@ -1,63 +1,64 @@
 <?php
-// app/Models/AttendanceLog.php
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AttendanceLog extends Model
 {
-    use HasFactory;
-
     protected $table = 'attendance_logs';
-    public $timestamps = false;
-
+    
     protected $fillable = [
-        'student_id',
-        'class_session_id',
-        'checkin_time',
+        'student_id', 
+        'class_session_id', 
+        'checkin_time', 
         'checkout_time',
-        'method',
-        'confidence_score',
-        'recorded_by_user_id',
-        'device_id',
+        'method', 
+        'confidence_score', 
+        'recorded_by_user_id', 
+        'device_id', 
         'status'
     ];
 
     protected $casts = [
         'checkin_time' => 'datetime',
         'checkout_time' => 'datetime',
-        'status' => 'boolean'
     ];
 
+    // Relationships
     public function student()
     {
-        return $this->belongsTo(Student::class, 'student_id');
+        return $this->belongsTo(Student::class);
     }
 
-    // public function classSession()
-    // {
-    //     return $this->belongsTo(ClassSession::class, 'class_session_id');
-    // }
+    public function classSession()
+    {
+        return $this->belongsTo(ClassSession::class);
+    }
 
     public function recordedBy()
     {
         return $this->belongsTo(User::class, 'recorded_by_user_id');
     }
 
-    // public function device()
-    // {
-    //     return $this->belongsTo(Device::class, 'device_id');
-    // }
-
-    public function getDurationAttribute()
+    public function device()
     {
-        if ($this->checkout_time) {
-            return $this->checkin_time->diffInMinutes($this->checkout_time);
-        }
-        return null;
+        return $this->belongsTo(Device::class, 'device_id');
     }
 
-    
+    // Scopes
+    public function scopeToday($query)
+    {
+        return $query->whereDate('checkin_time', today());
+    }
+
+    public function scopeByDate($query, $date)
+    {
+        return $query->whereDate('checkin_time', $date);
+    }
+
+    public function scopePresent($query)
+    {
+        return $query->where('status', 'present');
+    }
 }

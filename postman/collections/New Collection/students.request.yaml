@@ -1,0 +1,8 @@
+$kind: http-request
+name: students
+url: http://localhost:8000/api/students
+method: GET
+headers:
+  Accept: application/json
+  Authorization: Bearer7|hKUof0n0ykHGYwvu40j5AFATziULBMpMKK7sUvPf88ca9163
+order: 1469454310553520

@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\ParentApiController;
 
 
 // ===========================================
-// ALL API ROUTES HERE (TEMPORARY FIX)
+// ALL API ROUTES HERE
 // ===========================================
 
 // Test route
@@ -79,12 +79,6 @@ Route::middleware('auth:sanctum')->prefix('api')->group(function () {
         return $request->user();
     });
 });
-
-
-
-
-
-
 
 
 // Authentication Routes

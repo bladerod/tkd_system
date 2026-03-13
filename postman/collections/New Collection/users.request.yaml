@@ -1,0 +1,8 @@
+$kind: http-request
+name: users
+url: http://localhost:8000/api/user
+method: GET
+headers:
+  Accept: application/json
+  Authorization: 6|YU8TySjZ1OX3HzIf3ZEynyQbhMXjQr2LhLSsghW5e5baa793
+order: 2291188346178191

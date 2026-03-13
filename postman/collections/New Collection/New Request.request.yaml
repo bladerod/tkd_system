@@ -1,0 +1,7 @@
+$kind: http-request
+name: New Request
+url: http://localhost:8000/api/test
+method: GET
+headers:
+  Accept: application/json
+order: 3869768974906544

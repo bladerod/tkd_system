@@ -50,7 +50,7 @@ class ParentApiController extends Controller
         }
 
         $student = Student::whereHas('parents', function($q) use ($parent) {
-                $q->where('parent_id', $parent->id);
+                $q->where('id', $parent->id);
             })
             ->with([
                 'branch',
@@ -102,7 +102,7 @@ class ParentApiController extends Controller
         }
 
         $student = Student::whereHas('parents', function($q) use ($parent) {
-                $q->where('parent_id', $parent->id);
+                $q->where('id', $parent->id);
             })->find($childId);
 
         if (!$student) {

@@ -11,20 +11,18 @@ class Parents extends Model
     use HasFactory;
 
     protected $table = "parents";
-    protected $primaryKey = 'parent_id';
+    
+    protected $primaryKey = 'id'; 
+    
     public $timestamps = false;
 
     protected $fillable = [
         "user_id",
-        "fname",
-        "lname",
         "emergency_contact",
         "relationship_note",
         "address",
         "id_verified_flag",
-        "created_at",
-        "status",
-        "gender"
+        "created_at"
     ];
 
     protected $casts = [
@@ -37,7 +35,8 @@ class Parents extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        // FIX 4: Ang primary key ng `users` table ay `id`, hindi `user_id`
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**

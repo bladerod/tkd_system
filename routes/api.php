@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ClassApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\AnnouncementApiController;
 use App\Http\Controllers\Api\ParentApiController;
+
 
 // Public routes (no token needed)
 Route::post('/login', [AuthController::class, 'login']);
@@ -70,4 +71,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/child/{childId}', [ParentApiController::class, 'childDetails']);
         Route::get('/child/{childId}/attendance', [ParentApiController::class, 'childAttendance']);
     });
-}); -->
+});

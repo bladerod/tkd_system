@@ -1,9 +1,9 @@
 $kind: http-request
 name: http://localhost:8000/api/login
-url: http://localhost:8000/api/login
-method: POST
+url: http://localhost:8000/api/test
+method: GET
 headers:
-  Content-Type: application/json
+  Accept: application/json
 body:
   type: json
   content: "{\r

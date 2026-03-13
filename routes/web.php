@@ -6,9 +6,85 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Models\parentview;
 use App\Models\beltview;
-use Illuminate\Testing\Fluent\Concerns\Has;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AttendanceApiController;
+use App\Http\Controllers\Api\StudentApiController;
+use App\Http\Controllers\Api\ClassApiController;
+use App\Http\Controllers\Api\DashboardApiController;
+use App\Http\Controllers\Api\AnnouncementApiController;
+use App\Http\Controllers\Api\ParentApiController;
+
+
+
+// ===========================================
+// ALL API ROUTES HERE (TEMPORARY FIX)
+// ===========================================
+
+// Test route
+Route::get('/api/test', function() {
+    return response()->json([
+        'success' => true,
+        'message' => 'API is working from web.php!',
+        'timestamp' => now()->toDateTimeString()
+    ]);
+});
+
+// Public API routes
+Route::post('/api/login', [AuthController::class, 'login']);
+
+// Protected API routes (with auth middleware)
+Route::middleware('auth:sanctum')->prefix('api')->group(function () {
+    
+    // Dashboard
+    Route::get('/dashboard/statistics', [DashboardApiController::class, 'statistics']);
+    Route::get('/dashboard/attendance-trends', [DashboardApiController::class, 'attendanceTrends']);
+    
+    // Students
+    Route::prefix('students')->group(function () {
+        Route::get('/', [StudentApiController::class, 'index']);
+        Route::get('/{id}', [StudentApiController::class, 'show']);
+        Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
+        Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
+    });
+    
+    // Attendance
+    Route::get('/attendance', [AttendanceApiController::class, 'index']);
+    Route::post('/attendance/manual', [AttendanceApiController::class, 'manualOverride']);
+    Route::post('/attendance/add', [AttendanceApiController::class, 'addManual']);
+    
+    // Classes
+    Route::prefix('classes')->group(function () {
+        Route::get('/', [ClassApiController::class, 'index']);
+        Route::get('/{id}', [ClassApiController::class, 'show']);
+        Route::get('/{id}/sessions', [ClassApiController::class, 'sessions']);
+        Route::get('/{id}/today-sessions', [ClassApiController::class, 'todaySessions']);
+    });
+    
+    // Announcements
+    Route::prefix('announcements')->group(function () {
+        Route::get('/', [AnnouncementApiController::class, 'index']);
+        Route::get('/{id}', [AnnouncementApiController::class, 'show']);
+    });
+    
+    // Parent routes
+    Route::prefix('parent')->group(function () {
+        Route::get('/profile', [ParentApiController::class, 'profile']);
+        Route::get('/child/{childId}', [ParentApiController::class, 'childDetails']);
+        Route::get('/child/{childId}/attendance', [ParentApiController::class, 'childAttendance']);
+    });
+    
+    // User profile
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+});
+
+
+
+
+
+
 
 
 // Authentication Routes
@@ -17,6 +93,7 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 });
+
 
 // Auth routes 
 Route::middleware(['auth'])->group(function () {
@@ -143,5 +220,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/test-edward', function () {
     return "Test push successful!";
 });
+
 
 });

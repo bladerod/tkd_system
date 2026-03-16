@@ -12,7 +12,7 @@ class Branch extends Model
     protected $table = 'branches';
     protected $primaryKey = 'id';
     public $timestamps = true;
-    
+
     protected $fillable = [
         'name',
         'code',
@@ -30,4 +30,8 @@ class Branch extends Model
     {
         return $this->hasMany(User::class, 'branch_id', 'id');
     }
+    public function users(): HasMany { return $this->hasMany(User::class); }
+    public function students(): HasMany { return $this->hasMany(Student::class); }
+    public function classes(): HasMany { return $this->hasMany(Classes::class); }
+    public function devices(): HasMany { return $this->hasMany(Device::class); }
 }

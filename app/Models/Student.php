@@ -5,6 +5,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Student extends Model
 {
@@ -42,15 +46,15 @@ class Student extends Model
     /**
      * Get the parents associated with the student.
      */
-    public function parents()
-    {
-        return $this->belongsToMany(
-            Parents::class,
-            'parent_students',
-            'student_id',
-            'parent_id'
-        )->withPivot('relationship', 'is_primary');
-    }
+    // public function parents()
+    // {
+    //     return $this->belongsToMany(
+    //         Parents::class,
+    //         'parent_students',
+    //         'student_id',
+    //         'parent_id'
+    //     )->withPivot('relationship', 'is_primary');
+    // }
 
     /**
      * Get the branch that owns the student.
@@ -59,4 +63,20 @@ class Student extends Model
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
+    // public function branch(): BelongsTo { return $this->belongsTo(Branch::class); }
+    public function primaryParent(): BelongsTo { return $this->belongsTo(ParentModel::class, 'primary_parent_id'); }
+    public function parents() { return $this->belongsToMany(ParentModel::class, 'parent_students', 'student_id', 'parent_id')
+        ->withPivot('relationship', 'is_primary'); }
+    public function classes() { return $this->belongsToMany(Classes::class, 'class_students', 'student_id', 'class_id')
+        ->withPivot('start_date', 'end_date', 'status'); }
+    public function subscriptions(): HasMany { return $this->hasMany(StudentSubscription::class); }
+    public function attendanceLogs(): HasMany { return $this->hasMany(AttendanceLog::class); }
+    public function faceProfile(): HasOne { return $this->hasOne(FaceProfile::class); }
+    public function evaluations(): HasMany { return $this->hasMany(StudentEvaluation::class); }
+    public function skillProgress(): HasMany { return $this->hasMany(StudentSkillProgress::class); }
+    public function examResults(): HasMany { return $this->hasMany(BeltExamResult::class); }
+    public function competitionEntries(): HasMany { return $this->hasMany(CompetitionEntry::class); }
+    public function certificates(): HasMany { return $this->hasMany(Certificate::class); }
+    public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
 }
+    

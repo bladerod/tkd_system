@@ -12,18 +12,18 @@ use Illuminate\Http\Request;
 
 
 // Authentication Routes
-// Guest routes 
+// Guest routes
 Route::middleware(['guest'])->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 });
 
-// Auth routes 
+// Auth routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-    
+
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // for user management crud
@@ -54,14 +54,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/check-username', function(Request $request) {
         $username = $request->query('username');
         $userId = $request->query('user_id');
-        
+
         $query = App\Models\User::where('username', $username);
-        
+
         // If editing, exclude current user
         if ($userId) {
             $query->where('user_id', '!=', $userId);
         }
-        
+
         return response()->json([
             'available' => !$query->exists()
         ]);
@@ -123,9 +123,6 @@ Route::middleware(['auth'])->group(function () {
         return view('integration');
     });
 
-    Route::get('/chat', function () {
-        return view('chat');
-    })->name('chat');
 
     Route::get('/report', function () {
         return view('report');
@@ -136,8 +133,39 @@ Route::middleware(['auth'])->group(function () {
         return view('student', compact('beltLevels'));
     })->name('student');
 
-    Route::get('/certificates', function () {
-        return view('certificates');
-    })->name('certificates');
 
+Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
+
+Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
+
+Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
+
+    Route::get('/report', function () {
+        return view('report');
+    })->name('report');
+
+Route::middleware('auth')->group(function () {
+Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 });
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
+    Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
+    Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
+    Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/parents/{id}', [ParentController::class, 'show']);
+    Route::get('/parents/{id}/children', [ParentController::class, 'getChildrenDetails']);
+    Route::get('/parents/{id}/billing', [ParentController::class, 'getFamilyBilling']);
+    Route::get('/parents/{id}/payments', [ParentController::class, 'getPayments']);
+    Route::get('/parents/{id}/activity', [ParentController::class, 'getActivityLog']);
+    Route::get('/parents/{id}/notifications', [ParentController::class, 'getNotifications']);
+    Route::post('/parents/{id}/send-message', [ParentController::class, 'sendMessage']);
+
+    Route::get('/chat-threads/{id}/messages', [ParentController::class, 'getThreadMessages']);
+});
+});
+

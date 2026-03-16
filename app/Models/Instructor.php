@@ -134,4 +134,13 @@ class Instructor extends Model
     {
         return $this->active_flag == 1;
     }
+
+    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function primaryClasses(): HasMany { return $this->hasMany(Classes::class, 'primary_instructor_id'); }
+    public function assistantClasses(): HasMany { return $this->hasMany(Classes::class, 'assistant_instructor_id'); }
+    public function evaluations(): HasMany { return $this->hasMany(StudentEvaluation::class); }
+    public function skillChecks(): HasMany { return $this->hasMany(StudentSkillProgress::class); }
+    public function examApprovals(): HasMany { return $this->hasMany(BeltExamResult::class, 'approved_by'); }
+    public function competitionEntries(): HasMany { return $this->hasMany(CompetitionEntry::class); }
+
 }

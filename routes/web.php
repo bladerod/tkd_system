@@ -123,6 +123,9 @@ Route::middleware(['auth'])->group(function () {
         return view('integration');
     });
 
+    Route::get('/chat', function () {
+        return view('chat');
+    })->name('chat');
 
     Route::get('/report', function () {
         return view('report');
@@ -144,28 +147,15 @@ Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send')
         return view('report');
     })->name('report');
 
-Route::middleware('auth')->group(function () {
-Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+    Route::middleware('auth')->group(function () {
+    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 });
 
-
-Route::middleware('auth')->group(function () {
+    Route::middleware('auth')->group(function () {
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
     Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
     Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/parents/{id}', [ParentController::class, 'show']);
-    Route::get('/parents/{id}/children', [ParentController::class, 'getChildrenDetails']);
-    Route::get('/parents/{id}/billing', [ParentController::class, 'getFamilyBilling']);
-    Route::get('/parents/{id}/payments', [ParentController::class, 'getPayments']);
-    Route::get('/parents/{id}/activity', [ParentController::class, 'getActivityLog']);
-    Route::get('/parents/{id}/notifications', [ParentController::class, 'getNotifications']);
-    Route::post('/parents/{id}/send-message', [ParentController::class, 'sendMessage']);
-
-    Route::get('/chat-threads/{id}/messages', [ParentController::class, 'getThreadMessages']);
 });
-});
-

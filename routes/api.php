@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
 });
 
+use App\Http\Controllers\ParentController;
+
 Route::middleware('auth')->group(function () {
     Route::get('/parents/{id}', [ParentController::class, 'show']);
     Route::get('/parents/{id}/children', [ParentController::class, 'getChildrenDetails']);

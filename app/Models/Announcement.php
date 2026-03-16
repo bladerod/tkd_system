@@ -3,23 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Announcement extends Model
 {
-    use HasFactory;
-
-    protected $table = 'announcements';
-    protected $primaryKey = 'id';
-    public $timestamps = false;
-
     protected $fillable = [
-        'created_by_user_id',
-        'target_type',
-        'class_id',
-        'title',
-        'message',
-        'publish_date',
+        'created_by_user_id', 
+        'target_type', 
+        'class_id', 
+        'belt_level', 
+        'branch_id', 
+        'channel', 
+        'title', 
+        'message', 
+        'publish_date', 
         'expire_date'
     ];
 
@@ -28,23 +24,40 @@ class Announcement extends Model
         'expire_date' => 'date',
     ];
 
-    /**
-     * Get the user who created the announcement.
-     */
-    public function creator()
+    // Relationships
+    public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by_user_id', 'id');
+        return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
-    /**
-     * Get the class associated with the announcement.
-     */
     public function class()
     {
-        return $this->belongsTo(Classes::class, 'class_id', 'id');
+        return $this->belongsTo(Classes::class);
     }
+
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'id', 'id');
+        return $this->belongsTo(Branch::class);
+    }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->where('publish_date', '<=', now())
+                     ->where(function($q) {
+                         $q->whereNull('expire_date')
+                           ->orWhere('expire_date', '>=', now());
+                     });
+    }
+
+    public function scopeForUser($query, User $user)
+    {
+        return $query->where(function($q) use ($user) {
+            $q->where('target_type', 'all')
+              ->orWhere(function($q2) use ($user) {
+                  $q2->where('target_type', 'branch')
+                     ->where('branch_id', $user->branch_id);
+              });
+        });
     }
 }

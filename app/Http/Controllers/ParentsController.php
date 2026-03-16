@@ -105,7 +105,7 @@ class ParentsController extends Controller
             if ($request->has('students') && !empty($request->students)) {
                 foreach ($request->students as $studentId) {
                     DB::table('parent_students')->insert([
-                        'parent_id' => $parent->parent_id,
+                        'id' => $parent->id,
                         'student_id' => $studentId,
                         'relationship' => 'guardian', // Default, you might want to make this selectable
                         'is_primary' => 0
@@ -135,7 +135,7 @@ class ParentsController extends Controller
             $parent = Parents::with(['user', 'students'])->findOrFail($id);
             
             return response()->json([
-                'parent_id' => $parent->parent_id,
+                'id' => $parent->id,
                 'full_name' => $parent->fname . ' ' . $parent->lname,
                 'fname' => $parent->fname,
                 'lname' => $parent->lname,
@@ -191,12 +191,12 @@ class ParentsController extends Controller
             // Update student links in pivot table
             if ($request->has('students')) {
                 // Delete existing links
-                DB::table('parent_students')->where('parent_id', $parent->parent_id)->delete();
+                DB::table('parent_students')->where('id', $parent->id)->delete();
                 
                 // Add new links
                 foreach ($request->students as $studentId) {
                     DB::table('parent_students')->insert([
-                        'parent_id' => $parent->parent_id,
+                        'id' => $parent->id,
                         'student_id' => $studentId,
                         'relationship' => 'guardian',
                         'is_primary' => 0
@@ -204,7 +204,7 @@ class ParentsController extends Controller
                 }
             } else {
                 // If no students selected, delete all links
-                DB::table('parent_students')->where('parent_id', $parent->parent_id)->delete();
+                DB::table('parent_students')->where('id', $parent->id)->delete();
             }
 
             DB::commit();
@@ -231,7 +231,7 @@ class ParentsController extends Controller
             $parent = Parents::findOrFail($id);
             
             // Delete student links from pivot table first
-            DB::table('parent_students')->where('parent_id', $parent->parent_id)->delete();
+            DB::table('parent_students')->where('id', $parent->id)->delete();
             
             // Delete parent
             $parent->delete();

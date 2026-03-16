@@ -9,6 +9,11 @@ use App\Http\Controllers\Api\ClassApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\AnnouncementApiController;
 use App\Http\Controllers\Api\ParentApiController;
+use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\CertificateController;
+
+
 
 
 // Public routes (no token needed)
@@ -25,8 +30,8 @@ Route::get('/test', function() {
 
 // Protected routes (token REQUIRED)
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // Test token route
+
+    // Get the authenticated user's info
     Route::get('/user', function (Request $request) {
         return response()->json([
             'success' => true,
@@ -48,27 +53,34 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Attendance
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
-    Route::post('/attendance/manual', [AttendanceApiController::class, 'manualOverride']);
-    Route::post('/attendance/add', [AttendanceApiController::class, 'addManual']);
-    
-    // Classes
-    Route::prefix('classes')->group(function () {
-        Route::get('/', [ClassApiController::class, 'index']);
-        Route::get('/{id}', [ClassApiController::class, 'show']);
-        Route::get('/{id}/sessions', [ClassApiController::class, 'sessions']);
-        Route::get('/{id}/today-sessions', [ClassApiController::class, 'todaySessions']);
-    });
-    
-    // Announcements
-    Route::prefix('announcements')->group(function () {
-        Route::get('/', [AnnouncementApiController::class, 'index']);
-        Route::get('/{id}', [AnnouncementApiController::class, 'show']);
-    });
-    
-    // Parent routes
-    Route::prefix('parent')->group(function () {
-        Route::get('/profile', [ParentApiController::class, 'profile']);
-        Route::get('/child/{childId}', [ParentApiController::class, 'childDetails']);
-        Route::get('/child/{childId}/attendance', [ParentApiController::class, 'childAttendance']);
-    });
+    Route::post('/attendance', [AttendanceApiController::class, 'store']);
+
+    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents/{id}/children', [ParentsController::class, 'getChildrenDetails']);
+    Route::get('/parents/{id}/billing', [ParentsController::class, 'getFamilyBilling']);
+    Route::get('/parents/{id}/payments', [ParentsController::class, 'getPayments']);
+    Route::get('/parents/{id}/activity', [ParentsController::class, 'getActivityLog']);
+    Route::get('/parents/{id}/notifications', [ParentsController::class, 'getNotifications']);
+    Route::post('/parents/{id}/send-message', [ParentsController::class, 'sendMessage']);
+
+    Route::get('/chat-threads/{id}/messages', [ParentsController::class, 'getThreadMessages']);
+
+    Route::get('/students/{id}', [StudentController::class, 'show']);
+    Route::get('/students/{id}/profile', [StudentController::class, 'getProfile']);
+    Route::get('/students/{id}/attendance', [StudentController::class, 'getAttendance']);
+    Route::get('/students/{id}/billing', [StudentController::class, 'getBilling']);
+    Route::get('/students/{id}/competitions', [StudentController::class, 'getCompetitions']);
+    Route::get('/students/{id}/certificates', [StudentController::class, 'getCertificates']);
+    Route::get('/students/{id}/progress', [StudentController::class, 'getProgress']);
+    Route::get('/students/{id}/documents', [StudentController::class, 'getDocuments']);
+    Route::post('/students/{id}/send-message', [StudentController::class, 'sendMessage']);
+
+    Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
+
+    Route::get('/certificates/students', [CertificateController::class, 'getStudentsForDropdown']);
+    Route::post('/certificates/generate', [CertificateController::class, 'generate']);
+    Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+    Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
+    Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 });
+

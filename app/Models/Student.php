@@ -2,7 +2,10 @@
 // app/Models/Student.php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo, HasMany, BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Student extends Model {
     protected $fillable = ['branch_id', 'student_code', 'first_name', 'last_name', 'middle_name', 'birthdate', 'gender', 'photo_url', 'current_belt', 'join_date', 'status', 'medical_notes', 'allergies', 'emergency_contact_name', 'emergency_contact_mobile', 'primary_parent_id'];

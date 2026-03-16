@@ -14,8 +14,6 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CertificateController;
 
 
-
-
 // Public routes (no token needed)
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -65,6 +63,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/chat-threads/{id}/messages', [ParentsController::class, 'getThreadMessages']);
 
+    Route::get('/certificates/students', [CertificateController::class, 'getStudentsForDropdown']);
+    Route::post('/certificates/generate', [CertificateController::class, 'generate']);
+    Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+    Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
+    Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
+
+
     Route::get('/students/{id}', [StudentController::class, 'show']);
     Route::get('/students/{id}/profile', [StudentController::class, 'getProfile']);
     Route::get('/students/{id}/attendance', [StudentController::class, 'getAttendance']);
@@ -77,10 +82,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
 
-    Route::get('/certificates/students', [CertificateController::class, 'getStudentsForDropdown']);
-    Route::post('/certificates/generate', [CertificateController::class, 'generate']);
-    Route::get('/certificates/{id}', [CertificateController::class, 'show']);
-    Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
-    Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
+
+    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents/{id}/children', [ParentsController::class, 'getChildrenDetails']);
+    Route::get('/parents/{id}/billing', [ParentsController::class, 'getFamilyBilling']);
+    Route::get('/parents/{id}/payments', [ParentsController::class, 'getPayments']);
+    Route::get('/parents/{id}/activity', [ParentsController::class, 'getActivityLog']);
+    Route::get('/parents/{id}/notifications', [ParentsController::class, 'getNotifications']);
+    Route::post('/parents/{id}/send-message', [ParentsController::class, 'sendMessage']);
+
+    Route::get('/chat-threads/{id}/messages', [ParentsController::class, 'getThreadMessages']);
+
 });
 

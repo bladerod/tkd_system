@@ -152,6 +152,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
 
     Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
+    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
+
+    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
+
+    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
 
     Route::get('/report', function () {
         return view('report');
@@ -166,6 +171,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
 });
-
 
 

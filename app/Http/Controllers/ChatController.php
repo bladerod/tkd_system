@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ChatThread;
 use App\Models\ChatMessage;
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
@@ -41,7 +42,7 @@ class ChatController extends Controller
 
         ChatMessage::create([
     'thread_id' => $id,
-    'sender_user_id' => auth()->id(),
+    'sender_user_id' => Auth::id(),
     'message' => $request->message,
     'sent_at' => now()
 ]);

@@ -5,6 +5,9 @@ namespace App\Models;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -25,7 +28,10 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password', 'remember_token',
-    ];
+        ];
+    protected $table = 'users';
+    protected $primaryKey = 'id';
+    public $timestamps = true;
 
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -38,15 +44,21 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class);
     }
 
-    public function instructor()
-    {
-        return $this->hasOne(Instructor::class);
-    }
 
-    public function parent()
-    {
-        return $this->hasOne(Parents::class);
-    }
+    // public function instructor()
+    // {
+    //     return $this->hasOne(Instructor::class);
+    // }
+
+    // public function parent()
+    // {
+    //     return $this->hasOne(Parents::class);
+    // }
+    public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
+    public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
+    public function notifications(): HasMany { return $this->hasMany(Notification::class); }
+    public function chatParticipants() { return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id'); }
+    public function sentMessages(): HasMany { return $this->hasMany(ChatMessage::class, 'sender_user_id'); }
 
     // public function notifications()
     // {
@@ -77,4 +89,41 @@ class User extends Authenticatable
     // {
     //     return $this->hasMany(Certificate::class, 'issued_by_user_id');
     // }
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is an instructor.
+     */
+    public function isInstructor()
+    {
+        return $this->role === 'instructor';
+    }
+
+    /**
+     * Check if user is a staff.
+     */
+    public function isStaff()
+    {
+        return $this->role === 'staff';
+    }
+
+    /**
+     * Check if user is a parent.
+     */
+    public function isParent()
+    {
+        return $this->role === 'parent';
+    }
+
+    
+
+
+
 }
+    

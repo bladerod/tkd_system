@@ -1,9 +1,10 @@
 <?php
-
+// app/Models/Instructor.php
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 
 class Instructor extends Model
 {
@@ -142,5 +143,4 @@ class Instructor extends Model
     public function skillChecks(): HasMany { return $this->hasMany(StudentSkillProgress::class); }
     public function examApprovals(): HasMany { return $this->hasMany(BeltExamResult::class, 'approved_by'); }
     public function competitionEntries(): HasMany { return $this->hasMany(CompetitionEntry::class); }
-
 }

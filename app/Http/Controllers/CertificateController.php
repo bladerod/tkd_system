@@ -2,11 +2,15 @@
 // app/Http/Controllers/CertificateController.php
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Certificate;
 use App\Models\Student;
 use App\Models\BeltExamResult;
+use App\Models\BeltExam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -58,7 +62,7 @@ class CertificateController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'issued_date' => now(),
-            'issued_by_user_id' => auth()->id(),
+            'issued_by_user_id' => Auth::id(),
             'qr_code_value' => $qrCode,
             'verification_url' => $verificationUrl
         ]);
@@ -68,7 +72,7 @@ class CertificateController extends Controller
         $pdfPath = 'certificates/' . $qrCode . '.pdf';
 
         // Store PDF
-        \Storage::disk('public')->put($pdfPath, $pdf->output());
+        Storage::disk('public')->put($pdfPath, $pdf->output());
         $certificate->update(['pdf_path' => $pdfPath]);
 
         return response()->json([
@@ -104,7 +108,7 @@ class CertificateController extends Controller
     {
         $certificate = Certificate::findOrFail($id);
 
-        if (!$certificate->pdf_path || !\Storage::disk('public')->exists($certificate->pdf_path)) {
+        if (!$certificate->pdf_path || !Storage::disk('public')->exists($certificate->pdf_path)) {
             // Regenerate if missing
             $pdf = $this->generatePDF($certificate);
             return $pdf->download($certificate->qr_code_value . '.pdf');
@@ -134,7 +138,7 @@ class CertificateController extends Controller
         }
 
         // Send email with certificate attachment
-        \Mail::to($parentEmail)->send(new \App\Mail\CertificateMail($certificate));
+        Mail::to($parentEmail)->send(new \App\Mail\CertificateMail($certificate));
 
         return response()->json(['success' => true, 'message' => 'Certificate emailed successfully']);
     }
@@ -171,7 +175,7 @@ class CertificateController extends Controller
             'exam_id' => 'required|exists:belt_exams,id'
         ]);
 
-        $exam = \App\Models\BeltExam::with(['results.student', 'results' => function($q) {
+        $exam = BeltExam::with(['results.student', 'results' => function($q) {
             $q->where('result', 'pass');
         }])->findOrFail($request->exam_id);
 
@@ -187,14 +191,14 @@ class CertificateController extends Controller
                 'title' => 'Belt Promotion - ' . ucfirst($exam->belt_level),
                 'description' => 'Successfully promoted to ' . ucfirst($exam->belt_level) . ' belt on ' . $exam->exam_date,
                 'issued_date' => now(),
-                'issued_by_user_id' => auth()->id(),
+                'issued_by_user_id' => Auth::id(),
                 'qr_code_value' => $qrCode,
                 'verification_url' => $verificationUrl
             ]);
 
             $pdf = $this->generatePDF($certificate);
             $pdfPath = 'certificates/' . $qrCode . '.pdf';
-            \Storage::disk('public')->put($pdfPath, $pdf->output());
+            Storage::disk('public')->put($pdfPath, $pdf->output());
             $certificate->update(['pdf_path' => $pdfPath]);
 
             $generated[] = $certificate;
@@ -217,6 +221,6 @@ class CertificateController extends Controller
                 ->generate($certificate->verification_url))
         ];
 
-        return PDF::loadView('certificates.template', $data);
+        return Pdf::loadView('certificates.template', $data);
     }
 }

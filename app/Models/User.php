@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, Notifiable;
 
     protected $table = 'users';
     protected $primaryKey = 'id';
@@ -33,43 +36,61 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
     ];
 
-    /**
-     * Get the branch that owns the user.
-     */
+    // Relationships
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'branch_id', 'id'); // Fixed: changed 'branch_id' to 'id'
+        return $this->belongsTo(Branch::class);
     }
 
-    /**
-     * Get the parent record associated with the user.
-     */
-    public function parent()
+
+    // public function instructor()
+    // {
+    //     return $this->hasOne(Instructor::class);
+    // }
+
+    // public function parent()
+    // {
+    //     return $this->hasOne(Parents::class);
+    // }
+    public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
+    public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
+    public function notifications(): HasMany { return $this->hasMany(Notification::class); }
+    public function chatParticipants() { return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id'); }
+    public function sentMessages(): HasMany { return $this->hasMany(ChatMessage::class, 'sender_user_id'); }
+
+    // public function notifications()
+    // {
+    //     return $this->hasMany(Notification::class);
+    // }
+
+    // public function chatMessages()
+    // {
+    //     return $this->hasMany(ChatMessage::class, 'sender_user_id');
+    // }
+
+    // public function chatThreads()
+    // {
+    //     return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
+    // }
+
+    public function announcements()
     {
-        return $this->hasOne(Parents::class, 'user_id', 'id');
+        return $this->hasMany(Announcement::class, 'created_by_user_id');
     }
 
-    /**
-     * Get the user's full name.
-     */
-    public function getFullNameAttribute()
-    {
-        return $this->fname . ' ' . $this->lname;
-    }
+    // public function auditLogs()
+    // {
+    //     return $this->hasMany(AuditLog::class);
+    // }
 
-    /**
-     * Check if user has a specific role.
-     */
-    public function hasRole($role)
-    {
-        return $this->role === $role;
-    }
-
+    // public function certificates()
+    // {
+    //     return $this->hasMany(Certificate::class, 'issued_by_user_id');
+    // }
     /**
      * Check if user is an admin.
      */

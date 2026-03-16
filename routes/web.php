@@ -3,12 +3,22 @@
 // use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\CertificateController;
 use App\Models\parentview;
 use App\Models\beltview;
-use Illuminate\Testing\Fluent\Concerns\Has;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+
+use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\Api\AttendanceApiController;
+use App\Http\Controllers\Api\StudentApiController;
+use App\Http\Controllers\Api\ClassApiController;
+use App\Http\Controllers\Api\DashboardApiController;
+use App\Http\Controllers\Api\AnnouncementApiController;
+use App\Http\Controllers\Api\ParentApiController;
+
 
 
 // Authentication Routes
@@ -137,11 +147,16 @@ Route::middleware(['auth'])->group(function () {
     })->name('student');
 
 
-Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
+    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
 
-Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
+    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
 
-Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
+    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
+    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
+
+    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
+
+    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
 
     Route::get('/report', function () {
         return view('report');
@@ -156,8 +171,5 @@ Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send')
     Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
 });
-    Route::get('/test-edward', function () {
-    return "Test push successful!";
-});
 
-});
+

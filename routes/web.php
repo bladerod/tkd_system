@@ -147,15 +147,17 @@ Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send')
         return view('report');
     })->name('report');
 
-    Route::middleware('auth')->group(function () {
-    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
-});
 
-    Route::middleware('auth')->group(function () {
+    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
     Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
     Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
+
+});
+    Route::get('/test-edward', function () {
+    return "Test push successful!";
 });
 
 });

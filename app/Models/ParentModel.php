@@ -2,8 +2,12 @@
 // app/Models/ParentModel.php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+=======
+use Illuminate\Database\Eloquent\Relations\BelongsTo, HasMany;
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8
 
 class ParentModel extends Model {
     protected $table = 'parents';

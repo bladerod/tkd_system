@@ -16,7 +16,7 @@ class User extends Authenticatable
     protected $table = 'users';
     protected $primaryKey = 'id';
     public $timestamps = true;
-    
+
     protected $fillable = [
         'branch_id',
         'role',
@@ -25,13 +25,13 @@ class User extends Authenticatable
         'username',
         'email',
         'mobile',
-        'password', 
+        'password',
         'photo_url',
         'last_login_at',
     ];
 
     protected $hidden = [
-        'password', 
+        'password',
         'remember_token',
     ];
 
@@ -105,8 +105,13 @@ class User extends Authenticatable
         return $this->role === 'parent';
     }
 
+<<<<<<< HEAD
 
 
+=======
+    public function branch(): BelongsTo { return $this->belongsTo(Branch::class); }
+    public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8
     public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
     public function notifications(): HasMany { return $this->hasMany(Notification::class); }
     public function chatParticipants() { return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id'); }

@@ -14,7 +14,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes that require the token
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     // Get the authenticated user's info
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Attendance API routes
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
     Route::post('/attendance', [AttendanceApiController::class, 'store']);
+<<<<<<< HEAD
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);
     Route::get('/parents/{id}/children', [ParentsController::class, 'getChildrenDetails']);
@@ -41,6 +42,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 
 
+=======
+});
+
+
+use App\Http\Controllers\StudentController;
+
+Route::middleware('auth')->group(function () {
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8
     Route::get('/students/{id}', [StudentController::class, 'show']);
     Route::get('/students/{id}/profile', [StudentController::class, 'getProfile']);
     Route::get('/students/{id}/attendance', [StudentController::class, 'getAttendance']);
@@ -52,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/students/{id}/send-message', [StudentController::class, 'sendMessage']);
 
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
+<<<<<<< HEAD
 
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);
@@ -66,3 +76,28 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
+=======
+});
+
+use App\Http\Controllers\ParentController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/parents/{id}', [ParentController::class, 'show']);
+    Route::get('/parents/{id}/children', [ParentController::class, 'getChildrenDetails']);
+    Route::get('/parents/{id}/billing', [ParentController::class, 'getFamilyBilling']);
+    Route::get('/parents/{id}/payments', [ParentController::class, 'getPayments']);
+    Route::get('/parents/{id}/activity', [ParentController::class, 'getActivityLog']);
+    Route::get('/parents/{id}/notifications', [ParentController::class, 'getNotifications']);
+    Route::post('/parents/{id}/send-message', [ParentController::class, 'sendMessage']);
+
+    Route::get('/chat-threads/{id}/messages', [ParentController::class, 'getThreadMessages']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/certificates/students', [CertificateController::class, 'getStudentsForDropdown']);
+    Route::post('/certificates/generate', [CertificateController::class, 'generate']);
+    Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+    Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
+    Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
+});
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8

@@ -1,19 +1,20 @@
 <?php
 // app/Models/Student.php
-
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+=======
+use Illuminate\Database\Eloquent\Relations\BelongsTo, HasMany, BelongsToMany;
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8
 
-class Student extends Model
-{
-    use HasFactory;
+class Student extends Model {
+    protected $fillable = ['branch_id', 'student_code', 'first_name', 'last_name', 'middle_name', 'birthdate', 'gender', 'photo_url', 'current_belt', 'join_date', 'status', 'medical_notes', 'allergies', 'emergency_contact_name', 'emergency_contact_mobile', 'primary_parent_id'];
 
+<<<<<<< HEAD
     protected $table = 'students';
     protected $primaryKey = 'student_id';
     public $timestamps = true;
@@ -64,6 +65,9 @@ class Student extends Model
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
     // public function branch(): BelongsTo { return $this->belongsTo(Branch::class); }
+=======
+    public function branch(): BelongsTo { return $this->belongsTo(Branch::class); }
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8
     public function primaryParent(): BelongsTo { return $this->belongsTo(ParentModel::class, 'primary_parent_id'); }
     public function parents() { return $this->belongsToMany(ParentModel::class, 'parent_students', 'student_id', 'parent_id')
         ->withPivot('relationship', 'is_primary'); }
@@ -79,4 +83,7 @@ class Student extends Model
     public function certificates(): HasMany { return $this->hasMany(Certificate::class); }
     public function invoices(): HasMany { return $this->hasMany(Invoice::class); }
 }
+<<<<<<< HEAD
     
+=======
+>>>>>>> 988bf1c3a61171e4a6b56431c3c5e0d03b1c21f8

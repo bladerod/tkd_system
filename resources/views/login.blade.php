@@ -20,7 +20,7 @@
             
             <!-- Username Field -->
             <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">

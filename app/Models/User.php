@@ -18,22 +18,21 @@ class User extends Authenticatable
     public $timestamps = true;
 
     protected $fillable = [
-        'branch_id',
-        'role',
-        'fname',
-        'lname',
-        'username',
-        'email',
-        'mobile',
-        'password',
-        'photo_url',
-        'last_login_at',
-    ];
+    'branch_id',
+    'role',
+    'name',
+    'email',
+    'mobile',
+    'password_hash',
+    'photo_url',
+    'status',
+    'last_login_at',
+];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+protected $hidden = [
+    'password_hash',
+    'remember_token',
+];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
@@ -45,6 +44,13 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Branch::class);
     }
+
+    protected $authPassword = 'password_hash';
+
+public function getAuthPassword()
+{
+    return $this->password_hash;
+}
 
 
     // public function instructor()

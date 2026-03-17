@@ -23,48 +23,39 @@ class LoginController extends Controller
      * Handle a login request.
      */
     public function login(Request $request)
-    {
-        // Validate the request
-        $credentials = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        // Attempt to log the user in
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->filled('remember'))) {
-            
-            // Check if the authenticated user is an admin
-            if (Auth::user()->role !== 'admin') {
-                // Log the non-admin user out immediately
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+    if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->filled('remember'))) {
+        
+        if (Auth::user()->role !== 'admin') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-                // Return an error message
-                throw ValidationException::withMessages([
-                    'username' => ['Access denied. Only administrators are allowed to log in.'],
-                ]);
-            }
-
-            // Authentication passed and user IS an admin
-            $request->session()->regenerate();
-            
-            // Update last login timestamp
-            $user = Auth::user();
-            User::where('id', $user->id)->update([
-                'last_login_at' => Carbon::now()
+            throw ValidationException::withMessages([
+                'email' => ['Access denied. Only administrators are allowed to log in.'],
             ]);
-            
-            // Redirect to dashboard with success message
-            return redirect()->intended('/dashboard')
-                ->with('success', 'Welcome back, ' . $user->fname . '!');
         }
 
-        // Authentication failed (wrong username or password)
-        throw ValidationException::withMessages([
-            'username' => [trans('auth.failed')],
+        $request->session()->regenerate();
+        
+        $user = Auth::user();
+        User::where('id', $user->id)->update([
+            'last_login_at' => Carbon::now()
         ]);
+        
+        return redirect()->intended('/dashboard')
+            ->with('success', 'Welcome back, ' . $user->name . '!');
     }
+
+    throw ValidationException::withMessages([
+        'email' => [trans('auth.failed')],
+    ]);
+}
 
     /**
      * Log the user out.

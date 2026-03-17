@@ -26,12 +26,12 @@ class LoginController extends Controller
     {
         // Validate the request
         $credentials = $request->validate([
-            'username' => 'required|string',
+            'email' => 'required|string',
             'password' => 'required|string',
         ]);
 
         // Attempt to log the user in
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->filled('remember'))) {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->filled('remember'))) {
             
             // Check if the authenticated user is an admin
             if (Auth::user()->role !== 'admin') {
@@ -42,7 +42,7 @@ class LoginController extends Controller
 
                 // Return an error message
                 throw ValidationException::withMessages([
-                    'username' => ['Access denied. Only administrators are allowed to log in.'],
+                    'email' => ['Access denied. Only administrators are allowed to log in.'],
                 ]);
             }
 
@@ -60,9 +60,9 @@ class LoginController extends Controller
                 ->with('success', 'Welcome back, ' . $user->fname . '!');
         }
 
-        // Authentication failed (wrong username or password)
+        // Authentication failed (wrong email or password)
         throw ValidationException::withMessages([
-            'username' => [trans('auth.failed')],
+            'email' => [trans('auth.failed')],
         ]);
     }
 

@@ -13,21 +13,26 @@ class Student extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
-    protected $table = 'users';
+    protected $table = 'students';
     protected $primaryKey = 'id';
     public $timestamps = true;
 
     protected $fillable = [
         'branch_id',
-        'role',
-        'fname',
-        'lname',
-        'username',
-        'email',
-        'mobile',
-        'password',
+        'student_code',
+        'first_name',
+        'last_name', 
+        'birthdate',
+        'gender',
         'photo_url',
-        'last_login_at',
+        'current_belt', 
+        'join_date',
+        'status',
+        'medical_notes',
+        'allergies', 
+        'emergency_contact_name',
+        'emergency_contact_mobile',
+        'primary_parent_id'
     ];
 
     protected $hidden = [
@@ -44,6 +49,24 @@ class Student extends Authenticatable
     public function branch()
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        // This links students.id to invoices.student_id
+        return $this->hasMany(Invoice::class, 'student_id', 'id');
+    }
+
+    public function classes(): HasMany
+    {
+        // This links 'students.id' to 'class_students.student_id'
+        return $this->hasMany(ClassStudent::class, 'student_id', 'id');
+    }
+
+    public function attendanceLogs(): HasMany
+    {
+        // Links the students.id to attendance_logs.student_id
+        return $this->hasMany(AttendanceLog::class, 'student_id', 'id');
     }
 
     /**
@@ -89,37 +112,4 @@ class Student extends Authenticatable
     {
         return $this->hasMany(Certificate::class, 'issued_by_user_id');
     }
-    /**
-     * Check if user is an admin.
-     */
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
-    }
-
-    /**
-     * Check if user is an instructor.
-     */
-    public function isInstructor()
-    {
-        return $this->role === 'instructor';
-    }
-
-    /**
-     * Check if user is a staff.
-     */
-    public function isStaff()
-    {
-        return $this->role === 'staff';
-    }
-
-    /**
-     * Check if user is a parent.
-     */
-    public function isParent()
-    {
-        return $this->role === 'parent';
-    }
-
-    
 }

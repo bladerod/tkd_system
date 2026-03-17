@@ -141,10 +141,9 @@ Route::middleware(['auth'])->group(function () {
         return view('report');
     })->name('report');
 
-    Route::get('/student', function () {
-        $beltLevels = beltview::all();
-        return view('student', compact('beltLevels'));
-    })->name('student');
+
+    Route::get('/student', [StudentController::class,'index'])->name('index');
+    Route::post('/student', [StudentController::class,'store'])->name('student.store');
 
 
     Route::get('/chat',[ChatController::class,'index'])->name('chat.index');

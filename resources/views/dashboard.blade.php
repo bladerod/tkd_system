@@ -367,12 +367,13 @@
                     <!-- Header -->
                     <div class="bg-[#1c1c1d] p-4 text-white flex items-center gap-2">
                         <i class="fa fa-plus text-xl" aria-hidden="true"></i>
-                        <h1 class="font-bold text-xl">Add User</h1>
+                        <h1 class="font-bold text-xl">Add Students</h1>
                     </div>
                     
                     <!-- Form Body -->
                     <div class="px-6 pt-6 pb-4 bg-white">
-                        <form action="" class="space-y-5">
+                        <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                            @csrf   
                             <!-- Branch - Moved to top as it's a primary identifier -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Branch <span class="text-red-500">*</span></label>
@@ -527,19 +528,17 @@
                                     <p class="text-xs text-gray-500 mt-1">PNG, JPEG only (max 2MB)</p>
                                 </div>
                             </div>
+                            <hr class="m-0 border-t border-gray-200">
+                            <!-- Footer Buttons -->
+                            <div class=" px-6 py-3 flex justify-end gap-2">
+                                <button type="button"  command="close" commandfor="dialog" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                    Close
+                                </button>
+                                <button type="submit" command="close" commandfor="dialog" class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
+                                    Add
+                                </button>
+                            </div>
                         </form>
-                    </div>
-                    
-                    <hr class="m-0 border-t border-gray-200">
-                    
-                    <!-- Footer Buttons -->
-                    <div class="bg-gray-50 px-6 py-3 flex justify-end gap-2">
-                        <button type="button"  command="close" commandfor="dialog" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                            Close
-                        </button>
-                        <button type="submit" command="close" commandfor="dialog" class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
-                            Add
-                        </button>
                     </div>
                 </el-dialog-panel>
             </div>

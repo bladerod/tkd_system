@@ -17,13 +17,14 @@ use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
     public function index()
     {
         $beltLevels = SkillChecklist::select('belt_level')->distinct()->get();
-        $classes = Classes::where('status', 'active')->get();
+        $classes = Classes::where('status', 'active')->get(); 
         $instructors = Instructor::where('active_flag', true)->with('user')->get();
 
         $students = Student::with(['primaryParent.user', 'classes.class', 'invoices', 'attendanceLogs'])
@@ -62,7 +63,7 @@ class StudentController extends Controller
                 ];
             });
 
-        return view('student.index', compact('students', 'beltLevels', 'classes', 'instructors'));
+        return view('student', compact('students', 'beltLevels', 'classes', 'instructors'));
     }
 
     public function show($id)
@@ -123,6 +124,50 @@ class StudentController extends Controller
             'belt_history' => $this->getBeltHistory($student)
         ]);
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'branch_id' => 'required',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'gender' => 'required',
+            'current_belt' => 'required',
+            'birthdate' => 'required|date',
+            'primary_parent_id' => 'required',
+            'status' => 'required',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $studentCode = 'TKD-' . strtoupper(Str::random(5));
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('student-photos', 'public');
+        }
+
+        // 4. Create the Record
+        Student::create([
+            'branch_id' => $request->branch_id,
+            'student_code' => $studentCode,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'current_belt' => $request->current_belt,
+            'birthdate' => $request->birthdate,
+            'join_date' => now(), 
+            'status' => $request->status,
+            'primary_parent_id' => $request->primary_parent_id,
+            'photo_url' => $photoPath,
+            'medical_notes' => $request->medical_notes,
+            'allergies' => $request->allergies,
+            'emergency_contact_name' => $request->contact_person,
+            'emergency_contact_mobile' => $request->contact_number,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Student added successfully!');
+    }
+
 
     public function getProfile($id)
     {

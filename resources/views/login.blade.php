@@ -20,7 +20,7 @@
             
             <!-- Username Field -->
             <div class="mb-4">
-                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -28,11 +28,11 @@
                         </svg>
                     </span>
                     <input type="text" 
-                           name="username" 
-                           id="username" 
-                           value="{{ old('username') }}"
-                           placeholder="Enter your username"
-                           class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent @error('username') border-red-500 @enderror"
+                           name="email" 
+                           id="email" 
+                           value="{{ old('email') }}"
+                           placeholder="Enter your email"
+                           class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent @error('email') border-red-500 @enderror"
                            required
                            autofocus>
                 </div>
@@ -62,8 +62,8 @@
                         </svg>
                     </button>
                 </div>
-                @error('username')
-                    <p class="text-red-500 text-xs mt-1">Invalid username and/or password.</p>
+                @error('email')
+                    <p class="text-red-500 text-xs mt-1">Invalid email and/or password.</p>
                 @enderror
             </div>
             

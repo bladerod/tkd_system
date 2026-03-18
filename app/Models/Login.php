@@ -24,7 +24,7 @@ class Login extends Authenticatable
         'email',
         'mobile',
         'password_hash',
-        'photo_url',
+        'status',
         'last_login_at',
     ];
 

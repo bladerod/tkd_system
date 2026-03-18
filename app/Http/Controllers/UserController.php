@@ -63,12 +63,7 @@ class UserController extends Controller
                         // Remove all non-numeric characters except + for mobile numbers
                         $data[$field] = preg_replace('/[^0-9+]/', '', trim($request->$field));
                         break;
-                    
-                    case 'username':
-                        // Allow only alphanumeric and underscore
-                        $data[$field] = preg_replace('/[^a-zA-Z0-9_]/', '', trim($request->$field));
-                        break;
-                    
+                        
                     case 'fname':
                     case 'lname':
                         // Allow letters, spaces, hyphens, and apostrophes for names
@@ -109,52 +104,21 @@ class UserController extends Controller
     {
         // Prepare and sanitize input data first
         $sanitizedData = $this->prepareInputData($request, [
-            'branch_id', 'role', 'fname', 'lname', 'username', 'email', 'mobile' 
+            'branch_id', 'role', 'fname', 'lname', 'email', 'mobile' 
         ]);
 
         // Merge sanitized data back to request
         $request->merge($sanitizedData);
 
-        // Validate the request with custom error messages
         $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id', // Changed from branch_id to id
-            'role' => 'required|in:admin,instructor,staff,parent',
-            'fname' => [
-                'required',
-                'string',
-                'min:2',
-                'max:255',
-                'regex:/^[a-zA-Z\s\'-]+$/',
-            ],
-            'lname' => [
-                'required',
-                'string',
-                'min:2',
-                'max:255',
-                'regex:/^[a-zA-Z\s\'-]+$/',
-            ],
-            'username' => [
-                'required',
-                'string',
-                'min:3',
-                'max:50',
-                'unique:users,username',
-                'regex:/^[a-zA-Z0-9_]+$/', 
-            ],
-            'email' => 'required|email|unique:users,email',
-            'mobile' => [ 
-                'required',
-                'string',
-                'max:13',
-                'regex:/^(09|\+639)\d{9}$/',
-            ],
-            'password' => 'required|string|min:6',
+            'branch_id' => 'required|exists:branches,id',
+            'role' => 'required|in:admin,staff',
+            'fname' => ['required', 'string', 'min:2', 'max:50', "regex:/^[a-zA-Z\s\'-]+$/"],
+            'lname' => ['required', 'string', 'min:2', 'max:50', "regex:/^[a-zA-Z\s\'-]+$/"],
+            'email' => 'required|email|max:100|unique:users,email',
+            'mobile' => ['required', 'string', 'max:13', 'regex:/^(09|\+639)\d{9}$/'],
+            'password' => 'required|string|min:6|max:100',
             'photo_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ], [
-            'fname.regex' => 'First name may only contain letters, spaces, hyphens, and apostrophes.',
-            'lname.regex' => 'Last name may only contain letters, spaces, hyphens, and apostrophes.',
-            'username.regex' => 'Username may only contain letters, numbers, and underscores.',
-            'mobile.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789).', // Changed
         ]);
 
         // Handle photo upload
@@ -172,7 +136,7 @@ class UserController extends Controller
             
             // Log the upload for audit trail
             Log::info('Profile photo uploaded', [
-                'user' => $request->username,
+                'user' => $request->email,
                 'original_name' => $originalName,
                 'saved_as' => $safeFilename
             ]);
@@ -181,7 +145,6 @@ class UserController extends Controller
         // Additional sanitization for fields that might have been missed
         $fname = $this->sanitizeInput($request->fname);
         $lname = $this->sanitizeInput($request->lname);
-        $username = $this->sanitizeInput($request->username);
         $email = filter_var($request->email, FILTER_SANITIZE_EMAIL);
         
         // Create user with sanitized data
@@ -190,7 +153,6 @@ class UserController extends Controller
             'role' => $this->sanitizeInput($request->role),
             'fname' => $fname,
             'lname' => $lname,
-            'username' => $username,
             'email' => $email,
             'mobile' => $this->sanitizeInput($request->mobile),
             'password' => Hash::make($request->password),
@@ -198,7 +160,6 @@ class UserController extends Controller
         ]);
 
         Log::info('User created successfully', [
-            'username' => $username,
             'email' => $email,
             'role' => $request->role
         ]);
@@ -224,9 +185,9 @@ class UserController extends Controller
             'role' => $this->sanitizeInput($user->role),
             'fname' => $this->sanitizeInput($user->fname),
             'lname' => $this->sanitizeInput($user->lname),
-            'username' => $this->sanitizeInput($user->username),
             'email' => $this->sanitizeInput($user->email),
             'mobile' => $this->sanitizeInput($user->mobile),
+            'status' => $user->status,
             'photo_url' => $user->photo_url ? asset('storage/' . $user->photo_url) : null,
             'name' => $this->sanitizeInput($user->fname . ' ' . $user->lname)
         ];
@@ -246,7 +207,7 @@ class UserController extends Controller
 
         // Prepare and sanitize input data
         $sanitizedData = $this->prepareInputData($request, [
-            'branch_id', 'role', 'fname', 'lname', 'username', 'email', 'mobile'
+            'branch_id', 'role', 'fname', 'lname', 'email', 'mobile'
         ]);
 
         // Merge sanitized data back to request
@@ -254,42 +215,14 @@ class UserController extends Controller
 
         // Validate with custom messages
         $request->validate([
-            'branch_id' => 'required|exists:branches,id', // Changed from branch_id to id
-            'role' => 'required|in:admin,instructor,staff,parent',
-            'fname' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-zA-Z\s\'-]+$/',
-            ],
-            'lname' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[a-zA-Z\s\'-]+$/',
-            ],
-            'username' => [
-                'required',
-                'string',
-                'min:3',
-                'max:50',
-                'unique:users,username,' . $id . ',id', 
-                'regex:/^[a-zA-Z0-9_]+$/',
-            ],
-            'email' => 'required|email|unique:users,email,' . $id . ',id', 
-            'mobile' => [ 
-                'required',
-                'string',
-                'max:13',
-                'regex:/^(09|\+639)\d{9}$/',
-            ],
-            'password' => 'nullable|string|min:6',
-            'photo_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ], [
-            'fname.regex' => 'First name may only contain letters, spaces, hyphens, and apostrophes.',
-            'lname.regex' => 'Last name may only contain letters, spaces, hyphens, and apostrophes.',
-            'username.regex' => 'Username may only contain letters, numbers, and underscores.',
-            'mobile.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789).', // Changed
+            'branch_id' => 'required|exists:branches,id',
+            'role' => 'required|in:admin,staff',
+            'fname' => ['required', 'string', 'min:2', 'max:50', "regex:/^[a-zA-Z\s\'-]+$/"],
+            'lname' => ['required', 'string', 'min:2', 'max:50', "regex:/^[a-zA-Z\s\'-]+$/"],
+            'email' => 'required|email|max:100|unique:users,email,' . $id, 
+            'mobile' => ['required', 'string', 'max:13', 'regex:/^(09|\+639)\d{9}$/'],
+            'password' => 'nullable|string|min:6', 
+            'status' => 'required|in:0,1',
         ]);
 
         // Handle photo upload
@@ -305,14 +238,14 @@ class UserController extends Controller
             // Delete old photo if exists
             if ($user->photo_url && Storage::disk('public')->exists($user->photo_url)) {
                 Storage::disk('public')->delete($user->photo_url);
-                Log::info('Old profile photo deleted', ['user' => $user->username]);
+                Log::info('Old profile photo deleted', ['user' => $user->email]);
             }
             
             // Store with safe filename
             $photoPath = $file->storeAs('profile-photos', $safeFilename, 'public');
             
             Log::info('Profile photo updated', [
-                'user' => $user->username,
+                'user' => $user->email,
                 'original_name' => $originalName,
                 'saved_as' => $safeFilename
             ]);
@@ -324,23 +257,23 @@ class UserController extends Controller
             'role' => $this->sanitizeInput($request->role),
             'fname' => $this->sanitizeInput($request->fname),
             'lname' => $this->sanitizeInput($request->lname),
-            'username' => $this->sanitizeInput($request->username),
             'email' => filter_var($request->email, FILTER_SANITIZE_EMAIL),
             'mobile' => $this->sanitizeInput($request->mobile), 
             'photo_url' => $photoPath,
+            'status' => (int) $request->status,
         ];
 
         // Only update password if provided
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($request->password);
-            Log::info('Password updated for user', ['user' => $user->username]);
+            Log::info('Password updated for user', ['user' => $user->email]);
         }
 
         $user->update($userData);
 
         Log::info('User updated successfully', [
             'id' => $id,
-            'username' => $user->username
+            'email' => $user->email,
         ]);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
@@ -352,61 +285,24 @@ class UserController extends Controller
     public function destroy($id)
     {
         try {
-            // Cast ID to integer
             $id = (int) $id;
-            $status = (int) 0;
             $user = User::findOrFail($id);
             
-            // Store user info for logging before deletion
-            $userInfo = [
-                'id' => $user->id, 
-                'username' => $user->username,
-                'email' => $user->email,
-                'role' => $user->role,
-                'status' => $status
-            ];
-            
-            // Delete photo if exists
-            // if ($user->photo_url && Storage::disk('public')->exists($user->photo_url)) {
-            //     Storage::disk('public')->delete($user->photo_url);
-            //     Log::info('Profile photo deleted during user deletion', ['user' => $user->username]);
-            // }
-            
-            $user->update($userInfo);
-            
-            Log::info('User deleted successfully', [
-                'deleted_user' => $userInfo
-            ]);
+            // Handle Profile Photo Deletion
+            if ($user->photo_url && Storage::disk('public')->exists($user->photo_url)) {
+                Storage::disk('public')->delete($user->photo_url);
+            }
+
+            // Truly delete the record from the database
+            $user->delete(); 
+
+            Log::info('User permanently deleted', ['id' => $id, 'email' => $user->email, 'fname' => $user->fname, 'lname'=> $user->lname]);
             
             return redirect()->route('users.index')->with('success', 'User deleted successfully!');
             
         } catch (\Exception $e) {
-            Log::error('Failed to delete user', [
-                'id' => $id,
-                'error' => $e->getMessage()
-            ]);
-            
+            Log::error('Failed to delete user', ['id' => $id, 'error' => $e->getMessage()]);
             return redirect()->route('users.index')->with('error', 'Failed to delete user.');
         }
-    }
-
-    /**
-     * Check if username is available (AJAX endpoint)
-     */
-    public function checkUsername(Request $request)
-    {
-        $username = $this->sanitizeInput($request->query('username'));
-        $userId = (int) $request->query('id', 0);
-        
-        $query = User::where('username', $username);
-        
-        if ($userId > 0) {
-            $query->where('id', '!=', $userId); 
-        }
-        
-        return response()->json([
-            'available' => !$query->exists(),
-            'username' => $username
-        ]);
     }
 }

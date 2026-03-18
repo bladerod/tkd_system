@@ -29,74 +29,17 @@ function initializePasswordToggles() {
 
 
 const ValidationRules = {
-    // Mobile number validation for Philippine numbers
     mobile: {
         pattern: /^(09|\+639)\d{9}$/,
-        message: 'Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)',
-        format: (value) => {
-            // Remove all non-digits
-            let cleaned = value.replace(/\D/g, '');
-            
-            // Auto-add +63 prefix if needed
-            if (cleaned.length === 10 && cleaned.startsWith('9')) {
-                cleaned = '0' + cleaned;
-            }
-            if (cleaned.length === 11 && cleaned.startsWith('09')) {
-                // Valid format
-            } else if (cleaned.length === 12 && cleaned.startsWith('639')) {
-                cleaned = '0' + cleaned.substring(2);
-            }
-            
-            return cleaned;
-        }
+        message: 'Enter a valid PH mobile (09XXXXXXXXX)'
     },
-    
-    // Email validation
     email: {
         pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
         message: 'Please enter a valid email address'
     },
-    
-    // Name validation (letters, spaces, hyphens only)
     name: {
         pattern: /^[A-Za-z\s\-]+$/,
-        message: 'Only letters, spaces, and hyphens allowed'
-    },
-    
-    // Username validation (alphanumeric + underscore)
-    username: {
-        pattern: /^[a-zA-Z0-9_]+$/,
-        message: 'Only letters, numbers, and underscores allowed'
-    },
-    
-    // Password strength checker
-    passwordStrength: (password) => {
-        let strength = 0;
-        let feedback = [];
-        
-        if (password.length >= 6) strength += 20;
-        else feedback.push('at least 6 characters');
-        
-        if (/[A-Z]/.test(password)) strength += 20;
-        if (/[a-z]/.test(password)) strength += 20;
-        if (/[0-9]/.test(password)) strength += 20;
-        if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-        
-        let level = 'Weak';
-        let color = 'bg-red-500';
-        
-        if (strength >= 80) {
-            level = 'Strong';
-            color = 'bg-green-500';
-        } else if (strength >= 60) {
-            level = 'Good';
-            color = 'bg-yellow-500';
-        } else if (strength >= 40) {
-            level = 'Fair';
-            color = 'bg-orange-500';
-        }
-        
-        return { strength, level, color, feedback };
+        message: 'Letters, spaces, and hyphens only'
     }
 };
 
@@ -149,22 +92,6 @@ function validateField(field) {
                     isValid = false;
                     errorMessage = ValidationRules.name.message;
                 }
-                break;
-                
-            case 'username':
-                if (fieldValue.length < 3) {
-                    isValid = false;
-                    errorMessage = 'Must be at least 3 characters';
-                } else if (!ValidationRules.username.pattern.test(fieldValue)) {
-                    isValid = false;
-                    errorMessage = ValidationRules.username.message;
-                }
-                // Check username availability (optional)
-                checkUsernameAvailability(fieldValue).then(available => {
-                    if (!available) {
-                        showFieldError(field, 'Username already taken');
-                    }
-                });
                 break;
                 
             case 'password':
@@ -227,17 +154,6 @@ function updatePasswordStrength(field, strength) {
         strengthBar.className = `strength-progress h-1 rounded transition-all duration-300 ${strength.color}`;
         strengthText.textContent = strength.level;
         strengthText.className = `strength-text text-xs ${strength.color.replace('bg-', 'text-')}`;
-    }
-}
-
-async function checkUsernameAvailability(username) {
-    try {
-        const response = await fetch(`/check-username?username=${encodeURIComponent(username)}`);
-        const data = await response.json();
-        return data.available;
-    } catch (error) {
-        console.error('Error checking username:', error);
-        return true; // Assume available on error
     }
 }
 
@@ -366,11 +282,11 @@ window.openEditUserModal = function(userId) {
             
             // Populate form fields
             document.getElementById('edit_branch_id').value = user.branch_id || '';
-            document.getElementById('edit_role').value = user.role || '';
+            document.getElementById('edit_role').value = user.role;
             document.getElementById('edit_fname').value = user.fname || '';
             document.getElementById('edit_lname').value = user.lname || '';
             document.getElementById('edit_email').value = user.email || '';
-            document.getElementById('edit_username').value = user.username || '';
+            document.getElementById('edit_status').value = user.status;
             
             // Fix: Use correct ID for mobile field
             const mobileField = document.getElementById('edit_mobile');

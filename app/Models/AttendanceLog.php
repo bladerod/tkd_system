@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class AttendanceLog extends Model
 {
     protected $table = 'attendance_logs';
-    
+
     protected $fillable = [
-        'student_id', 
-        'class_session_id', 
-        'checkin_time', 
+        'student_id',
+        'class_session_id',
+        'checkin_time',
         'checkout_time',
-        'method', 
-        'confidence_score', 
-        'recorded_by_user_id', 
-        'device_id', 
+        'method',
+        'confidence_score',
+        'recorded_by_user_id',
+        'device_id',
         'status'
     ];
 
@@ -31,9 +31,9 @@ class AttendanceLog extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function classSession()
+    public function session()
     {
-        return $this->belongsTo(ClassSession::class);
+        return $this->belongsTo(ClassSession::class,'class_session_id');
     }
 
     public function recordedBy()

@@ -11,9 +11,9 @@ class Parents extends Model
     use HasFactory;
 
     protected $table = "parents";
-    
-    protected $primaryKey = 'id'; 
-    
+
+    protected $primaryKey = 'id';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -35,20 +35,11 @@ class Parents extends Model
      */
     public function user()
     {
-        // FIX 4: Ang primary key ng `users` table ay `id`, hindi `user_id`
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the students associated with the parent through parent_students table.
-     */
     public function students()
     {
-        return $this->belongsToMany(
-            Student::class,
-            'parent_students', // pivot table
-            'parent_id',        // foreign key on pivot table
-            'student_id'        // related key on pivot table
-        )->withPivot('relationship', 'is_primary');
+        return $this->belongsToMany(Student::class,'parent_students');
     }
 }

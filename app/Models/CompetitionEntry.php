@@ -29,9 +29,9 @@ class CompetitionEntry extends Model
         'medal' => 'string'
     ];
 
-    public function competition()
+     public function competition()
     {
-        return $this->belongsTo(Competition::class, 'competition_id');
+        return $this->belongsTo(Competition::class);
     }
 
     public function student()

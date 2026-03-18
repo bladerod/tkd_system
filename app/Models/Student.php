@@ -2,14 +2,9 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Model;
 
-class Student extends Authenticatable
+class Student extends Model
 {
     use HasApiTokens, Notifiable;
 
@@ -40,15 +35,9 @@ class Student extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'last_login_at' => 'datetime',
-    ];
-
-    // Relationships
-    public function branch()
+    public function parent()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(ParentModel::class,'primary_parent_id');
     }
 
     public function invoices(): HasMany
@@ -100,7 +89,7 @@ class Student extends Authenticatable
 
     public function announcements()
     {
-        return $this->hasMany(Announcement::class, 'created_by_user_id');
+        return $this->belongsToMany(ClassModel::class,'class_students','student_id','class_id');
     }
 
     // public function auditLogs()

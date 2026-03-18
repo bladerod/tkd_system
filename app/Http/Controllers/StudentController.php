@@ -1,7 +1,8 @@
 <?php
-// app/Http/Controllers/StudentController.php
+
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Classes;
 use App\Models\Instructor;
@@ -32,97 +33,39 @@ class StudentController extends Controller
                 $q->whereIn('status', ['present', 'late']);
             }])
             ->get()
-            ->map(function($student) {
-                $totalAttendance = $student->attendanceLogs->count();
-                $attendanceRate = $totalAttendance > 0
-                    ? round(($student->present_count / $totalAttendance) * 100, 0)
-                    : 0;
-
-                $balance = $student->invoices()
-                    ->whereIn('status', ['pending', 'overdue'])
-                    ->sum('total_due');
-
+            ->map(function ($student) {
                 return [
                     'id' => $student->id,
-                    'name' => $student->first_name . ' ' . $student->last_name,
+                    'student_code' => $student->student_code,
                     'first_name' => $student->first_name,
                     'last_name' => $student->last_name,
-                    'belt' => $student->current_belt,
-                    'status' => $student->status,
-                    'parent_name' => $student->primaryParent?->user?->name ?? 'N/A',
-                    'parent_id' => $student->primary_parent_id,
-                    'balance' => $balance,
-                    'attendance_rate' => $attendanceRate,
+                    'name' => $student->first_name . ' ' . $student->last_name,
+                    'belt' => $student->current_belt ?? 'white',
+                    'status' => $student->status ?? 'active',
                     'photo' => $student->photo_url,
-                    'student_code' => $student->student_code,
-                    'gender' => $student->gender,
-                    'age' => now()->diffInYears($student->birthdate),
-                    'join_date' => $student->join_date,
-                    'medical_notes' => $student->medical_notes,
-                    'allergies' => $student->allergies
+                    'parent_name' => $student->primaryParent?->user?->name ?? 'N/A',
+                    'balance' => $this->calculateBalance($student),
+                    'attendance_rate' => $this->calculateAttendanceRate($student),
+                    'class_id' => $student->classes->first()?->id,
+                    'instructor_id' => $student->classes->first()?->primary_instructor_id,
                 ];
             });
 
         return view('student', compact('students', 'beltLevels', 'classes', 'instructors'));
     }
 
-    public function show($id)
+    private function calculateBalance($student)
     {
-        $student = Student::with([
-            'primaryParent.user',
-            'parents.user',
-            'classes.class.schedules',
-            'subscriptions.plan',
-            'invoices.payments',
-            'attendanceLogs.classSession',
-            'certificates.issuedBy',
-            'evaluations.instructor.user',
-            'skillProgress.skill',
-            'competitionEntries.competition',
-            'competitionEntries.instructor.user',
-            'faceProfile'
-        ])->findOrFail($id);
+        // Based on your invoices and payments schema
+        $totalDue = \App\Models\Invoice::where('student_id', $student->id)
+            ->whereIn('status', ['pending', 'overdue'])
+            ->sum('total_due');
 
-        // Get or create chat thread
-        $chatThread = ChatThread::whereHas('participants', function($q) use ($student) {
-            $q->where('user_id', Auth::id());
-        })->whereHas('participants', function($q) use ($student) {
-            $q->where('user_id', $student->primaryParent?->user_id);
-        })->where('type', 'private')->first();
+        $totalPaid = \App\Models\Payment::whereHas('invoice', function($query) use ($student) {
+                $query->where('student_id', $student->id);
+            })->sum('amount');
 
-        if (!$chatThread && $student->primaryParent) {
-            $chatThread = ChatThread::create(['type' => 'private']);
-            $chatThread->participants()->attach([
-                Auth::id(),
-                $student->primaryParent->user_id
-            ]);
-        }
-
-        $chatMessages = $chatThread ? $chatThread->messages()->with('sender')->latest()->limit(50)->get()->reverse() : collect();
-
-        // Calculate progress
-        $totalSkills = SkillChecklist::where('belt_level', $student->current_belt)->count();
-        $masteredSkills = $student->skillProgress->where('status', 'mastered')->count();
-        $progressPercent = $totalSkills > 0 ? round(($masteredSkills / $totalSkills) * 100, 0) : 0;
-
-        // Attendance chart data
-        $attendanceByMonth = $this->getAttendanceChartData($student);
-
-        return response()->json([
-            'student' => $student,
-            'chat_thread_id' => $chatThread?->id,
-            'chat_messages' => $chatMessages,
-            'progress' => [
-                'total_skills' => $totalSkills,
-                'mastered' => $masteredSkills,
-                'in_progress' => $student->skillProgress->where('status', 'in_progress')->count(),
-                'not_started' => $student->skillProgress->where('status', 'not_started')->count(),
-                'percent' => $progressPercent
-            ],
-            'attendance_chart' => $attendanceByMonth,
-            'upcoming_sessions' => $this->getUpcomingSessions($student),
-            'belt_history' => $this->getBeltHistory($student)
-        ]);
+        return max(0, $totalDue - $totalPaid);
     }
 
     public function store(Request $request)
@@ -171,375 +114,278 @@ class StudentController extends Controller
 
     public function getProfile($id)
     {
-        $student = Student::with([
-            'primaryParent.user',
-            'parents.user',
-            'classes.class.instructors',
-            'subscriptions.plan',
-            'faceProfile'
-        ])->findOrFail($id);
+        $total = \App\Models\AttendanceLog::where('student_id', $student->id)->count();
+        $present = \App\Models\AttendanceLog::where('student_id', $student->id)
+            ->where('status', 'present')
+            ->count();
+
+        return $total > 0 ? round(($present / $total) * 100, 1) : 0;
+    }
+
+    // API methods for the modal tabs
+    public function profile($studentId)
+    {
+        $student = Student::with(['parents.user', 'classes.instructor.user', 'subscriptions.plan'])
+            ->findOrFail($studentId);
 
         return response()->json([
             'profile' => [
-                'id' => $student->id,
                 'student_code' => $student->student_code,
                 'name' => $student->first_name . ' ' . $student->last_name,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
-                'middle_name' => $student->middle_name,
-                'birthdate' => $student->birthdate,
-                'age' => now()->diffInYears($student->birthdate),
+                'age' => $student->birthdate ? now()->diffInYears($student->birthdate) : null,
                 'gender' => $student->gender,
+                'birthdate' => $student->birthdate?->format('M d, Y'),
                 'current_belt' => $student->current_belt,
-                'join_date' => $student->join_date,
+                'join_date' => $student->join_date?->format('M d, Y'),
                 'status' => $student->status,
-                'photo' => $student->photo_url,
-                'medical_notes' => $student->medical_notes,
-                'allergies' => $student->allergies,
-                'emergency_contact' => $student->emergency_contact_name,
-                'emergency_mobile' => $student->emergency_contact_mobile
+                'emergency_contact_name' => $student->emergency_contact_name,
+                'emergency_contact_mobile' => $student->emergency_contact_mobile,
             ],
-            'parents' => $student->parents->map(fn($p) => [
-                'name' => $p->user->name,
-                'relationship' => $p->pivot->relationship,
-                'is_primary' => $p->pivot->is_primary,
-                'mobile' => $p->user->mobile,
-                'email' => $p->user->email
-            ]),
-            'classes' => $student->classes->map(fn($c) => [
-                'name' => $c->class->class_name,
-                'level' => $c->class->level,
-                'age_group' => $c->class->age_group,
-                'instructor' => $c->class->primaryInstructor?->user?->name ?? 'TBA',
-                'schedule' => $c->class->schedules->map(fn($s) =>
-                    ucfirst($s->day_of_week) . ' ' . $s->start_time . '-' . $s->end_time
-                ),
-                'enrollment_status' => $c->pivot->status,
-                'start_date' => $c->pivot->start_date
-            ]),
+            'parents' => $student->parents->map(function($parent) {
+                return [
+                    'name' => $parent->user->name,
+                    'relationship' => $parent->pivot->relationship ?? 'guardian',
+                    'is_primary' => $parent->pivot->is_primary ?? false,
+                    'mobile' => $parent->user->mobile,
+                    'email' => $parent->user->email,
+                ];
+            }),
+            'classes' => $student->classes->map(function($class) {
+                return [
+                    'name' => $class->class_name,
+                    'level' => $class->level,
+                    'instructor' => $class->instructor?->user?->name ?? 'TBA',
+                    'schedule' => $class->schedules->pluck('day_of_week')->toArray(),
+                ];
+            }),
             'subscription' => $student->subscriptions->first() ? [
                 'plan' => $student->subscriptions->first()->plan->plan_name,
                 'status' => $student->subscriptions->first()->status,
-                'start' => $student->subscriptions->first()->start_date,
-                'end' => $student->subscriptions->first()->end_date,
-                'auto_renew' => $student->subscriptions->first()->auto_renew_flag
-            ] : null
+                'start' => $student->subscriptions->first()->start_date?->format('M d, Y'),
+                'end' => $student->subscriptions->first()->end_date?->format('M d, Y'),
+            ] : null,
         ]);
     }
 
-    public function getAttendance($id)
+    public function attendance($studentId)
     {
-        $student = Student::findOrFail($id);
-
-        $logs = $student->attendanceLogs()
-            ->with('classSession.class')
-            ->latest()
-            ->paginate(20);
+        $logs = \App\Models\AttendanceLog::with('classSession.class')
+            ->where('student_id', $studentId)
+            ->orderBy('checkin_time', 'desc')
+            ->paginate(10);
 
         $stats = [
-            'total_sessions' => $student->attendanceLogs()->count(),
-            'present' => $student->attendanceLogs()->where('status', 'present')->count(),
-            'late' => $student->attendanceLogs()->where('status', 'late')->count(),
-            'absent' => $student->attendanceLogs()->where('status', 'absent')->count(),
-            'excused' => $student->attendanceLogs()->where('status', 'excused')->count(),
+            'total_sessions' => \App\Models\AttendanceLog::where('student_id', $studentId)->count(),
+            'present' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'present')->count(),
+            'late' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'late')->count(),
+            'absent' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'absent')->count(),
+            'excused' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'excused')->count(),
             'by_method' => [
-                'face' => $student->attendanceLogs()->where('method', 'face')->count(),
-                'qr' => $student->attendanceLogs()->where('method', 'qr')->count(),
-                'manual' => $student->attendanceLogs()->where('method', 'manual')->count()
-            ]
+                'face' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('method', 'face')->count(),
+                'qr' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('method', 'qr')->count(),
+                'manual' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('method', 'manual')->count(),
+            ],
         ];
 
-        $monthlyData = $student->attendanceLogs()
-            ->selectRaw('DATE_FORMAT(checkin_time, "%Y-%m") as month, COUNT(*) as total, SUM(CASE WHEN status IN ("present", "late") THEN 1 ELSE 0 END) as attended')
-            ->groupBy('month')
-            ->orderBy('month', 'desc')
-            ->limit(6)
-            ->get();
-
         return response()->json([
-            'logs' => $logs,
             'stats' => $stats,
-            'monthly_trend' => $monthlyData
+            'logs' => $logs,
         ]);
     }
 
-    public function getBilling($id)
+    public function billing($studentId)
     {
-        $student = Student::with(['invoices.payments.receivedBy', 'subscriptions.plan'])->findOrFail($id);
-
-        $invoices = $student->invoices()->orderBy('created_at', 'desc')->get();
+        $invoices = \App\Models\Invoice::with('payments')
+            ->where('student_id', $studentId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $summary = [
-            'total_paid' => $invoices->where('status', 'paid')->sum('total_due'),
+            'total_paid' => $invoices->flatMap->payments->sum('amount'),
             'total_pending' => $invoices->where('status', 'pending')->sum('total_due'),
             'total_overdue' => $invoices->where('status', 'overdue')->sum('total_due'),
-            'lifetime_total' => $invoices->sum('total_due')
+            'lifetime_total' => $invoices->sum('total_due'),
         ];
 
         return response()->json([
-            'invoices' => $invoices->map(fn($inv) => [
-                'id' => $inv->id,
-                'invoice_no' => $inv->invoice_no,
-                'period' => $inv->billing_period_start . ' to ' . $inv->billing_period_end,
-                'amount' => $inv->amount,
-                'discount' => $inv->discount,
-                'penalty' => $inv->penalty,
-                'total_due' => $inv->total_due,
-                'due_date' => $inv->due_date,
-                'status' => $inv->status,
-                'created_at' => $inv->created_at,
-                'payments' => $inv->payments->map(fn($p) => [
-                    'date' => $p->paid_at,
-                    'amount' => $p->amount,
-                    'method' => $p->payment_method,
-                    'reference' => $p->reference_no,
-                    'received_by' => $p->receivedBy?->name ?? 'System'
-                ])
-            ]),
             'summary' => $summary,
-            'current_subscription' => $student->subscriptions->first() ? [
-                'plan' => $student->subscriptions->first()->plan->plan_name,
-                'monthly_price' => $student->subscriptions->first()->plan->monthly_price,
-                'status' => $student->subscriptions->first()->status
-            ] : null
+            'invoices' => $invoices->map(function($inv) {
+                return [
+                    'invoice_no' => $inv->invoice_no,
+                    'status' => $inv->status,
+                    'period' => $inv->billing_period_start?->format('M Y') . ' - ' . $inv->billing_period_end?->format('M Y'),
+                    'due_date' => $inv->due_date?->format('M d, Y'),
+                    'total_due' => $inv->total_due,
+                    'payments' => $inv->payments->map(function($p) {
+                        return [
+                            'amount' => $p->amount,
+                            'method' => $p->payment_method,
+                            'date' => $p->paid_at,
+                        ];
+                    }),
+                ];
+            }),
+            'current_subscription' => \App\Models\StudentSubscription::with('plan')
+                ->where('student_id', $studentId)
+                ->where('status', 'active')
+                ->first()?->plan ? [
+                    'plan' => \App\Models\StudentSubscription::with('plan')
+                        ->where('student_id', $studentId)
+                        ->where('status', 'active')
+                        ->first()->plan->plan_name,
+                    'monthly_price' => \App\Models\StudentSubscription::with('plan')
+                        ->where('student_id', $studentId)
+                        ->where('status', 'active')
+                        ->first()->plan->monthly_price,
+                    'status' => 'active',
+                ] : null,
         ]);
     }
 
-    public function getCompetitions($id)
+    public function competitions($studentId)
     {
-        $student = Student::findOrFail($id);
-
-        $entries = CompetitionEntry::with(['competition', 'instructor.user'])
-            ->where('student_id', $id)
-            ->orderBy('created_at', 'desc')
+        $entries = \App\Models\CompetitionEntry::with('competition', 'instructor.user')
+            ->where('student_id', $studentId)
             ->get();
 
-        return response()->json([
-            'entries' => $entries->map(fn($e) => [
-                'id' => $e->id,
-                'competition_name' => $e->competition->name,
-                'location' => $e->competition->location,
-                'date' => $e->competition->date,
-                'organizer' => $e->competition->organizer,
-                'level' => $e->competition->level,
-                'category' => $e->category,
-                'division' => $e->division,
-                'result' => $e->result,
-                'medal' => $e->medal,
-                'remarks' => $e->remarks,
-                'instructor' => $e->instructor?->user?->name ?? 'N/A',
-                'registered_at' => $e->created_at
-            ]),
-            'stats' => [
-                'total_competitions' => $entries->count(),
-                'gold' => $entries->where('medal', 'gold')->count(),
-                'silver' => $entries->where('medal', 'silver')->count(),
-                'bronze' => $entries->where('medal', 'bronze')->count(),
-                'no_medal' => $entries->where('medal', 'none')->count()
-            ]
-        ]);
-    }
-
-    public function getCertificates($id)
-    {
-        $student = Student::findOrFail($id);
-
-        $certificates = Certificate::with('issuedBy')
-            ->where('student_id', $id)
-            ->orderBy('issued_date', 'desc')
-            ->get();
-
-        return response()->json([
-            'certificates' => $certificates->map(fn($cert) => [
-                'id' => $cert->id,
-                'type' => $cert->certificate_type,
-                'title' => $cert->title,
-                'description' => $cert->description,
-                'issued_date' => $cert->issued_date,
-                'issued_by' => $cert->issuedBy?->name ?? 'System',
-                'qr_code' => $cert->qr_code_value,
-                'verification_url' => $cert->verification_url,
-                'pdf_url' => $cert->pdf_path ? asset('storage/' . $cert->pdf_path) : null
-            ]),
-            'belt_promotions' => $certificates->where('certificate_type', 'belt_promotion')->count(),
-            'competition_certs' => $certificates->where('certificate_type', 'competition')->count(),
-            'participation_certs' => $certificates->where('certificate_type', 'participation')->count()
-        ]);
-    }
-
-    public function getProgress($id)
-    {
-        $student = Student::with(['skillProgress.instructor.user', 'evaluations.instructor.user'])->findOrFail($id);
-
-        $currentBelt = $student->current_belt;
-
-        // Get all skills for current belt
-        $allSkills = SkillChecklist::where('belt_level', $currentBelt)->get();
-        $studentProgress = $student->skillProgress->keyBy('skill_id');
-
-        $skills = $allSkills->map(function($skill) use ($studentProgress) {
-            $progress = $studentProgress->get($skill->id);
-            return [
-                'id' => $skill->id,
-                'name' => $skill->skill_name,
-                'description' => $skill->description,
-                'status' => $progress?->status ?? 'not_started',
-                'checked_by' => $progress?->instructor?->user?->name ?? null,
-                'checked_at' => $progress?->checked_at,
-                'belt_level' => $skill->belt_level
-            ];
-        });
-
-        // Get belt exam history
-        $examResults = \App\Models\BeltExamResult::with(['exam', 'approvedBy.user'])
-            ->where('student_id', $id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return response()->json([
-            'current_belt' => $currentBelt,
-            'skills' => $skills,
-            'progress_summary' => [
-                'total' => $skills->count(),
-                'mastered' => $skills->where('status', 'mastered')->count(),
-                'in_progress' => $skills->where('status', 'in_progress')->count(),
-                'not_started' => $skills->where('status', 'not_started')->count(),
-                'percentage' => $skills->count() > 0
-                    ? round(($skills->where('status', 'mastered')->count() / $skills->count()) * 100, 0)
-                    : 0
-            ],
-            'evaluations' => $student->evaluations->map(fn($e) => [
-                'date' => $e->evaluation_date,
-                'instructor' => $e->instructor?->user?->name ?? 'N/A',
-                'technique' => $e->technique_score,
-                'discipline' => $e->discipline_score,
-                'fitness' => $e->fitness_score,
-                'sparring' => $e->sparring_score,
-                'belt_ready' => $e->belt_ready_flag,
-                'notes' => $e->notes
-            ]),
-            'exam_history' => $examResults->map(fn($r) => [
-                'exam_date' => $r->exam->exam_date,
-                'belt_level' => $r->exam->belt_level,
-                'score' => $r->score,
-                'result' => $r->result,
-                'remarks' => $r->remarks,
-                'approved_by' => $r->approvedBy?->user?->name ?? 'N/A'
-            ])
-        ]);
-    }
-
-    public function getDocuments($id)
-    {
-        $student = Student::findOrFail($id);
-
-        // Get all document-related audit logs
-        $documents = AuditLog::where('entity', 'student')
-            ->where('entity_id', $id)
-            ->where('action', 'like', '%document%')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Simulated document list (you would typically have a documents table)
-        $documentTypes = [
-            'enrollment_form' => 'Enrollment Form',
-            'medical_clearance' => 'Medical Clearance',
-            'waiver' => 'Liability Waiver',
-            'belt_exam_application' => 'Belt Exam Application',
-            'competition_consent' => 'Competition Consent Form'
+        $stats = [
+            'gold' => $entries->where('medal', 'gold')->count(),
+            'silver' => $entries->where('medal', 'silver')->count(),
+            'bronze' => $entries->where('medal', 'bronze')->count(),
+            'total_competitions' => $entries->count(),
         ];
 
         return response()->json([
-            'available_documents' => $documentTypes,
-            'generated_documents' => $documents->map(fn($d) => [
-                'type' => $d->action,
-                'generated_at' => $d->created_at,
-                'generated_by' => $d->user?->name ?? 'System',
-                'details' => $d->new_value
-            ])
+            'stats' => $stats,
+            'entries' => $entries->map(function($entry) {
+                return [
+                    'competition_name' => $entry->competition->name,
+                    'location' => $entry->competition->location,
+                    'date' => $entry->competition->date?->format('M d, Y'),
+                    'category' => $entry->category,
+                    'division' => $entry->division,
+                    'result' => $entry->result,
+                    'medal' => $entry->medal,
+                    'instructor' => $entry->instructor?->user?->name ?? 'N/A',
+                    'remarks' => $entry->remarks,
+                ];
+            }),
         ]);
     }
 
-    public function sendMessage(Request $request, $id)
+    public function certificates($studentId)
     {
-        $request->validate(['message' => 'required|string|max:1000']);
-
-        $student = Student::with('primaryParent')->findOrFail($id);
-
-        if (!$student->primaryParent) {
-            return response()->json(['error' => 'Student has no parent contact'], 400);
-        }
-
-        $thread = ChatThread::whereHas('participants', function($q) use ($student) {
-            $q->where('user_id', $student->primaryParent->user_id);
-        })->where('type', 'private')->first();
-
-        if (!$thread) {
-            return response()->json(['error' => 'Chat thread not found'], 404);
-        }
-
-        $message = ChatMessage::create([
-            'thread_id' => $thread->id,
-            'sender_user_id' => Auth::id(),
-            'message' => $request->message,
-            'sent_at' => now()
-        ]);
-
-        return response()->json(['success' => true, 'message' => $message->load('sender')]);
-    }
-
-    // Helper methods
-    private function getAttendanceChartData($student)
-    {
-        $months = collect();
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $months->push([
-                'month' => $date->format('M Y'),
-                'present' => $student->attendanceLogs()
-                    ->whereMonth('checkin_time', $date->month)
-                    ->whereYear('checkin_time', $date->year)
-                    ->where('status', 'present')
-                    ->count(),
-                'absent' => $student->attendanceLogs()
-                    ->whereMonth('checkin_time', $date->month)
-                    ->whereYear('checkin_time', $date->year)
-                    ->where('status', 'absent')
-                    ->count()
-            ]);
-        }
-        return $months;
-    }
-
-    private function getUpcomingSessions($student)
-    {
-        $classIds = $student->classes->pluck('class_id');
-
-        return \App\Models\ClassSession::with('class')
-            ->whereIn('class_id', $classIds)
-            ->where('session_date', '>=', now())
-            ->where('session_status', 'scheduled')
-            ->orderBy('session_date')
-            ->limit(5)
-            ->get()
-            ->map(fn($s) => [
-                'date' => $s->session_date,
-                'time' => $s->start_time . ' - ' . $s->end_time,
-                'class_name' => $s->class->class_name,
-                'instructor' => $s->instructor?->user?->name ?? 'TBA'
-            ]);
-    }
-
-    private function getBeltHistory($student)
-    {
-        return Certificate::where('student_id', $student->id)
-            ->where('certificate_type', 'belt_promotion')
+        $certs = \App\Models\Certificate::where('student_id', $studentId)
             ->orderBy('issued_date', 'desc')
-            ->get()
-            ->map(fn($c) => [
-                'belt' => str_replace('Belt Promotion - ', '', $c->title),
-                'date' => $c->issued_date,
-                'issued_by' => $c->issuedBy?->name ?? 'System'
-            ]);
+            ->get();
+
+        return response()->json([
+            'belt_promotions' => $certs->where('certificate_type', 'belt_promotion')->count(),
+            'competition_certs' => $certs->where('certificate_type', 'competition')->count(),
+            'participation_certs' => $certs->where('certificate_type', 'participation')->count(),
+            'certificates' => $certs->map(function($cert) {
+                return [
+                    'title' => $cert->title,
+                    'certificate_type' => $cert->certificate_type,
+                    'description' => $cert->description,
+                    'issued_date' => $cert->issued_date?->format('M d, Y'),
+                    'issued_by' => \App\Models\User::find($cert->issued_by_user_id)?->name ?? 'System',
+                    'pdf_path' => $cert->pdf_path ? asset('storage/' . $cert->pdf_path) : null,
+                    'qr_code_value' => $cert->qr_code_value,
+                ];
+            }),
+        ]);
+    }
+
+    public function progress($studentId)
+    {
+        $student = Student::findOrFail($studentId);
+
+        $skills = \App\Models\StudentSkillProgress::with('skill')
+            ->where('student_id', $studentId)
+            ->get();
+
+        $evaluations = \App\Models\StudentEvaluation::with('instructor.user')
+            ->where('student_id', $studentId)
+            ->orderBy('evaluation_date', 'desc')
+            ->take(5)
+            ->get();
+
+        $examHistory = \App\Models\BeltExamResult::with('exam')
+            ->where('student_id', $studentId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalSkills = $skills->count();
+        $mastered = $skills->where('status', 'mastered')->count();
+        $inProgress = $skills->where('status', 'in_progress')->count();
+
+        return response()->json([
+            'current_belt' => $student->current_belt,
+            'progress_summary' => [
+                'percentage' => $totalSkills > 0 ? round(($mastered / $totalSkills) * 100) : 0,
+                'mastered' => $mastered,
+                'in_progress' => $inProgress,
+                'total' => $totalSkills,
+            ],
+            'skills' => $skills->map(function($s) {
+                return [
+                    'skill_name' => $s->skill->skill_name,
+                    'description' => $s->skill->description,
+                    'status' => $s->status,
+                ];
+            }),
+            'evaluations' => $evaluations->map(function($e) {
+                return [
+                    'evaluation_date' => $e->evaluation_date?->format('M d, Y'),
+                    'instructor' => $e->instructor?->user?->name ?? 'N/A',
+                    'technique_score' => $e->technique_score,
+                    'discipline_score' => $e->discipline_score,
+                    'fitness_score' => $e->fitness_score,
+                    'sparring_score' => $e->sparring_score,
+                    'belt_ready_flag' => $e->belt_ready_flag,
+                ];
+            }),
+            'exam_history' => $examHistory->map(function($e) {
+                return [
+                    'belt_level' => $e->exam->belt_level,
+                    'result' => $e->result,
+                    'exam_date' => $e->exam->exam_date?->format('M d, Y'),
+                    'score' => $e->score,
+                    'approved_by' => \App\Models\User::find($e->approved_by)?->name ?? 'N/A',
+                ];
+            }),
+        ]);
+    }
+
+    public function chat($studentId)
+    {
+        $student = Student::with(['chatThread.messages.sender', 'chatThread.participants'])->findOrFail($studentId);
+
+        return response()->json([
+            'chat_thread_id' => $student->chatThread?->id,
+            'chat_messages' => $student->chatThread?->messages->map(function($msg) {
+                return [
+                    'sender_user_id' => $msg->sender_user_id,
+                    'sender' => ['name' => $msg->sender->name],
+                    'message' => $msg->message,
+                    'sent_at' => $msg->sent_at,
+                ];
+            }) ?? [],
+        ]);
+    }
+
+    public function documents($studentId)
+    {
+        return response()->json([
+            'available_documents' => [
+                'enrollment_form' => 'Enrollment Form',
+                'waiver' => 'Waiver Form',
+                'medical_clearance' => 'Medical Clearance',
+                'belt_certificate' => 'Belt Certificate',
+                'report_card' => 'Progress Report',
+            ],
+            'generated_documents' => [], // Populate from your document generation table
+        ]);
     }
 }

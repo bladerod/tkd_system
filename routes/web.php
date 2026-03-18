@@ -1,27 +1,16 @@
 <?php
 
-// use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CertificateController;
-use App\Models\parentview;
-use App\Models\beltview;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AttendanceController;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\CertificationController;
-use App\Http\Controllers\Api\AttendanceApiController;
-use App\Http\Controllers\Api\StudentApiController;
-use App\Http\Controllers\Api\ClassApiController;
-use App\Http\Controllers\Api\DashboardApiController;
-use App\Http\Controllers\Api\AnnouncementApiController;
-use App\Http\Controllers\Api\ParentApiController;
-
-
-
-// Authentication Routes
 // Guest routes
 Route::middleware(['guest'])->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -30,144 +19,118 @@ Route::middleware(['guest'])->group(function () {
 
 // Auth routes
 Route::middleware(['auth'])->group(function () {
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // for user management crud
+    // USER MANAGEMENT
     Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
     Route::post('/settings/user', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::get('/users/hash/{hash}', [UserController::class, 'getByHash'])->name('users.by-hash');
-    // end user management
 
-    // for announcements
-    Route::get('/announcement', [App\Http\Controllers\AnnouncementController::class, 'index'])->name('announcements.index');
-    Route::post('/announcement', [App\Http\Controllers\AnnouncementController::class, 'store'])->name('announcements.store');
-    Route::get('/announcement/{id}', [App\Http\Controllers\AnnouncementController::class, 'show'])->name('announcements.show');
-    Route::put('/announcement/{id}', [App\Http\Controllers\AnnouncementController::class, 'update'])->name('announcements.update');
-    Route::delete('/announcement/{id}', [App\Http\Controllers\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-    // for announcements
+    // ANNOUNCEMENTS
+    Route::get('/announcement', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('/announcement', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/announcement/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+    Route::put('/announcement/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
+    Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
-    // for parent management crud
+    // PARENTS
     Route::get('/parent', function () {
-        $parentList = parentview::all();
+        $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
     })->name('parent');
-    // end parent management
 
-    Route::get('/check-username', function(Request $request) {
-        $username = $request->query('username');
-        $userId = $request->query('user_id');
-
-        $query = App\Models\User::where('username', $username);
-
-        // If editing, exclude current user
-        if ($userId) {
-            $query->where('user_id', '!=', $userId);
-        }
-
-        return response()->json([
-            'available' => !$query->exists()
-        ]);
-    })->name('check.username');
-
-
+    // ATTENDANCE
     Route::prefix('attendance')->name('attendance.')->group(function () {
-        Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('index');
-        Route::post('/manual-override', [App\Http\Controllers\AttendanceController::class, 'manualOverride'])->name('manual-override');
-        Route::post('/add-manual', [App\Http\Controllers\AttendanceController::class, 'addManual'])->name('add-manual');
-        Route::get('/export', [App\Http\Controllers\AttendanceController::class, 'exportCsv'])->name('export');
+        Route::get('/', [AttendanceController::class, 'index'])->name('index');
+        Route::post('/manual-override', [AttendanceController::class, 'manualOverride'])->name('manual-override');
+        Route::post('/add-manual', [AttendanceController::class, 'addManual'])->name('add-manual');
+        Route::get('/export', [AttendanceController::class, 'exportCsv'])->name('export');
     });
 
-    Route::get('/instructor', function () {
-        return view('instructor');
-    });
+    // STUDENTS - Main fix here!
+    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+    Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
+    Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
+    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
+    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
+    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
+    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
+    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
-    route::get('/billing', function(){
+    // CHAT
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{id}/send', [ChatController::class, 'send'])->name('chat.send');
+
+    // OTHER PAGES
+
+
+Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
+Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
+Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
+Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
+
+
+    Route::get('/billing', function () {
         return view('billing');
     });
 
-    route::get('/settings/billing-rules',function(){
-        return view('billingrules');
-    });
+    Route::get('/report', function () {
+        return view('report');
+    })->name('report');
 
-    route::get('/settings', function(){
+    // SETTINGS
+    Route::get('/settings', function () {
         return view('settings');
     });
-
-    route::get('/competition', function(){
-        return view('competition');
+    Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
+    Route::get('/settings/billing-rules', function () {
+        return view('billingrules');
     });
-
-    route::get('/settings/club-profile', function(){
+    Route::get('/settings/club-profile', function () {
         return view('clubprofile');
     });
-
-    route::get('/settings/branding', function(){
+    Route::get('/settings/branding', function () {
         return view('branding');
     });
-
-    route::get('/settings/branding-rules',function(){
+    Route::get('/settings/branding-rules', function () {
         return view('brandingrules');
     });
-
-    route::get('/settings/discounts',function(){
+    Route::get('/settings/discounts', function () {
         return view('discounts');
     });
-
-    route::get('/settings/roles-and-permissions',function(){
+    Route::get('/settings/roles-and-permissions', function () {
         return view('rolespermission');
     });
-
-    route::get('/settings/device',function(){
+    Route::get('/settings/device', function () {
         return view('device');
     });
-
-    route::get('/settings/integration',function(){
+    Route::get('/settings/integration', function () {
         return view('integration');
     });
 
-    Route::get('/chat', function () {
-        return view('chat');
-    })->name('chat');
-
-    Route::get('/report', function () {
-        return view('report');
-    })->name('report');
-
-    Route::get('/student', function () {
-        $beltLevels = beltview::all();
-        return view('student', compact('beltLevels'));
-    })->name('student');
-
-
-    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
-
-    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
-
-    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
-    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
-
-    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
-
-    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
-
-    Route::get('/report', function () {
-        return view('report');
-    })->name('report');
-
-
-    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
-
+    // CERTIFICATES
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
     Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
     Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
+    // USERNAME CHECK (for user management)
+    Route::get('/check-username', function (Request $request) {
+        $username = $request->query('username');
+        $userId = $request->query('user_id');
+        $query = \App\Models\User::where('username', $username);
+        if ($userId) {
+            $query->where('user_id', '!=', $userId);
+        }
+        return response()->json(['available' => !$query->exists()]);
+    })->name('check.username');
 });

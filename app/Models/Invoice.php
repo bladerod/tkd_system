@@ -9,5 +9,8 @@ class Invoice extends Model {
 
     public function student(): BelongsTo { return $this->belongsTo(Student::class); }
     public function subscription(): BelongsTo { return $this->belongsTo(StudentSubscription::class); }
-    public function payments(): HasMany { return $this->hasMany(Payment::class); }
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

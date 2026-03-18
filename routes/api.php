@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\AuthController;
@@ -36,11 +37,11 @@ Route::middleware('auth:sanctum')->group(function () {
             'user' => $request->user()
         ]);
     });
-    
+
     // Dashboard
     Route::get('/dashboard/statistics', [DashboardApiController::class, 'statistics']);
     Route::get('/dashboard/attendance-trends', [DashboardApiController::class, 'attendanceTrends']);
-    
+
     // Students
     Route::prefix('students')->group(function () {
         Route::get('/', [StudentApiController::class, 'index']);
@@ -48,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
         Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
     });
-    
+
     // Attendance
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
     Route::post('/attendance', [AttendanceApiController::class, 'store']);
@@ -70,16 +71,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 
 
-    Route::get('/students/{id}', [StudentController::class, 'show']);
-    Route::get('/students/{id}/profile', [StudentController::class, 'getProfile']);
-    Route::get('/students/{id}/attendance', [StudentController::class, 'getAttendance']);
-    Route::get('/students/{id}/billing', [StudentController::class, 'getBilling']);
-    Route::get('/students/{id}/competitions', [StudentController::class, 'getCompetitions']);
-    Route::get('/students/{id}/certificates', [StudentController::class, 'getCertificates']);
-    Route::get('/students/{id}/progress', [StudentController::class, 'getProgress']);
-    Route::get('/students/{id}/documents', [StudentController::class, 'getDocuments']);
-    Route::post('/students/{id}/send-message', [StudentController::class, 'sendMessage']);
 
+Route::get('/students/{id}/profile', [StudentController::class, 'profile']);
+Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
+Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
+Route::get('/students/{id}/competitions', [StudentController::class, 'competitions']);
+Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
+Route::get('/students/{id}/progress', [StudentController::class, 'progress']);
+Route::get('/students/{id}', [StudentController::class, 'show']); // For chat thread info
+Route::post('/students/{id}/send-message', [StudentController::class, 'sendMessage']);
+Route::get('/students/{id}/documents', [StudentController::class, 'documents']);
+Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
 
 

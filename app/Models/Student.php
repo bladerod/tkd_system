@@ -2,126 +2,59 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Model;
 
-class Student extends Authenticatable
+class Student extends Model
 {
-    use HasApiTokens, Notifiable;
-
-    protected $table = 'users';
-    protected $primaryKey = 'id';
-    public $timestamps = true;
+    protected $table = 'students';
 
     protected $fillable = [
         'branch_id',
-        'role',
-        'fname',
-        'lname',
-        'username',
-        'email',
-        'mobile',
-        'password',
+        'student_code',
+        'first_name',
+        'last_name',
+        'middle_name',
+        'birthdate',
+        'gender',
         'photo_url',
-        'last_login_at',
+        'current_belt',
+        'join_date',
+        'status',
+        'primary_parent_id'
     ];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'last_login_at' => 'datetime',
-    ];
-
-    // Relationships
-    public function branch()
+    public function parent()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(ParentModel::class,'primary_parent_id');
     }
 
-
-    // public function instructor()
-    // {
-    //     return $this->hasOne(Instructor::class);
-    // }
-
-    // public function parent()
-    // {
-    //     return $this->hasOne(Parents::class);
-    // }
-    public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
-    public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
-    public function notifications(): HasMany { return $this->hasMany(Notification::class); }
-    public function chatParticipants() { return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id'); }
-    public function sentMessages(): HasMany { return $this->hasMany(ChatMessage::class, 'sender_user_id'); }
-
-    // public function notifications()
-    // {
-    //     return $this->hasMany(Notification::class);
-    // }
-
-    // public function chatMessages()
-    // {
-    //     return $this->hasMany(ChatMessage::class, 'sender_user_id');
-    // }
-
-    // public function chatThreads()
-    // {
-    //     return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
-    // }
-
-    public function announcements()
+    public function classes()
     {
-        return $this->hasMany(Announcement::class, 'created_by_user_id');
+        return $this->belongsToMany(ClassModel::class,'class_students','student_id','class_id');
     }
 
-    // public function auditLogs()
-    // {
-    //     return $this->hasMany(AuditLog::class);
-    // }
-
-    // public function certificates()
-    // {
-    //     return $this->hasMany(Certificate::class, 'issued_by_user_id');
-    // }
-    /**
-     * Check if user is an admin.
-     */
-    public function isAdmin()
+    public function attendanceLogs()
     {
-        return $this->role === 'admin';
+        return $this->hasMany(AttendanceLog::class);
     }
 
-    /**
-     * Check if user is an instructor.
-     */
-    public function isInstructor()
+    public function invoices()
     {
-        return $this->role === 'instructor';
+        return $this->hasMany(Payment::class);
     }
 
-    /**
-     * Check if user is a staff.
-     */
-    public function isStaff()
+    public function certificates()
     {
-        return $this->role === 'staff';
+        return $this->hasMany(Certificate::class);
     }
 
-    /**
-     * Check if user is a parent.
-     */
-    public function isParent()
+    public function competitions()
     {
-        return $this->role === 'parent';
+        return $this->hasMany(CompetitionEntry::class);
     }
 
-    
+    public function skillProgress()
+    {
+        return $this->hasMany(StudentSkillProgress::class);
+    }
 }

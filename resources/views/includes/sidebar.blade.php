@@ -14,14 +14,14 @@
 
             <!-- Students -->
             <li>
-                <a href="/student" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-product">
+                <a href="admin/students" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-product">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
                         <i class="fa fa-user" aria-hidden="true"></i>
                     </div>
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Students</span>
                 </a>
             </li>
-            
+
             <!-- Parents -->
             <li>
                 <a href="/parent" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
@@ -103,7 +103,7 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Report</span>
                 </a>
             </li>
-            
+
             <!-- Settings Dropdown - Toggleable with Alpine.js -->
             <li x-data="{ open: false }">
                 <!-- Settings Toggle Button -->
@@ -114,17 +114,17 @@
                         </div>
                         <span class="text-white font-medium group-hover:text-[#1C1C1D]">Settings</span>
                     </div>
-                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#1C1C1D] transition-transform duration-200" 
-                         :class="{ 'rotate-180': open }" 
-                         fill="none" 
-                         stroke="currentColor" 
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#1C1C1D] transition-transform duration-200"
+                         :class="{ 'rotate-180': open }"
+                         fill="none"
+                         stroke="currentColor"
                          viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-                
+
                 <!-- Dropdown Menu Items -->
-                <ul x-show="open" 
+                <ul x-show="open"
                     x-transition:enter="transition ease-out duration-100"
                     x-transition:enter-start="transform opacity-0 scale-95"
                     x-transition:enter-end="transform opacity-100 scale-100"
@@ -132,7 +132,7 @@
                     x-transition:leave-start="transform opacity-100 scale-100"
                     x-transition:leave-end="transform opacity-0 scale-95"
                     class="ml-8 mt-1 space-y-1">
-                    
+
                     <!-- Users -->
                     <li>
                         <a href="/settings/user" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
@@ -152,7 +152,7 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Club Profile</span>
                         </a>
                     </li>
-                    
+
                     <!-- Branding -->
                     <li>
                         <a href="/settings/branding" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
@@ -162,7 +162,7 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Branding</span>
                         </a>
                     </li>
-                    
+
                     <!-- Billing Rules -->
                     <li>
                         <a href="/settings/billing-rules" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
@@ -172,7 +172,7 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Billing Rules</span>
                         </a>
                     </li>
-                    
+
                     <!-- Discounts -->
                     <li>
                         <a href="/settings/discounts" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
@@ -182,7 +182,7 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Discounts</span>
                         </a>
                     </li>
-                    
+
                     <!-- Roles & Permissions -->
                     <li>
                         <a href="/settings/roles-and-permissions" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
@@ -192,7 +192,7 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Roles & Permissions</span>
                         </a>
                     </li>
-                    
+
                     <!-- Devices -->
                     <li>
                         <a href="/settings/device" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
@@ -202,7 +202,7 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Devices</span>
                         </a>
                     </li>
-                    
+
                     <!-- Integration -->
                     <li>
                         <a href="/settings/integration" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">

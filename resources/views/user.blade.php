@@ -77,6 +77,7 @@
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                                 </tr>
                                             </thead>
@@ -109,6 +110,13 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <span class="text-sm text-gray-700">{{ $user->mobile }}</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        @if($user->status == 1)
+                                                            <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                                                        @else
+                                                            <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Deactivated</span>
+                                                        @endif
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="flex items-center gap-3">
@@ -192,14 +200,12 @@
                                 <option value="">Select Role</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>Staff</option>
-                                <option value="instructor" {{ old('role') == 'instructor' ? 'selected' : '' }}>Instructor</option>
-                                <option value="parent" {{ old('role') == 'parent' ? 'selected' : '' }}>Parent</option>
                             </select>
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_role"></div>
                         </div>
 
                         <!-- fname -->
-                        <div class="col-span-2 form-group">
+                        <div class=" form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-[#FF0000]">*</span></label>
                             <input type="text" 
                                 name="fname" 
@@ -216,7 +222,7 @@
                         </div>
 
                         <!-- lname -->
-                        <div class="col-span-2 form-group">
+                        <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-[#FF0000]">*</span></label>
                             <input type="text" 
                                 name="lname" 
@@ -233,7 +239,7 @@
                         </div>
 
                         <!-- email -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email <span class="text-[#FF0000]">*</span></label>
                             <input type="email" 
                                 name="email" 
@@ -245,23 +251,6 @@
                                 title="Please enter a valid email address"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] @error('email') border-red-500 @enderror">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_email"></div>
-                        </div>
-
-                        <!-- username -->
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-[#FF0000]">*</span></label>
-                            <input type="text" 
-                                name="username" 
-                                id="add_username" 
-                                value="{{ old('username') }}"
-                                required 
-                                minlength="3"
-                                maxlength="50"
-                                pattern="[a-zA-Z0-9_]+"
-                                title="Only letters, numbers, and underscores allowed"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] @error('username') border-red-500 @enderror">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_username"></div>
-                            <div class="validation-hint text-gray-500 text-xs mt-1 hidden">Minimum 3 characters, letters, numbers, underscores only</div>
                         </div>
 
                         <div class="col-span-2 form-group">
@@ -345,6 +334,7 @@
         </div>
     </div>
 
+    
     {{-- Edit User Modal --}}
     <div id="editUserModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
         <div class="relative top-20 mx-auto border w-[600px] shadow-lg rounded-xl bg-white">
@@ -379,14 +369,12 @@
                                 <option value="">Select Role</option>
                                 <option value="admin">Admin</option>
                                 <option value="staff">Staff</option>
-                                <option value="instructor">Instructor</option>
-                                <option value="parent">Parent</option>
                             </select>
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_role"></div>
                         </div>
 
                         <!-- fname -->
-                        <div class="col-span-2 form-group">
+                        <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span class="text-[#FF0000]">*</span></label>
                             <input type="text" 
                                 name="fname" 
@@ -397,7 +385,7 @@
                         </div>
 
                         <!-- lname -->
-                        <div class="col-span-2 form-group">
+                        <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span class="text-[#FF0000]">*</span></label>
                             <input type="text" 
                                 name="lname" 
@@ -408,7 +396,7 @@
                         </div>
 
                         <!-- email -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email <span class="text-[#FF0000]">*</span></label>
                             <input type="email" 
                                 name="email" 
@@ -418,17 +406,6 @@
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_email"></div>
                         </div>
                         
-                        <!-- username -->
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-[#FF0000]">*</span></label>
-                            <input type="text" 
-                                name="username" 
-                                id="edit_username" 
-                                required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_username"></div>
-                        </div>
-
                         <!-- mobile -->
                         <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number <span class="text-[#FF0000]">*</span></label>
@@ -462,7 +439,7 @@
                         </div>
 
                         <!-- photo_url -->
-                        <div class="col-span-2 form-group">
+                        <div class=" form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">New Profile Photo</label>
                             <input type="file" 
                                 name="photo_url" 
@@ -471,6 +448,16 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_photo"></div>
                             <p class="text-xs text-gray-500 mt-1">PNG, JPEG, JPG only (max 2MB)</p>
+                        </div>
+
+                        <!-- status -->
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
+                            <select name="status" id="edit_status" required 
+                                class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive / Deactivated</option>
+                            </select>
                         </div>
                     </div>
 
@@ -496,7 +483,13 @@
     {{-- <script src="{{ asset('js/user.js') }}"></script> --}}
     <!-- Pass CSRF token to JavaScript -->
     <script>
-        window.csrfToken = '{{ csrf_token() }}';
+        @if ($errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                // If there are errors, automatically re-open the Add Modal
+                openAddUserModal();
+            });
+        @endif
     </script>
+   
 </body>
 </html>

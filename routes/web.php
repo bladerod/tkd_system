@@ -117,7 +117,37 @@ Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'
         return view('integration');
     });
 
-    // CERTIFICATES
+    Route::get('/chat', function () {
+        return view('chat');
+    })->name('chat');
+
+    Route::get('/report', function () {
+        return view('report');
+    })->name('report');
+
+
+    Route::get('/student', [StudentController::class,'index'])->name('index');
+    Route::post('/student', [StudentController::class,'store'])->name('student.store');
+
+
+    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
+
+    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
+
+    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
+    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
+
+    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
+
+    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
+
+    Route::get('/report', function () {
+        return view('report');
+    })->name('report');
+
+
+    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
     Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');

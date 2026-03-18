@@ -24,45 +24,48 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate the request
-        $credentials = $request->validate([
-            'username' => 'required|string',
+        // 1. Validate the request
+        $request->validate([
+            'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
-        // Attempt to log the user in
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->filled('remember'))) {
+        // 2. Attempt login with status = 1 (Active)
+        $credentials = [
+            'email' => $request->email, 
+            'password' => $request->password,
+            'status' => 1 // Only users with status 1 can log in
+        ];
+
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
             
-            // Check if the authenticated user is an admin
+            // 3. Keep your existing Admin-only check
             if (Auth::user()->role !== 'admin') {
-                // Log the non-admin user out immediately
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                // Return an error message
                 throw ValidationException::withMessages([
-                    'username' => ['Access denied. Only administrators are allowed to log in.'],
+                    'email' => ['Access denied. Only administrators are allowed to log in.'],
                 ]);
             }
 
-            // Authentication passed and user IS an admin
+            // 4. Handle successful login logic
             $request->session()->regenerate();
             
-            // Update last login timestamp
             $user = Auth::user();
             User::where('id', $user->id)->update([
                 'last_login_at' => Carbon::now()
             ]);
             
-            // Redirect to dashboard with success message
             return redirect()->intended('/dashboard')
                 ->with('success', 'Welcome back, ' . $user->fname . '!');
         }
 
-        // Authentication failed (wrong username or password)
+        // 5. Failed authentication
+        // If the status is 0, this error will also trigger
         throw ValidationException::withMessages([
-            'username' => [trans('auth.failed')],
+            'email' => [trans('auth.failed')],
         ]);
     }
 

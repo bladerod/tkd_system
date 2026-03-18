@@ -7,13 +7,31 @@ use App\Models\Student;
 use App\Models\Classes;
 use App\Models\Instructor;
 use App\Models\SkillChecklist;
+use App\Models\AttendanceLog;
+use App\Models\Invoice;
+use App\Models\CompetitionEntry;
+use App\Models\Certificate;
+use App\Models\StudentEvaluation;
+use App\Models\ChatThread;
+use App\Models\ChatMessage;
+use App\Models\AuditLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
     public function index()
     {
-        // Fetch students with related data based on your schema
-        $students = Student::with(['primaryParent.user', 'classes', 'subscriptions.plan'])
+        $beltLevels = SkillChecklist::select('belt_level')->distinct()->get();
+        $classes = Classes::where('status', 'active')->get(); 
+        $instructors = Instructor::where('active_flag', true)->with('user')->get();
+
+        $students = Student::with(['primaryParent.user', 'classes.class', 'invoices', 'attendanceLogs'])
+            ->withCount(['attendanceLogs as present_count' => function($q) {
+                $q->whereIn('status', ['present', 'late']);
+            }])
             ->get()
             ->map(function ($student) {
                 return [
@@ -33,20 +51,6 @@ class StudentController extends Controller
                 ];
             });
 
-        // Get unique belt levels from skill_checklist table
-        $beltLevels = SkillChecklist::select('belt_level')
-            ->distinct()
-            ->get();
-
-        // Get active classes
-        $classes = Classes::where('status', 'active')->get();
-
-        // Get active instructors with user info
-        $instructors = \App\Models\Instructor::with('user')
-            ->where('active_flag', true)
-            ->get();
-
-        // Return the view - NOTE: 'student' not 'students.index'
         return view('student', compact('students', 'beltLevels', 'classes', 'instructors'));
     }
 
@@ -64,7 +68,51 @@ class StudentController extends Controller
         return max(0, $totalDue - $totalPaid);
     }
 
-    private function calculateAttendanceRate($student)
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'branch_id' => 'required',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'gender' => 'required',
+            'current_belt' => 'required',
+            'birthdate' => 'required|date',
+            'primary_parent_id' => 'required',
+            'status' => 'required',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $studentCode = 'TKD-' . strtoupper(Str::random(5));
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('student-photos', 'public');
+        }
+
+        // 4. Create the Record
+        Student::create([
+            'branch_id' => $request->branch_id,
+            'student_code' => $studentCode,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'current_belt' => $request->current_belt,
+            'birthdate' => $request->birthdate,
+            'join_date' => now(), 
+            'status' => $request->status,
+            'primary_parent_id' => $request->primary_parent_id,
+            'photo_url' => $photoPath,
+            'medical_notes' => $request->medical_notes,
+            'allergies' => $request->allergies,
+            'emergency_contact_name' => $request->contact_person,
+            'emergency_contact_mobile' => $request->contact_number,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Student added successfully!');
+    }
+
+
+    public function getProfile($id)
     {
         $total = \App\Models\AttendanceLog::where('student_id', $student->id)->count();
         $present = \App\Models\AttendanceLog::where('student_id', $student->id)

@@ -26,6 +26,23 @@
                         <span>/</span>
                         <span class="text-[#1C1C1D] font-medium">Branding</span>
                     </div>
+                    
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <h1 class="text-4xl font-bold text-[#1C1C1D]">Settings</h1>
                     <div class="row mt-4">
                         <div class="col-lg-12">
@@ -37,52 +54,75 @@
                                 </div>
                                 <div class="p-8" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <!-- Branding Settings Form -->
-                                    <div class="">
+                                    <form method="POST" action="{{ route('settings.branding.update') }}" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="">
 
-                                        <!-- System Appearance -->
-                                        <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3">System Appearance</h2>
-                                        <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
+                                            <!-- System Appearance -->
+                                            <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3">System Appearance</h2>
+                                            <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
 
-                                        <div class="grid grid-cols-1 gap-4 mb-4">
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Logo</label>
-                                                <input type="file" class="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
+                                            <div class="grid grid-cols-1 gap-4 mb-4">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Logo</label>
+                                                    <input type="file" 
+                                                           name="logo"
+                                                           class="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                                    <p class="text-xs text-gray-500 mt-1">Recommended size: 200x50px. Max size: 2MB</p>
+                                                </div>
                                             </div>
-                                            
+
+                                            <!-- Certificate Branding -->
+                                            <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3">Certificate Branding</h2>
+                                            <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
+
+                                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Certificate Header Text</label>
+                                                    <input type="text" 
+                                                           name="certificate_header_text"
+                                                           value="{{ old('certificate_header_text', $branding->certificate_header_text ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Certificate Signature Name</label>
+                                                    <input type="text" 
+                                                           name="certificate_signature_name"
+                                                           value="{{ old('certificate_signature_name', $branding->certificate_signature_name ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Signature Position</label>
+                                                    <input type="text" 
+                                                           name="signature_position"
+                                                           value="{{ old('signature_position', $branding->signature_position ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">Official Seal Upload</label>
+                                                    <input type="file" 
+                                                           name="official_seal"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                                    <p class="text-xs text-gray-500 mt-1">Recommended: Square image, PNG with transparency</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Buttons -->
+                                            <div class="flex items-center justify-end gap-3 pt-6">
+                                                <a href="{{ route('settings.branding') }}" 
+                                                   class="px-8 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                                    Cancel
+                                                </a>
+                                                <button type="submit" 
+                                                        class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] transition-colors">
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
-
-                                        <!-- Certificate Branding -->
-                                        <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3">Certificate Branding</h2>
-                                        <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
-
-                                        <div class="grid grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Certificate Header Text</label>
-                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Certificate Signature Name</label>
-                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                            </div>
-                                        </div>
-
-                                        <div class="grid grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Signature Position</label>
-                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">Official Seal Upload</label>
-                                                <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                            </div>
-                                        </div>
-
-                                        <!-- Buttons -->
-                                        <div class="flex items-center justify-end gap-3 pt-6">
-                                            <button type="button" class="px-8 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">Cancel</button>
-                                            <button type="submit" class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] transition-colors">Save</button>
-                                        </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>

@@ -98,12 +98,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/billing-rules', function () {
         return view('billingrules');
     });
-    Route::get('/settings/club-profile', function () {
-        return view('clubprofile');
-    });
-    Route::get('/settings/branding', function () {
-        return view('branding');
-    });
+    
+    // For Club Profile
+    Route::get('/settings/club-profile', [App\Http\Controllers\ClubProfileController::class, 'index'])->name('settings.club-profile');
+    Route::post('/settings/club-profile/update', [App\Http\Controllers\ClubProfileController::class, 'update'])->name('settings.club-profile.update');
+    //
+    
+    // For settings Branding
+    Route::get('/settings/branding', [App\Http\Controllers\BrandingController::class, 'index'])->name('settings.branding');
+    Route::post('/settings/branding/update', [App\Http\Controllers\BrandingController::class, 'update'])->name('settings.branding.update');
+    //
+
     Route::get('/settings/branding-rules', function () {
         return view('brandingrules');
     });

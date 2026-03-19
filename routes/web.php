@@ -9,6 +9,8 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClubProfileController;
+use App\Http\Controllers\BrandingController;
 use Illuminate\Http\Request;
 
 // Guest routes
@@ -100,13 +102,13 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // For Club Profile
-    Route::get('/settings/club-profile', [App\Http\Controllers\ClubProfileController::class, 'index'])->name('settings.club-profile');
-    Route::post('/settings/club-profile/update', [App\Http\Controllers\ClubProfileController::class, 'update'])->name('settings.club-profile.update');
+    Route::get('/settings/club-profile', [ClubProfileController::class, 'index'])->name('settings.club-profile');
+    Route::post('/settings/club-profile/update', [ClubProfileController::class, 'update'])->name('settings.club-profile.update');
     //
     
     // For settings Branding
-    Route::get('/settings/branding', [App\Http\Controllers\BrandingController::class, 'index'])->name('settings.branding');
-    Route::post('/settings/branding/update', [App\Http\Controllers\BrandingController::class, 'update'])->name('settings.branding.update');
+    Route::get('/settings/branding', [BrandingController::class, 'index'])->name('settings.branding');
+    Route::post('/settings/branding/update', [BrandingController::class, 'update'])->name('settings.branding.update');
     //
 
     Route::get('/settings/branding-rules', function () {

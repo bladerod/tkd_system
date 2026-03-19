@@ -363,6 +363,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @vite(['resources/js/app.js'])
     @vite(['resources/js/dashboard.js'])
+    @vite(['resources/js/navbarDrop.js'])
 
 </body>
 </html>

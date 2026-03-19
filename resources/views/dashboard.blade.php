@@ -683,5 +683,6 @@
     {{-- <script>Chart.register(ChartDataLabels);</script> --}}
     @vite(['resources/js/app.js'])
     @vite(['resources/js/dashboard.js'])
+    @vite(['resources/js/navbarDrop.js'])
 </body>
 </html>

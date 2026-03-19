@@ -73,11 +73,14 @@ Route::middleware(['auth'])->group(function () {
     // OTHER PAGES
 
 
-Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
-Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
-Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
-Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
+    Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
+    Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
+    Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
+    Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
 
+    route::get('/competition',function(){
+        return view('competition');
+    });
 
     Route::get('/billing', function () {
         return view('billing');
@@ -145,22 +148,10 @@ Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'
         return view('report');
     })->name('report');
 
-
-    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
-
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
     Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
     Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
 
-    // USERNAME CHECK (for user management)
-    Route::get('/check-username', function (Request $request) {
-        $username = $request->query('username');
-        $userId = $request->query('user_id');
-        $query = \App\Models\User::where('username', $username);
-        if ($userId) {
-            $query->where('user_id', '!=', $userId);
-        }
-        return response()->json(['available' => !$query->exists()]);
-    })->name('check.username');
+    
 });

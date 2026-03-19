@@ -1,345 +1,527 @@
-// parents.js
+// Make all functions globally available
+let currentParentId = null;
+let currentThreadId = null;
+let chatRefreshInterval = null;
 
-// Add Parent Modal Functions
-window.openAddParentModal = function () {
-    document.getElementById("addParentModal").classList.remove("hidden");
-    document.body.style.overflow = 'hidden';
-}
+// Make functions global
+window.openModal = function(parentId) {
+    currentParentId = parentId;
+    const modal = document.getElementById("parentModal");
+    if (modal) {
+        modal.style.display = "flex";
+        document.body.style.overflow = 'hidden';
 
-window.closeAddParentModal = function () {
-    document.getElementById("addParentModal").classList.add("hidden");
-    document.getElementById('addParentForm').reset();
-    document.getElementById('userAccountFields').classList.add('hidden');
-    document.getElementById('create_user_account').checked = false;
-    document.body.style.overflow = 'auto';
-}
-
-// Edit Parent Modal Functions
-window.openEditParentModal = function(parentId) {
-    fetch(`/parent/${parentId}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(parent => {
-            // Populate form fields
-            document.getElementById('edit_firstname').value = parent.fname || '';
-            document.getElementById('edit_lastname').value = parent.lname || '';
-            document.getElementById('edit_gender').value = parent.gender || '';
-            document.getElementById('edit_address').value = parent.address || '';
-            document.getElementById('edit_relationship_note').value = parent.relationship_note || '';
-            document.getElementById('edit_phone').value = parent.emergency_contact || '';
-            document.getElementById('edit_status').value = parent.status || 'active';
-            
-            // Set form action URL
-            document.getElementById('editParentForm').action = `/parent/${parent.parent_id}`;
-            
-            // Check associated students
-            document.querySelectorAll('.student-checkbox').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            
-            if (parent.students && parent.students.length > 0) {
-                parent.students.forEach(student => {
-                    const checkbox = document.getElementById(`edit_student${student.student_id}`);
-                    if (checkbox) checkbox.checked = true;
-                });
-            }
-            
-            // Show modal
-            document.getElementById('editParentModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Failed to load parent data. Please try again.',
-                confirmButtonColor: '#1c1c1d'
-            });
-        });
-}
-
-window.closeEditParentModal = function() {
-    document.getElementById('editParentModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    document.getElementById('editParentForm').reset();
-}
-
-// View Parent Modal Functions
-window.openViewParentModal = function(parentId) {
-    fetch(`/parent/${parentId}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(parent => {
-            document.getElementById("parentName").textContent = parent.full_name;
-            
-            // Store parent data for tabs
-            window.currentParentData = parent;
-            
-            // Load default tab (Children)
-            loadChildrenTab(parent);
-            
-            document.getElementById("viewParentModal").classList.remove("hidden");
-            document.body.style.overflow = 'hidden';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Failed to load parent data. Please try again.',
-                confirmButtonColor: '#1c1c1d'
-            });
-        });
-}
-
-window.closeViewParentModal = function() {
-    document.getElementById("viewParentModal").classList.add("hidden");
-    document.body.style.overflow = 'auto';
-    window.currentParentData = null;
-}
-
-// Tab switching function
-window.switchTab = function(button, tabName, parentId) {
-    // Update tab styles
-    document.querySelectorAll(".tab").forEach(tab => {
-        tab.classList.remove("bg-[#1C1C1D]", "text-white");
-        tab.classList.add("bg-gray-100", "text-gray-700");
-    });
-    
-    button.classList.remove("bg-gray-100", "text-gray-700");
-    button.classList.add("bg-[#1C1C1D]", "text-white");
-
-    // Load tab content
-    const content = document.getElementById("tabContent");
-    
-    if (parentId && parentId > 0) {
-        loadTabContent(tabName, parentId, content);
-    } else {
-        // Fallback to sample data if no parent ID
-        loadSampleTabContent(tabName, content);
+        // Load initial data
+        loadParentData(parentId);
+        switchTab('children');
     }
 }
 
-function loadTabContent(tabName, parentId, contentElement) {
-    // Show loading
-    contentElement.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-500"></i> Loading...</div>';
+window.closeModal = function() {
+    const modal = document.getElementById("parentModal");
+    if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = 'auto';
+    }
+    currentParentId = null;
+    currentThreadId = null;
+
+    if (chatRefreshInterval) {
+        clearInterval(chatRefreshInterval);
+        chatRefreshInterval = null;
+    }
+}
+
+window.switchTab = function(tabName) {
+    // Update tab buttons
+    document.querySelectorAll(".tab").forEach(tab => {
+        tab.classList.remove("active");
+        if (tab.dataset.tab === tabName) {
+            tab.classList.add("active");
+        }
+    });
+
+    // Update tab panes
+    document.querySelectorAll(".tab-pane").forEach(pane => {
+        pane.classList.remove("active");
+    });
     
-    // In a real application, you would fetch data from an API
-    // For now, we'll use the data from window.currentParentData or fetch it
-    if (window.currentParentData && window.currentParentData.parent_id == parentId) {
-        const parent = window.currentParentData;
-        let html = '';
-        
+    const tabPane = document.getElementById(tabName);
+    if (tabPane) {
+        tabPane.classList.add("active");
+    }
+
+    // Load tab-specific data
+    if (currentParentId) {
         switch(tabName) {
             case 'children':
-                html = `
-                    <div class="space-y-3">
-                        <p class="text-gray-600 font-medium">Children Information</p>
-                        <div class="bg-white p-3 rounded border">
-                            ${parent.students && parent.students.length > 0 ? 
-                                parent.students.map(student => 
-                                    `<p class="text-gray-600">• ${student.fname} ${student.lname} (Student ID: ${student.student_code || 'N/A'})</p>`
-                                ).join('') : 
-                                '<p class="text-gray-500">No children associated</p>'
-                            }
-                        </div>
-                    </div>
-                `;
+                loadChildrenData(currentParentId);
                 break;
             case 'billing':
-                html = `
-                    <div class="space-y-3">
-                        <p class="text-gray-600 font-medium">Family Billing</p>
-                        <div class="bg-white p-3 rounded border">
-                            <p class="text-gray-600">Current Balance: ₱${parent.billing?.total_balance || '0.00'}</p>
-                            <p class="text-gray-600">Due Date: ${parent.billing?.due_date || 'No due date'}</p>
-                            <p class="text-gray-600">Last Payment: ${parent.billing?.last_payment || 'No payments yet'}</p>
-                        </div>
-                    </div>
-                `;
+                loadBillingData(currentParentId);
                 break;
             case 'payments':
-                html = `
-                    <div class="space-y-3">
-                        <p class="text-gray-600 font-medium">Payment History</p>
-                        <div class="bg-white p-3 rounded border">
-                            ${parent.payments && parent.payments.length > 0 ?
-                                parent.payments.map(payment => 
-                                    `<p class="text-gray-600">${payment.date} - ₱${payment.amount} (${payment.method})</p>`
-                                ).join('') :
-                                '<p class="text-gray-500">No payment history</p>'
-                            }
-                        </div>
-                    </div>
-                `;
+                loadPaymentsData(currentParentId);
                 break;
             case 'chat':
-                html = `
-                    <div class="space-y-3">
-                        <p class="text-gray-600 font-medium">Chat History</p>
-                        <div class="bg-white p-3 rounded border">
-                            <p class="text-gray-500">Chat functionality coming soon...</p>
-                        </div>
-                    </div>
-                `;
+                startChatRefresh();
                 break;
             case 'activity':
-                html = `
-                    <div class="space-y-3">
-                        <p class="text-gray-600 font-medium">Activity Log</p>
-                        <div class="bg-white p-3 rounded border max-h-60 overflow-y-auto">
-                            ${parent.activity_log && parent.activity_log.length > 0 ?
-                                parent.activity_log.map(log => 
-                                    `<p class="text-gray-600 text-sm">${log.timestamp} - ${log.action}</p>`
-                                ).join('') :
-                                '<p class="text-gray-500">No activity logged</p>'
-                            }
-                        </div>
-                    </div>
-                `;
+                loadActivityData(currentParentId);
+                break;
+            case 'notifications':
+                loadNotificationsData(currentParentId);
                 break;
         }
-        
-        contentElement.innerHTML = html;
-    } else {
-        loadSampleTabContent(tabName, contentElement);
+
+        if (tabName !== 'chat' && chatRefreshInterval) {
+            clearInterval(chatRefreshInterval);
+            chatRefreshInterval = null;
+        }
     }
 }
 
-function loadSampleTabContent(tabName, contentElement) {
-    let html = '';
+window.sendMessage = function() {
+    const input = document.getElementById('chatInput');
+    if (!input) return;
     
-    switch(tabName) {
-        case 'children':
-            html = `
-                <div class="space-y-3">
-                    <p class="text-gray-600 font-medium">Children Information</p>
-                    <div class="bg-white p-3 rounded border">
-                        <p class="text-gray-600">• Maria Cruz Jr. - Age 8</p>
-                        <p class="text-gray-600">• Ana Cruz - Age 6</p>
-                    </div>
-                </div>
-            `;
-            break;
-        case 'billing':
-            html = `
-                <div class="space-y-3">
-                    <p class="text-gray-600 font-medium">Family Billing</p>
-                    <div class="bg-white p-3 rounded border">
-                        <p class="text-gray-600">Current Balance: ₱1,200</p>
-                        <p class="text-gray-600">Last Payment: ₱500 (Jan 15, 2024)</p>
-                    </div>
-                </div>
-            `;
-            break;
-        case 'payments':
-            html = `
-                <div class="space-y-3">
-                    <p class="text-gray-600 font-medium">Payment History</p>
-                    <div class="bg-white p-3 rounded border">
-                        <p class="text-gray-600">Jan 15, 2024 - ₱500</p>
-                        <p class="text-gray-600">Dec 15, 2023 - ₱500</p>
-                        <p class="text-gray-600">Nov 15, 2023 - ₱500</p>
-                    </div>
-                </div>
-            `;
-            break;
-        default:
-            html = `
-                <div class="space-y-3">
-                    <p class="text-gray-600 font-medium">${document.querySelector('.tab.bg-\\[\\#1C1C1D\\]')?.innerText || 'Information'}</p>
-                    <p class="text-gray-600">Content for this tab will appear here.</p>
-                </div>
-            `;
-    }
-    
-    contentElement.innerHTML = html;
-}
+    const message = input.value.trim();
 
-function loadChildrenTab(parent) {
-    const content = document.getElementById("tabContent");
-    loadTabContent('children', parent.parent_id, content);
-}
+    if (!message || !currentParentId) return;
 
-// Delete parent function
-function handleDeleteClick(e) {
-    e.preventDefault();
-    const parentId = this.getAttribute('data-parent-id');
-    const parentName = this.getAttribute('data-parent-name') || 'this parent';
-    
-    Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to delete ${parentName}. This action cannot be undone.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (!result.isConfirmed) return;
-        
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/parent/${parentId}`;
-        form.style.display = 'none';
-        
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = window.csrfToken || document.querySelector('meta[name="csrf-token"]').content;
-        
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
-        
-        form.appendChild(csrfToken);
-        form.appendChild(methodField);
-        document.body.appendChild(form);
-        form.submit();
+    fetch(`/api/parents/${currentParentId}/send-message`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({ message })
+    })
+    .then(response => {
+        if (response.ok) {
+            input.value = '';
+            refreshChat();
+        }
+    })
+    .catch(error => {
+        console.error('Error sending message:', error);
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to send message. Please try again.',
+                confirmButtonColor: '#3085d6'
+            });
+        }
     });
 }
 
-// Show/hide user account fields based on checkbox
-document.addEventListener('DOMContentLoaded', function() {
-    const createAccountCheckbox = document.getElementById('create_user_account');
-    const userAccountFields = document.getElementById('userAccountFields');
+async function loadParentData(parentId) {
+    try {
+        const response = await fetch(`/api/parents/${parentId}`);
+        if (!response.ok) throw new Error('Failed to load parent data');
+        
+        const data = await response.json();
+
+        // Update header
+        const modalParentName = document.getElementById('modalParentName');
+        const modalParentContact = document.getElementById('modalParentContact');
+        const modalAvatar = document.getElementById('modalAvatar');
+        
+        if (modalParentName) modalParentName.textContent = data.parent?.user?.name || 'Parent Profile';
+        if (modalParentContact) {
+            modalParentContact.textContent = 
+                `${data.parent?.user?.mobile || ''} • ${data.parent?.user?.email || ''}`;
+        }
+        if (modalAvatar) {
+            modalAvatar.textContent = (data.parent?.user?.name || 'P').charAt(0).toUpperCase();
+        }
+
+        currentThreadId = data.chat_thread_id;
+
+        // Load chat messages
+        if (data.chat_messages) {
+            loadChatMessages(data.chat_messages);
+        }
+
+    } catch (error) {
+        console.error('Error loading parent data:', error);
+    }
+}
+
+async function loadChildrenData(parentId) {
+    showLoading('children');
+    try {
+        const response = await fetch(`/api/parents/${parentId}/children`);
+        if (!response.ok) throw new Error('Failed to load children data');
+        
+        const data = await response.json();
+
+        const content = document.getElementById('childrenContent');
+        if (content) {
+            content.innerHTML = data.children?.map(child => `
+                <div class="child-card">
+                    <div class="child-header">
+                        <img src="${child.photo || '/images/default-avatar.png'}" class="child-photo" alt="${child.name}">
+                        <div class="child-info">
+                            <h3>${child.name} <span class="badge badge-${child.status}">${child.status}</span></h3>
+                            <p>Student Code: ${child.student_code} • ${child.age} years old</p>
+                            <p>Current Belt: <span class="belt-badge">${child.current_belt}</span></p>
+                        </div>
+                    </div>
+                    <div class="child-stats">
+                        <div class="stat">
+                            <label>Classes</label>
+                            <value>${child.classes?.join(', ') || 'Not enrolled'}</value>
+                        </div>
+                        <div class="stat">
+                            <label>Plan</label>
+                            <value>${child.subscription}</value>
+                        </div>
+                        <div class="stat">
+                            <label>Skills</label>
+                            <value>${child.skills_mastered}/${child.total_skills} mastered</value>
+                        </div>
+                        <div class="stat">
+                            <label>Attendance</label>
+                            <value>${child.attendance_rate}%</value>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-center text-gray-500">No children found</p>';
+        }
+
+        hideLoading('children');
+    } catch (error) {
+        console.error('Error loading children:', error);
+        showError('children', 'Failed to load children data');
+    }
+}
+
+async function loadBillingData(parentId) {
+    showLoading('billing');
+    try {
+        const response = await fetch(`/api/parents/${parentId}/billing`);
+        if (!response.ok) throw new Error('Failed to load billing data');
+        
+        const data = await response.json();
+
+        const content = document.getElementById('billingContent');
+        if (content) {
+            content.innerHTML = `
+                <div class="billing-summary">
+                    <div class="summary-card warning">
+                        <h4>Total Outstanding</h4>
+                        <div class="amount">₱${numberFormat(data.total_outstanding)}</div>
+                    </div>
+                    <div class="summary-card success">
+                        <h4>Paid This Month</h4>
+                        <div class="amount">₱${numberFormat(data.total_paid_this_month)}</div>
+                    </div>
+                    <div class="summary-card danger">
+                        <h4>Overdue</h4>
+                        <div class="amount">₱${numberFormat(data.overdue_amount)}</div>
+                    </div>
+                </div>
+
+                <h4 class="mt-4 mb-2">Invoices by Student</h4>
+                ${data.invoices_by_student?.map(student => `
+                    <div class="student-invoices">
+                        <h5>${student.student_name}</h5>
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Period</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${student.invoices?.map(inv => `
+                                    <tr>
+                                        <td>${inv.invoice_no}</td>
+                                        <td>${inv.billing_period}</td>
+                                        <td>₱${numberFormat(inv.total_due)}</td>
+                                        <td>${inv.due_date}</td>
+                                        <td><span class="badge badge-${inv.status}">${inv.status}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        hideLoading('billing');
+    } catch (error) {
+        console.error('Error loading billing:', error);
+        showError('billing', 'Failed to load billing data');
+    }
+}
+
+async function loadPaymentsData(parentId) {
+    showLoading('payments');
+    try {
+        const response = await fetch(`/api/parents/${parentId}/payments`);
+        if (!response.ok) throw new Error('Failed to load payments data');
+        
+        const data = await response.json();
+
+        const content = document.getElementById('paymentsContent');
+        if (content) {
+            content.innerHTML = `
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Reference</th>
+                            <th>Received By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.payments?.data?.map(payment => `
+                            <tr>
+                                <td>${new Date(payment.paid_at).toLocaleDateString()}</td>
+                                <td>${payment.invoice?.student?.first_name || 'N/A'}</td>
+                                <td>₱${numberFormat(payment.amount)}</td>
+                                <td><span class="badge badge-info">${payment.payment_method}</span></td>
+                                <td>${payment.reference_no || '-'}</td>
+                                <td>${payment.received_by?.name || 'System'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        hideLoading('payments');
+    } catch (error) {
+        console.error('Error loading payments:', error);
+        showError('payments', 'Failed to load payment history');
+    }
+}
+
+function loadChatMessages(messages) {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
     
-    if (createAccountCheckbox && userAccountFields) {
-        createAccountCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                userAccountFields.classList.remove('hidden');
-                // Make fields required
-                document.querySelectorAll('#userAccountFields input').forEach(input => {
-                    if (input.name !== 'mobile_no') { // mobile_no might be optional
-                        input.setAttribute('required', 'required');
-                    }
-                });
+    // Get current user ID from a meta tag or data attribute
+    const currentUserId = document.querySelector('meta[name="user-id"]')?.content || 0;
+    
+    container.innerHTML = messages?.map(msg => `
+        <div class="message ${msg.sender_user_id == currentUserId ? 'own' : 'other'}">
+            <div class="message-bubble">
+                <div class="message-sender">${msg.sender?.name || 'Unknown'}</div>
+                <div class="message-text">${escapeHtml(msg.message)}</div>
+                <div class="message-time">${new Date(msg.sent_at).toLocaleTimeString()}</div>
+            </div>
+        </div>
+    `).join('') || '';
+
+    container.scrollTop = container.scrollHeight;
+}
+
+function startChatRefresh() {
+    if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+
+    // Refresh every 5 seconds when chat tab is active
+    chatRefreshInterval = setInterval(() => {
+        if (currentParentId && currentThreadId) {
+            refreshChat();
+        }
+    }, 5000);
+}
+
+async function refreshChat() {
+    try {
+        const response = await fetch(`/api/chat-threads/${currentThreadId}/messages`);
+        if (!response.ok) throw new Error('Failed to refresh chat');
+        
+        const data = await response.json();
+        loadChatMessages(data.messages);
+    } catch (error) {
+        console.error('Error refreshing chat:', error);
+    }
+}
+
+async function loadActivityData(parentId) {
+    showLoading('activity');
+    try {
+        const response = await fetch(`/api/parents/${parentId}/activity`);
+        if (!response.ok) throw new Error('Failed to load activity data');
+        
+        const data = await response.json();
+
+        const content = document.getElementById('activityContent');
+        if (content) {
+            content.innerHTML = `
+                <div class="activity-timeline">
+                    ${data.logs?.map(log => `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas ${getActivityIcon(log.action)}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="activity-title">${log.description}</p>
+                                <p class="activity-meta">
+                                    ${log.entity} • ${log.user} • ${new Date(log.timestamp).toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        hideLoading('activity');
+    } catch (error) {
+        console.error('Error loading activity:', error);
+        showError('activity', 'Failed to load activity log');
+    }
+}
+
+async function loadNotificationsData(parentId) {
+    showLoading('notifications');
+    try {
+        const response = await fetch(`/api/parents/${parentId}/notifications`);
+        if (!response.ok) throw new Error('Failed to load notifications');
+        
+        const data = await response.json();
+
+        // Update badge
+        const unreadCount = data.notifications?.filter(n => !n.read).length || 0;
+        const badge = document.getElementById('notifBadge');
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'inline';
             } else {
-                userAccountFields.classList.add('hidden');
-                // Remove required attribute
-                document.querySelectorAll('#userAccountFields input').forEach(input => {
-                    input.removeAttribute('required');
-                });
+                badge.style.display = 'none';
             }
+        }
+
+        const content = document.getElementById('notificationsContent');
+        if (content) {
+            content.innerHTML = data.notifications?.length ? data.notifications.map(notif => `
+                <div class="notification-item ${notif.read ? 'read' : 'unread'}">
+                    <div class="notification-icon">
+                        <i class="fas ${getNotificationIcon(notif.type)}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <h5>${notif.title}</h5>
+                        <p>${notif.message}</p>
+                        <span class="notification-time">${notif.time}</span>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-500">No notifications</p>';
+        }
+
+        hideLoading('notifications');
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        showError('notifications', 'Failed to load notifications');
+    }
+}
+
+// Utility functions
+function showLoading(tab) {
+    const loadingEl = document.getElementById(`${tab}Loading`);
+    const contentEl = document.getElementById(`${tab}Content`);
+    
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (contentEl) contentEl.classList.add('hidden');
+}
+
+function hideLoading(tab) {
+    const loadingEl = document.getElementById(`${tab}Loading`);
+    const contentEl = document.getElementById(`${tab}Content`);
+    
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (contentEl) contentEl.classList.remove('hidden');
+}
+
+function showError(tab, message) {
+    const loadingEl = document.getElementById(`${tab}Loading`);
+    if (loadingEl) {
+        loadingEl.innerHTML = `<div class="text-red-500"><i class="fas fa-exclamation-circle"></i> ${message}</div>`;
+    }
+}
+
+function numberFormat(num) {
+    return parseFloat(num || 0).toLocaleString('en-PH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getActivityIcon(action) {
+    const icons = {
+        'create': 'fa-plus-circle',
+        'update': 'fa-edit',
+        'delete': 'fa-trash',
+        'payment': 'fa-money-bill',
+        'attendance': 'fa-calendar-check'
+    };
+    return icons[action] || 'fa-circle';
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'chat': 'fa-comments',
+        'payment': 'fa-file-invoice',
+        'attendance': 'fa-calendar-check',
+        'announcement': 'fa-bullhorn',
+        'evaluation': 'fa-clipboard-check'
+    };
+    return icons[type] || 'fa-bell';
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Parents JS loaded');
+    
+    // Close modal when clicking outside
+    window.onclick = function(e) {
+        const modal = document.getElementById("parentModal");
+        if (e.target === modal) {
+            closeModal();
+        }
+    }
+
+    // Enter key to send message
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
         });
     }
-    
-    // Attach delete button listeners
-    document.querySelectorAll('.delete-parent-btn').forEach(button => {
-        button.removeEventListener('click', handleDeleteClick);
-        button.addEventListener('click', handleDeleteClick);
-    });
-    
+
     // Initialize DataTable
+    initializeParentDataTable();
+});
+
+function initializeParentDataTable() {
     const parentTable = document.getElementById('parentTable');
-    if (parentTable && parentTable.querySelector('tbody tr') && !parentTable.querySelector('td[colspan]')) {
+    if (!parentTable) return;
+    
+    const tbody = parentTable.querySelector('tbody');
+    const rows = tbody ? tbody.querySelectorAll('tr') : [];
+    const hasData = rows.length > 0 && !rows[0].querySelector('td[colspan]');
+    
+    if (hasData && typeof simpleDatatables !== 'undefined') {
         try {
             const dataTable = new simpleDatatables.DataTable(parentTable, {
                 perPage: 10,
@@ -354,44 +536,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     noResults: "No results match your search query"
                 }
             });
+            
+            console.log('Parent DataTable initialized successfully');
         } catch (error) {
-            console.error('DataTable initialization failed:', error);
+            console.error('Parent DataTable initialization failed:', error);
         }
-    }
-});
-
-// Close modals when clicking outside
-window.onclick = function(event) {
-    const addModal = document.getElementById("addParentModal");
-    const viewModal = document.getElementById("viewParentModal");
-    const editModal = document.getElementById("editParentModal");
-    
-    if (event.target === addModal) {
-        closeAddParentModal();
-    }
-    if (event.target === viewModal) {
-        closeViewParentModal();
-    }
-    if (event.target === editModal) {
-        closeEditParentModal();
     }
 }
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        const addModal = document.getElementById("addParentModal");
-        const viewModal = document.getElementById("viewParentModal");
-        const editModal = document.getElementById("editParentModal");
-        
-        if (addModal && !addModal.classList.contains('hidden')) {
-            closeAddParentModal();
-        }
-        if (viewModal && !viewModal.classList.contains('hidden')) {
-            closeViewParentModal();
-        }
-        if (editModal && !editModal.classList.contains('hidden')) {
-            closeEditParentModal();
-        }
-    }
-});

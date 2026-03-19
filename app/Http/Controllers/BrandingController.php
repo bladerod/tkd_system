@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/BrandingController.php
 
 namespace App\Http\Controllers;
 

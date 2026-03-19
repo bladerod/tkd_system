@@ -14,7 +14,7 @@
 
             <!-- Students -->
             <li>
-                <a href="admin/students" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-product">
+                <a href="students" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-product">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
                         <i class="fa fa-user" aria-hidden="true"></i>
                     </div>

@@ -361,7 +361,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     @vite(['resources/js/app.js'])
-    @vite(['resources/js/dashboard.js'])
+    @vite(['resources/js/navbarDrop.js'])
 
     <script>
         let currentStudentId = null;

@@ -3,6 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Student extends Model
 {
@@ -61,13 +67,12 @@ class Student extends Model
     /**
      * Get the belt level associated with the student.
      */
-    public function currentBelt(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function currentBelt(): BelongsTo
     {
         return $this->belongsTo(BeltLevel::class, 'current_belt', 'id');
     }
 
 
-    public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
     public function primaryParent(): HasOne 
     { 
         return $this->hasOne(ParentModel::class, 'user_id', 'id'); 
@@ -87,10 +92,10 @@ class Student extends Model
         return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
     }
 
-    public function announcements()
-    {
-        return $this->belongsToMany(ClassModel::class,'class_students','student_id','class_id');
-    }
+    // public function announcements()
+    // {
+    //     return $this->belongsToMany(ClassModel::class,'class_students','student_id','class_id');
+    // }
 
     // public function auditLogs()
     // {

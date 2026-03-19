@@ -707,6 +707,6 @@
         window.csrfToken = '{{ csrf_token() }}';
     </script>
     
-    @vite(['resources/js/announcement.js', 'resources/js/dashboard.js'])
+    @vite(['resources/js/announcement.js', 'resources/js/navbarDrop.js'])
 </body>
 </html>

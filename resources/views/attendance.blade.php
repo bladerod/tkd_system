@@ -16,7 +16,7 @@
         <div class="row">
             <main class="ml-64 p-6"> 
                 <div class="container-fluid">
-                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
                         <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
                         <span>/</span>
                         <span class="text-[#1C1C1D] font-medium">Attendance</span>
@@ -225,8 +225,8 @@
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {{ optional($log->recordedBy)->fname ?? 'System' }} {{ optional($log->recordedBy)->lname ?? '' }}
                                                         </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap flex items-center gap-1">
-                                                            @if(!$log->checkout_time)
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            @if(!$log->checkout_time || $log->checkout_time->format('Y-m-d H:i:s') == '0000-00-00 00:00:00')
                                                                 <span class="px-3 py-1 text-xs font-medium bg-green-500 text-white rounded-full">IN</span>
                                                             @else
                                                                 <span class="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded-full">OUT</span>
@@ -234,7 +234,7 @@
                                                             
                                                             @if($log->status == 1)
                                                                 <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full" title="Valid Log">Valid</span>
-                                                            @elseif($log->status === 0)
+                                                            @elseif($log->status == 0)
                                                                 <span class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-800 rounded-full" title="Invalid/Voided">Void</span>
                                                             @endif
                                                         </td>

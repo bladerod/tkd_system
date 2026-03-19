@@ -19,7 +19,7 @@ class AnnouncementController extends Controller
     public function index()
     {
         // Get all announcements with their creator, class, and branch
-        $announcements = Announcement::with(['creator', 'class', 'branch'])->get();
+        $announcements = Announcement::with(['createdBy', 'class', 'branch'])->get();
         
         // Get classes for dropdown
         $classes = Classes::select('id', 'class_name', 'branch_id')->get();
@@ -162,7 +162,7 @@ class AnnouncementController extends Controller
     public function show($id)
     {
         try {
-            $announcement = Announcement::with(['creator', 'class', 'branch'])->findOrFail($id);
+            $announcement = Announcement::with(['createdBy', 'class', 'branch'])->findOrFail($id);
             
             // Convert channel string back to array
             $channels = $announcement->channel ? explode(',', $announcement->channel) : [];
@@ -181,7 +181,7 @@ class AnnouncementController extends Controller
                 'publish_date' => $announcement->publish_date ? $announcement->publish_date->format('Y-m-d') : null,
                 'expire_date' => $announcement->expire_date ? $announcement->expire_date->format('Y-m-d') : null,
                 'created_by_user_id' => $announcement->created_by_user_id,
-                'creator_name' => $announcement->creator ? $announcement->creator->fname . ' ' . $announcement->creator->lname : 'Unknown',
+                'creator_name' => $announcement->createdBy ? $announcement->creator->fname . ' ' . $announcement->creator->lname : 'Unknown',
                 'is_active' => Carbon::now()->lte($announcement->expire_date),
                 'is_expired' => Carbon::now()->gt($announcement->expire_date),
             ]);

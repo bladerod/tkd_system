@@ -15,7 +15,6 @@ use App\Models\StudentEvaluation;
 use App\Models\ChatThread;
 use App\Models\ChatMessage;
 use App\Models\AuditLog;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -44,8 +43,8 @@ class StudentController extends Controller
                     'status' => $student->status ?? 'active',
                     'photo' => $student->photo_url,
                     'parent_name' => $student->primaryParent?->user?->name ?? 'N/A',
-                    'balance' => $this->calculateBalance($student),
-                    'attendance_rate' => $this->calculateAttendanceRate($student),
+                    // 'balance' => $this->calculateBalance($student),
+                    // 'attendance_rate' => $this->calculateAttendanceRate($student),
                     'class_id' => $student->classes->first()?->id,
                     'instructor_id' => $student->classes->first()?->primary_instructor_id,
                 ];
@@ -54,19 +53,19 @@ class StudentController extends Controller
         return view('student', compact('students', 'beltLevels', 'classes', 'instructors'));
     }
 
-    private function calculateBalance($student)
-    {
-        // Based on your invoices and payments schema
-        $totalDue = \App\Models\Invoice::where('student_id', $student->id)
-            ->whereIn('status', ['pending', 'overdue'])
-            ->sum('total_due');
+    // private function calculateBalance($student)
+    // {
+    //     // Based on your invoices and payments schema
+    //     $totalDue = Invoice::where('student_id', $student->id)
+    //         ->whereIn('status', ['pending', 'overdue'])
+    //         ->sum('total_due');
 
-        $totalPaid = \App\Models\Payment::whereHas('invoice', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })->sum('amount');
+    //     $totalPaid = Payment::whereHas('invoice', function($query) use ($student) {
+    //             $query->where('student_id', $student->id);
+    //         })->sum('amount');
 
-        return max(0, $totalDue - $totalPaid);
-    }
+    //     return max(0, $totalDue - $totalPaid);
+    // }
 
     public function store(Request $request)
     {
@@ -112,15 +111,15 @@ class StudentController extends Controller
     }
 
 
-    public function getProfile($id)
-    {
-        $total = \App\Models\AttendanceLog::where('student_id', $student->id)->count();
-        $present = \App\Models\AttendanceLog::where('student_id', $student->id)
-            ->where('status', 'present')
-            ->count();
+    // public function getProfile($id)
+    // {
+    //     $total = AttendanceLog::where('student_id', $student->id)->count();
+    //     $present = AttendanceLog::where('student_id', $student->id)
+    //         ->where('status', 'present')
+    //         ->count();
 
-        return $total > 0 ? round(($present / $total) * 100, 1) : 0;
-    }
+    //     return $total > 0 ? round(($present / $total) * 100, 1) : 0;
+    // }
 
     // API methods for the modal tabs
     public function profile($studentId)
@@ -169,21 +168,21 @@ class StudentController extends Controller
 
     public function attendance($studentId)
     {
-        $logs = \App\Models\AttendanceLog::with('classSession.class')
+        $logs = AttendanceLog::with('classSession.class')
             ->where('student_id', $studentId)
             ->orderBy('checkin_time', 'desc')
             ->paginate(10);
 
         $stats = [
-            'total_sessions' => \App\Models\AttendanceLog::where('student_id', $studentId)->count(),
-            'present' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'present')->count(),
-            'late' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'late')->count(),
-            'absent' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'absent')->count(),
-            'excused' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('status', 'excused')->count(),
+            'total_sessions' => AttendanceLog::where('student_id', $studentId)->count(),
+            'present' => AttendanceLog::where('student_id', $studentId)->where('status', 'present')->count(),
+            'late' => AttendanceLog::where('student_id', $studentId)->where('status', 'late')->count(),
+            'absent' => AttendanceLog::where('student_id', $studentId)->where('status', 'absent')->count(),
+            'excused' => AttendanceLog::where('student_id', $studentId)->where('status', 'excused')->count(),
             'by_method' => [
-                'face' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('method', 'face')->count(),
-                'qr' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('method', 'qr')->count(),
-                'manual' => \App\Models\AttendanceLog::where('student_id', $studentId)->where('method', 'manual')->count(),
+                'face' => AttendanceLog::where('student_id', $studentId)->where('method', 'face')->count(),
+                'qr' => AttendanceLog::where('student_id', $studentId)->where('method', 'qr')->count(),
+                'manual' => AttendanceLog::where('student_id', $studentId)->where('method', 'manual')->count(),
             ],
         ];
 
@@ -193,58 +192,58 @@ class StudentController extends Controller
         ]);
     }
 
-    public function billing($studentId)
-    {
-        $invoices = \App\Models\Invoice::with('payments')
-            ->where('student_id', $studentId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+    // public function billing($studentId)
+    // {
+    //     $invoices = Invoice::with('payments')
+    //         ->where('student_id', $studentId)
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
 
-        $summary = [
-            'total_paid' => $invoices->flatMap->payments->sum('amount'),
-            'total_pending' => $invoices->where('status', 'pending')->sum('total_due'),
-            'total_overdue' => $invoices->where('status', 'overdue')->sum('total_due'),
-            'lifetime_total' => $invoices->sum('total_due'),
-        ];
+    //     $summary = [
+    //         'total_paid' => $invoices->flatMap->payments->sum('amount'),
+    //         'total_pending' => $invoices->where('status', 'pending')->sum('total_due'),
+    //         'total_overdue' => $invoices->where('status', 'overdue')->sum('total_due'),
+    //         'lifetime_total' => $invoices->sum('total_due'),
+    //     ];
 
-        return response()->json([
-            'summary' => $summary,
-            'invoices' => $invoices->map(function($inv) {
-                return [
-                    'invoice_no' => $inv->invoice_no,
-                    'status' => $inv->status,
-                    'period' => $inv->billing_period_start?->format('M Y') . ' - ' . $inv->billing_period_end?->format('M Y'),
-                    'due_date' => $inv->due_date?->format('M d, Y'),
-                    'total_due' => $inv->total_due,
-                    'payments' => $inv->payments->map(function($p) {
-                        return [
-                            'amount' => $p->amount,
-                            'method' => $p->payment_method,
-                            'date' => $p->paid_at,
-                        ];
-                    }),
-                ];
-            }),
-            'current_subscription' => \App\Models\StudentSubscription::with('plan')
-                ->where('student_id', $studentId)
-                ->where('status', 'active')
-                ->first()?->plan ? [
-                    'plan' => \App\Models\StudentSubscription::with('plan')
-                        ->where('student_id', $studentId)
-                        ->where('status', 'active')
-                        ->first()->plan->plan_name,
-                    'monthly_price' => \App\Models\StudentSubscription::with('plan')
-                        ->where('student_id', $studentId)
-                        ->where('status', 'active')
-                        ->first()->plan->monthly_price,
-                    'status' => 'active',
-                ] : null,
-        ]);
-    }
+    //     return response()->json([
+    //         'summary' => $summary,
+    //         'invoices' => $invoices->map(function($inv) {
+    //             return [
+    //                 'invoice_no' => $inv->invoice_no,
+    //                 'status' => $inv->status,
+    //                 'period' => $inv->billing_period_start?->format('M Y') . ' - ' . $inv->billing_period_end?->format('M Y'),
+    //                 'due_date' => $inv->due_date?->format('M d, Y'),
+    //                 'total_due' => $inv->total_due,
+    //                 'payments' => $inv->payments->map(function($p) {
+    //                     return [
+    //                         'amount' => $p->amount,
+    //                         'method' => $p->payment_method,
+    //                         'date' => $p->paid_at,
+    //                     ];
+    //                 }),
+    //             ];
+    //         }),
+    //         'current_subscription' => StudentSubscription::with('plan')
+    //             ->where('student_id', $studentId)
+    //             ->where('status', 'active')
+    //             ->first()?->plan ? [
+    //                 'plan' => StudentSubscription::with('plan')
+    //                     ->where('student_id', $studentId)
+    //                     ->where('status', 'active')
+    //                     ->first()->plan->plan_name,
+    //                 'monthly_price' => StudentSubscription::with('plan')
+    //                     ->where('student_id', $studentId)
+    //                     ->where('status', 'active')
+    //                     ->first()->plan->monthly_price,
+    //                 'status' => 'active',
+    //             ] : null,
+    //     ]);
+    // }
 
     public function competitions($studentId)
     {
-        $entries = \App\Models\CompetitionEntry::with('competition', 'instructor.user')
+        $entries = CompetitionEntry::with('competition', 'instructor.user')
             ->where('student_id', $studentId)
             ->get();
 
@@ -275,7 +274,7 @@ class StudentController extends Controller
 
     public function certificates($studentId)
     {
-        $certs = \App\Models\Certificate::where('student_id', $studentId)
+        $certs = Certificate::where('student_id', $studentId)
             ->orderBy('issued_date', 'desc')
             ->get();
 
@@ -289,7 +288,7 @@ class StudentController extends Controller
                     'certificate_type' => $cert->certificate_type,
                     'description' => $cert->description,
                     'issued_date' => $cert->issued_date?->format('M d, Y'),
-                    'issued_by' => \App\Models\User::find($cert->issued_by_user_id)?->name ?? 'System',
+                    // 'issued_by' => User::find($cert->issued_by_user_id)?->name ?? 'System',
                     'pdf_path' => $cert->pdf_path ? asset('storage/' . $cert->pdf_path) : null,
                     'qr_code_value' => $cert->qr_code_value,
                 ];
@@ -297,66 +296,66 @@ class StudentController extends Controller
         ]);
     }
 
-    public function progress($studentId)
-    {
-        $student = Student::findOrFail($studentId);
+    // public function progress($studentId)
+    // {
+    //     $student = Student::findOrFail($studentId);
 
-        $skills = \App\Models\StudentSkillProgress::with('skill')
-            ->where('student_id', $studentId)
-            ->get();
+    //     $skills = StudentSkillProgress::with('skill')
+    //         ->where('student_id', $studentId)
+    //         ->get();
 
-        $evaluations = \App\Models\StudentEvaluation::with('instructor.user')
-            ->where('student_id', $studentId)
-            ->orderBy('evaluation_date', 'desc')
-            ->take(5)
-            ->get();
+    //     $evaluations = StudentEvaluation::with('instructor.user')
+    //         ->where('student_id', $studentId)
+    //         ->orderBy('evaluation_date', 'desc')
+    //         ->take(5)
+    //         ->get();
 
-        $examHistory = \App\Models\BeltExamResult::with('exam')
-            ->where('student_id', $studentId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+    //     $examHistory = BeltExamResult::with('exam')
+    //         ->where('student_id', $studentId)
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
 
-        $totalSkills = $skills->count();
-        $mastered = $skills->where('status', 'mastered')->count();
-        $inProgress = $skills->where('status', 'in_progress')->count();
+    //     $totalSkills = $skills->count();
+    //     $mastered = $skills->where('status', 'mastered')->count();
+    //     $inProgress = $skills->where('status', 'in_progress')->count();
 
-        return response()->json([
-            'current_belt' => $student->current_belt,
-            'progress_summary' => [
-                'percentage' => $totalSkills > 0 ? round(($mastered / $totalSkills) * 100) : 0,
-                'mastered' => $mastered,
-                'in_progress' => $inProgress,
-                'total' => $totalSkills,
-            ],
-            'skills' => $skills->map(function($s) {
-                return [
-                    'skill_name' => $s->skill->skill_name,
-                    'description' => $s->skill->description,
-                    'status' => $s->status,
-                ];
-            }),
-            'evaluations' => $evaluations->map(function($e) {
-                return [
-                    'evaluation_date' => $e->evaluation_date?->format('M d, Y'),
-                    'instructor' => $e->instructor?->user?->name ?? 'N/A',
-                    'technique_score' => $e->technique_score,
-                    'discipline_score' => $e->discipline_score,
-                    'fitness_score' => $e->fitness_score,
-                    'sparring_score' => $e->sparring_score,
-                    'belt_ready_flag' => $e->belt_ready_flag,
-                ];
-            }),
-            'exam_history' => $examHistory->map(function($e) {
-                return [
-                    'belt_level' => $e->exam->belt_level,
-                    'result' => $e->result,
-                    'exam_date' => $e->exam->exam_date?->format('M d, Y'),
-                    'score' => $e->score,
-                    'approved_by' => \App\Models\User::find($e->approved_by)?->name ?? 'N/A',
-                ];
-            }),
-        ]);
-    }
+    //     return response()->json([
+    //         'current_belt' => $student->current_belt,
+    //         'progress_summary' => [
+    //             'percentage' => $totalSkills > 0 ? round(($mastered / $totalSkills) * 100) : 0,
+    //             'mastered' => $mastered,
+    //             'in_progress' => $inProgress,
+    //             'total' => $totalSkills,
+    //         ],
+    //         'skills' => $skills->map(function($s) {
+    //             return [
+    //                 'skill_name' => $s->skill->skill_name,
+    //                 'description' => $s->skill->description,
+    //                 'status' => $s->status,
+    //             ];
+    //         }),
+    //         'evaluations' => $evaluations->map(function($e) {
+    //             return [
+    //                 'evaluation_date' => $e->evaluation_date?->format('M d, Y'),
+    //                 'instructor' => $e->instructor?->user?->name ?? 'N/A',
+    //                 'technique_score' => $e->technique_score,
+    //                 'discipline_score' => $e->discipline_score,
+    //                 'fitness_score' => $e->fitness_score,
+    //                 'sparring_score' => $e->sparring_score,
+    //                 'belt_ready_flag' => $e->belt_ready_flag,
+    //             ];
+    //         }),
+    //         'exam_history' => $examHistory->map(function($e) {
+    //             return [
+    //                 'belt_level' => $e->exam->belt_level,
+    //                 'result' => $e->result,
+    //                 'exam_date' => $e->exam->exam_date?->format('M d, Y'),
+    //                 'score' => $e->score,
+    //                 'approved_by' => User::find($e->approved_by)?->name ?? 'N/A',
+    //             ];
+    //         }),
+    //     ]);
+    // }
 
     public function chat($studentId)
     {
@@ -385,7 +384,7 @@ class StudentController extends Controller
                 'belt_certificate' => 'Belt Certificate',
                 'report_card' => 'Progress Report',
             ],
-            'generated_documents' => [], // Populate from your document generation table
+            'generated_documents' => [],
         ]);
     }
 }

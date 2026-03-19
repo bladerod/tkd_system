@@ -20,8 +20,8 @@ class Announcement extends Model
     ];
 
     protected $casts = [
-        'publish_date' => 'date',
-        'expire_date' => 'date',
+        'publish_date' => 'datetime',
+        'expire_date' => 'datetime',
     ];
 
     // Relationships

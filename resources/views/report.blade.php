@@ -117,7 +117,7 @@
 </div>
 
 </body>
-  @vite(['resources/js/dashboard.js'])
+  @vite(['resources/js/navbarDrop.js'])
   <script src="//unpkg.com/alpinejs" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
 </html>

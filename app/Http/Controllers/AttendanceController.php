@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/AttendanceController.php
 
 namespace App\Http\Controllers;
 
@@ -66,9 +65,7 @@ class AttendanceController extends Controller
         $uniqueStudentsToday = AttendanceLog::whereDate('checkin_time', today())
             ->distinct('student_id')
             ->count('student_id');
-        $activeClasses = ClassSession::whereDate('session_date', today())
-            ->where('session_status', 'scheduled')
-            ->count();
+        $activeClasses = Classes::where('status', 'active')->count();
 
         return view('attendance', compact(
             'attendanceLogs', 

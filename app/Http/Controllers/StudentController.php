@@ -15,7 +15,6 @@ use App\Models\StudentEvaluation;
 use App\Models\ChatThread;
 use App\Models\ChatMessage;
 use App\Models\AuditLog;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

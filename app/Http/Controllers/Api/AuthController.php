@@ -26,9 +26,15 @@ class AuthController extends Controller
         // Generate a plain text token for Flutter to save
         $token = $user->createToken('flutter-mobile-app')->plainTextToken;
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ]);
+       return response()->json([
+    'success' => true,
+    'token' => $token,
+    'user' => [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role,
+    ]
+]);
     }
 }

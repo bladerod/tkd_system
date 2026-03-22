@@ -23,6 +23,7 @@ class User extends Authenticatable
         'fname',
         'lname',
         'email',
+        'username', 
         'mobile',
         'password',
         'photo_url',

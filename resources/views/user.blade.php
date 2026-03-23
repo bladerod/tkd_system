@@ -345,7 +345,7 @@
             </div>
             <div class="p-4">
                 <!-- Modal Body - Form -->
-                <form id="editUserForm" method="POST" action="" enctype="multipart/form-data">
+                <form id="editUserForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     

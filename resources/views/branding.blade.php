@@ -67,6 +67,7 @@
                                                     <label class="block text-sm text-gray-600 mb-1">Logo</label>
                                                     <input type="file" 
                                                            name="logo"
+                                                           accept="image/png, image/jpeg"
                                                            class="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                                     <p class="text-xs text-gray-500 mt-1">Recommended size: 200x50px. Max size: 2MB</p>
                                                 </div>

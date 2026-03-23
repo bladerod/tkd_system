@@ -8,10 +8,10 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\BillingRulesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClubProfileController;
 use App\Http\Controllers\BrandingController;
-use Illuminate\Http\Request;
 
 // Guest routes
 Route::middleware(['guest'])->group(function () {
@@ -97,10 +97,12 @@ Route::middleware(['auth'])->group(function () {
         return view('settings');
     });
     Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
-    Route::get('/settings/billing-rules', function () {
-        return view('billingrules');
-    });
     
+    //Billing Rules
+    Route::get('/settings/billing-rules', [BillingRulesController::class, 'index']);
+    Route::post('/settings/billing-rules', [BillingRulesController::class, 'update']);
+    //
+
     // For Club Profile
     Route::get('/settings/club-profile', [ClubProfileController::class, 'index'])->name('settings.club-profile');
     Route::post('/settings/club-profile/update', [ClubProfileController::class, 'update'])->name('settings.club-profile.update');
@@ -114,6 +116,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/branding-rules', function () {
         return view('brandingrules');
     });
+    
+
     Route::get('/settings/discounts', function () {
         return view('discounts');
     });

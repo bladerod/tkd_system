@@ -3,7 +3,9 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center flex-1 md:mr-4">
                 <div class="relative w-full max-w-md">
-                    <!-- Replace the LOGO text with actual logo -->
+                    @php
+                        $branding = \App\Models\Branding::first();
+                    @endphp
                     @if(isset($branding) && $branding->logo_path)
                         <img src="{{ Storage::url($branding->logo_path) }}" 
                              alt="{{ $branding->club_name ?? 'Logo' }}" 

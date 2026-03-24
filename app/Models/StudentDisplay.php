@@ -27,6 +27,7 @@ class StudentDisplay extends Model
         'photo_url',
         'current_belt',
         'join_date',
+        'status',
         'medical_notes',
         'allergies',
         'emergency_contact_name',

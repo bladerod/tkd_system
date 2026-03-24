@@ -34,9 +34,9 @@
                 <label for="belt">Belt</label>
                 <select name="belt" id="belt">
                     <option value="" disabled selected>-- Select a belt --</option>
-                    {{-- @foreach ($beltLevels as $belt)
-                        <option value="{{ $belt->id }}">{{ $belt->belt_level }}</option>
-                    @endforeach --}}
+                    @foreach ($beltlevels as $belt)
+                        <option value="{{ $belt->id }}">{{ $belt->name }}</option>
+                    @endforeach
                 </select>
             </div>
 

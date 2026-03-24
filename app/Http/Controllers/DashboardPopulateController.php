@@ -30,6 +30,7 @@ class DashboardPopulateController extends Controller
             'birthdate' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'belt_level' => 'required',
+            'status' => 'required',
             'medical_notes' => 'nullable|string',
             'allergies' => 'nullable|string',
             'contact_person' => 'required|string',
@@ -50,7 +51,7 @@ class DashboardPopulateController extends Controller
             'emergency_contact_mobile' => $validate['contact_number'],
             'primary_parent_id' => $validate['primary_parent_id'],
             'join_date' => now(), // Required by your SQL schema
-            'status' => 'active',
+            'status' => $validate['status'],
         ]);
 
         return redirect()->back()->with('success', 'Student added successfully!');

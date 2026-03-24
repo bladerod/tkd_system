@@ -14,6 +14,7 @@ use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
+use App\Models\BeltLevel;
 use App\Models\Classes;
 use App\Models\Student;
 use App\Models\User;
@@ -64,7 +65,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // STUDENTS - Main fix here!
-    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+    Route::post('/student', [StudentController::class,'store'])->name('student.store');
+    
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
@@ -157,8 +159,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->name('branch.delete');
 
 
-    Route::get('/student', [StudentController::class,'index'])->name('index');
-    Route::post('/student', [StudentController::class,'store'])->name('student.store');
+
 
 
     Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
@@ -177,6 +178,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('report');
 
 Route::get('/student', function () {
+    $beltlevels = BeltLevel::all();
     $users = User::all();
     $classes = Classes::all();
      $vwstudents = Student::select(
@@ -189,7 +191,7 @@ Route::get('/student', function () {
         'attendance'
     )->get();
 
-    return view('student', compact('vwstudents', 'classes', 'users'));
+    return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
 })->name('student');
 
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');

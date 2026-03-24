@@ -143,6 +143,16 @@
             <div class="p-6">
                 <form :action="isEdit ? '/instructor/update/' + form.id : '/instructor/store'" method="POST" enctype="multipart/form-data">
                     @csrf
+
+                    <label for="branch">Branch</label>
+                    <div>
+                        <select name="branch_id" id="branch" class="rounded-md mb-3 py-2" style="border: solid 1px black; width: 100%;">
+                            <option value="" disabled selected>-- Select a Branch --</option>
+                            @foreach ($branches as $branch)
+                                <option value="{{ $branch->id }}">{{ $branch->code.' '.$branch->name.' '.$branch->city }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="grid grid-cols-2 gap-4 mb-3">
                         <div>
                             <label class="block text-sm">First Name</label>

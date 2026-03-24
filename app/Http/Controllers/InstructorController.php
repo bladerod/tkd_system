@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Branch;
 use App\Models\Instructor;
 use App\Models\User;
+use DB;
+use Illuminate\Http\Request;
 
 class InstructorController extends Controller
 {
     public function index()
     {
+        $branches = Branch::all();
         $instructors = Instructor::select(
             'id',
             'fname',
             'lname',
-            \DB::raw("CONCAT(fname, ' ', lname) as name"),
+            DB::raw("CONCAT(fname, ' ', lname) as name"),
             'contact',
             'email',
             'username',
@@ -25,12 +28,13 @@ class InstructorController extends Controller
             'status'
         )->get();
 
-        return view('instructor', compact('instructors'));
+        return view('instructor', compact('instructors', 'branches'));
     }
 
    public function store(Request $request)
 {
     $request->validate([
+        'branch_id' => 'required',
         'fname' => 'required|string|max:255',
         'lname' => 'required|string|max:255',
         'email' => 'required|email|unique:instructors,email|unique:users,email',
@@ -48,17 +52,17 @@ class InstructorController extends Controller
     $photoPath = $request->hasFile('photo') ? $request->file('photo')->store('instructors', 'public') : null;
 
     // Create user account para sa Flutter login
-   $user = \App\Models\User::create([
-    'fname' => $request->fname,
-    'lname' => $request->lname,
-    'email' => $request->email,
-    'password' => bcrypt($request->password),
-    'role' => 'instructor',
-    'mobile' => $request->contact,
-    'username' => $request->username,
-    'branch_id' => null,
-    
-]);
+    $user = User::create([
+        'branch_id' => $request->branch_id,
+        'fname' => $request->fname,
+        'lname' => $request->lname,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'role' => 'instructor',
+        'mobile' => $request->contact,
+        'username' => $request->username,
+        
+    ]);
 
     // Create instructor record
     Instructor::create([

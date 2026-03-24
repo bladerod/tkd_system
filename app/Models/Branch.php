@@ -10,15 +10,10 @@ class Branch extends Model {
     protected $primaryKey = 'id';
     public $timestamps = true;
 
-    protected $fillable = [
-        'name',
-        'code',
-        'address',
-        'city',
-        'mobile',
-        'email',
-        'status'
-    ];
+   protected $fillable = [
+    'name','code','address','city','province',
+    'mobile','email','status'
+];
 
     /**
      * Get the users for the branch.

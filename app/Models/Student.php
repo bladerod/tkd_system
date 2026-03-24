@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -12,33 +13,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Student extends Model
 {
-    use HasApiTokens, Notifiable;
+    use HasFactory;
 
-    protected $table = 'students';
-    protected $primaryKey = 'id';
-    public $timestamps = true;
+    // Connect to your database view
+    protected $table = 'student_overview';
+
+    // Make sure Eloquent doesn't expect timestamps if the view doesn't have them
+    public $timestamps = false;
 
     protected $fillable = [
-        'branch_id',
-        'student_code',
-        'first_name',
-        'last_name', 
-        'birthdate',
-        'gender',
-        'photo_url',
-        'current_belt', 
-        'join_date',
+        'id',
+        'student_name',
+        'current_belt',
         'status',
-        'medical_notes',
-        'allergies', 
-        'emergency_contact_name',
-        'emergency_contact_mobile',
-        'primary_parent_id'
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
+        'parent_name',
+        'balance',
+        'attendance',
     ];
 
     public function parent()

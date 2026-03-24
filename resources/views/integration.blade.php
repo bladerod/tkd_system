@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TKD - Integrations</title>
+    <title>TrainNova - Integrations</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -59,7 +59,7 @@
                                     {{-- <div class="grid grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <label class="block text-sm text-gray-600 mb-1">Sender Name</label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="TKD Academy">
+                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="TrainNova Academy">
                                         </div>
                                         <div>
                                             <label class="block text-sm text-gray-600 mb-1">Enable SMS Notifications</label>
@@ -90,7 +90,7 @@
                                     <div class="grid grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <label class="block text-sm text-gray-600 mb-1">Email Address</label>
-                                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="academy@tkd.com">
+                                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="academy@TrainNova.com">
                                         </div>
                                         <div>
                                             <label class="block text-sm text-gray-600 mb-1">Email Password</label>
@@ -135,7 +135,7 @@
                                         </div>
                                         <div>
                                             <label class="block text-sm text-gray-600 mb-1">Webhook URL</label>
-                                            <input type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" value="https://api.tkd.com/webhook">
+                                            <input type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" value="https://api.TrainNova.com/webhook">
                                         </div>
                                     </div>
 
@@ -171,7 +171,7 @@
 
                                     <div class="mb-6">
                                         <label class="block text-sm text-gray-600 mb-1">Bucket Name</label>
-                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="tkd-attendance-records">
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="TrainNova-attendance-records">
                                     </div> --}}
 
                                     <!-- Buttons -->

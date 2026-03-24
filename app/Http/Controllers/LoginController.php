@@ -58,8 +58,7 @@ class LoginController extends Controller
                 'last_login_at' => Carbon::now()
             ]);
             
-            return redirect()->intended('/dashboard')
-                ->with('success', 'Welcome back, ' . $user->fname . '!');
+            return redirect()->intended('/dashboard');
         }
 
         // 5. Failed authentication

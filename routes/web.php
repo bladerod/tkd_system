@@ -7,6 +7,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BrandingController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClubProfileController;
 use App\Http\Controllers\DashboardPopulateController;
 use App\Http\Controllers\DiscountController;
@@ -90,6 +91,21 @@ Route::middleware(['auth'])->group(function () {
 
     route::get('/competition',function(){
         return view('competition');
+    });
+
+
+    // Class Management Routes
+    Route::prefix('classes')->name('classes.')->group(function () {
+        Route::get('/', [ClassController::class, 'index'])->name('index');
+        Route::post('/', [ClassController::class, 'store'])->name('store');
+        Route::get('/{id}', [ClassController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ClassController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ClassController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ClassController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/available-students', [ClassController::class, 'getAvailableStudents'])->name('available-students');
+        Route::post('/{id}/enroll', [ClassController::class, 'enrollStudent'])->name('enroll');
+        Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudent'])->name('remove-student');
+        Route::get('/export/csv', [ClassController::class, 'exportCsv'])->name('export');
     });
 
     Route::get('/billing', function () {

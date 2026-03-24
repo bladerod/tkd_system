@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
 use App\Models\AuditLog;
+use App\Models\BeltLevel;
 use App\Models\Branch;
 use App\Models\Certificate;
 use App\Models\ChatMessage;
@@ -18,18 +19,13 @@ use App\Models\StudentEvaluation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-// class StudentController extends Controller
-// {
-
-
 
 class StudentController extends Controller
 {
     public function index()
     {
-
-        $branches = Branch::all();
-        $beltLevels = SkillChecklist::select('belt_level')->distinct()->get();
+        
+        $beltlevels = BeltLevel::all();
         $classes = Classes::where('status', 'active')->get(); 
         $instructors = Instructor::where('active_flag', true)->with('user')->get();
 
@@ -56,7 +52,7 @@ class StudentController extends Controller
                 ];
             });
 
-        return view('student', compact('students', 'beltLevels', 'classes', 'instructors', 'branches'));
+        return view('student', compact('students', 'beltlevels', 'classes', 'instructors'));
     }
 
     // private function calculateBalance($student)

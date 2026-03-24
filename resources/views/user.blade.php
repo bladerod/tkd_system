@@ -58,8 +58,8 @@
                                         <h6 class="text-gray-800 font-semibold text-xl text-white text-center">User Table</h6>
                                     </div>
                                 </div>
-                                <div class="p-6" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
-                                    <div class="mb-3 flex justify-end">
+                                <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
+                                    <div class="m-4 flex justify-end">
                                         <button onclick="openAddUserModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Add User
@@ -345,7 +345,7 @@
             </div>
             <div class="p-4">
                 <!-- Modal Body - Form -->
-                <form id="editUserForm" method="POST" action="" enctype="multipart/form-data">
+                <form id="editUserForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     
@@ -479,9 +479,7 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    @vite(['resources/js/user.js', 'resources/js/dashboard.js'])
-    {{-- <script src="{{ asset('js/user.js') }}"></script> --}}
-    <!-- Pass CSRF token to JavaScript -->
+    @vite(['resources/js/user.js', 'resources/js/navbarDrop.js'])
     <script>
         @if ($errors->any())
             document.addEventListener('DOMContentLoaded', function() {

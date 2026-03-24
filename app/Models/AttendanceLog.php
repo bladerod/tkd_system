@@ -28,12 +28,19 @@ class AttendanceLog extends Model
     // Relationships
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
+    // Add this relationship - this is what the controller uses
+    public function classSession()
+    {
+        return $this->belongsTo(ClassSession::class, 'class_session_id');
+    }
+
+    // Keep this for backward compatibility if needed
     public function session()
     {
-        return $this->belongsTo(ClassSession::class,'class_session_id');
+        return $this->belongsTo(ClassSession::class, 'class_session_id');
     }
 
     public function recordedBy()

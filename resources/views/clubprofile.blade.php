@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TKD</title>
+    <title>TKD - Club Profile</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -16,7 +16,7 @@
     <!-- Main Content -->
     <div class="container-fluid m-0">
         <div class="row">
-             <main class="ml-64 p-6"> 
+            <main class="ml-64 p-6"> 
                 <div class="container-fluid">
                     <!-- Breadcrumb -->
                     <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -26,6 +26,23 @@
                         <span>/</span>
                         <span class="text-[#1C1C1D] font-medium">Club Profile</span>
                     </div>
+                    
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <h1 class="text-4xl font-bold text-[#1C1C1D]">Settings</h1>
                     <div class="row mt-4">
                         <div class="col-lg-12">
@@ -36,91 +53,110 @@
                                     </div>
                                 </div>
                                 <div class="p-8" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
-                                    <!-- Club Profile Form - Exact match to image -->
-                                    <div class="">
-                                        <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3">Basic Club Information</h2>
-                                        <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 10px;">
-                                        <!-- First row - 3 columns -->
-                                        <div class="grid grid-cols-3 gap-4 mb-4">
-                                            <!-- Club Name -->
-                                            <div>
+                                    <!-- Club Profile Form -->
+                                    <form method="POST" action="{{ route('settings.club-profile.update') }}">
+                                        @csrf
+                                        <div class="">
+                                            <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3">Basic Club Information</h2>
+                                            <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 10px;">
+                                            
+                                            <!-- First row - 3 columns -->
+                                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                                <!-- Club Name -->
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">
+                                                        Club Name<span class="text-red-500 ml-0.5">*</span>
+                                                    </label>
+                                                    <input type="text" 
+                                                           name="club_name"
+                                                           value="{{ old('club_name', $clubProfile->club_name ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]"
+                                                           required>
+                                                </div>
+
+                                                <!-- Club Acronym / Short Name -->
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">
+                                                        Club Acronym / Short Name
+                                                    </label>
+                                                    <input type="text" 
+                                                           name="club_acronym"
+                                                           value="{{ old('club_acronym', $clubProfile->club_acronym ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
+                                                </div>
+
+                                                <!-- Founded Year -->
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">
+                                                        Founded Year
+                                                    </label>
+                                                    <input type="text" 
+                                                           name="founded_year"
+                                                           value="{{ old('founded_year', $clubProfile->founded_year ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]"
+                                                           maxlength="4"
+                                                           placeholder="YYYY">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Club Description - Full width -->
+                                            <div class="mb-4">
                                                 <label class="block text-sm text-gray-600 mb-1">
-                                                    Club Name<span class="text-red-500 ml-0.5">*</span>
+                                                    Club Description
                                                 </label>
-                                                <input type="text" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
+                                                <textarea name="club_description" 
+                                                          rows="4" 
+                                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D] resize-none">{{ old('club_description', $clubProfile->club_description ?? '') }}</textarea>
+                                            </div>
+                                            
+                                            <!-- Second row - 2 columns -->
+                                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                                <!-- Email Address -->
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">
+                                                        Email Address
+                                                    </label>
+                                                    <input type="email" 
+                                                           name="email"
+                                                           value="{{ old('email', $clubProfile->email ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
+                                                </div>
+
+                                                <!-- Contact Number -->
+                                                <div>
+                                                    <label class="block text-sm text-gray-600 mb-1">
+                                                        Contact Number
+                                                    </label>
+                                                    <input type="text" 
+                                                           name="contact_number"
+                                                           value="{{ old('contact_number', $clubProfile->contact_number ?? '') }}"
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
+                                                </div>
                                             </div>
 
-                                            <!-- Club Acronym / Short Name -->
-                                            <div>
+                                            <!-- Club Address - Full width -->
+                                            <div class="mb-4">
                                                 <label class="block text-sm text-gray-600 mb-1">
-                                                    Club Acronym / Short Name
+                                                    Club Address
                                                 </label>
-                                                <input type="text" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
+                                                <textarea name="club_address" 
+                                                          rows="3" 
+                                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D] resize-none">{{ old('club_address', $clubProfile->club_address ?? '') }}</textarea>
                                             </div>
 
-                                            <!-- Founded Year -->
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">
-                                                    Founded Year
-                                                </label>
-                                                <input type="text" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
+                                            <!-- Buttons -->
+                                            <div class="flex items-center justify-end gap-3 pt-6">
+                                                <a href="{{ route('settings.club-profile') }}" 
+                                                   class="px-8 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-300 transition-colors">
+                                                    Cancel
+                                                </a>
+                                                <button type="submit" 
+                                                        class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] transition-colors">
+                                                    Save
+                                                </button>
                                             </div>
                                         </div>
-                                        
-                                        <!-- Club Description - Full width -->
-                                        <div class="mb-4">
-                                            <label class="block text-sm text-gray-600 mb-1">
-                                                Club Description
-                                            </label>
-                                            <textarea rows="4" 
-                                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D] resize-none"></textarea>
-                                        </div>
-                                        
-                                        <!-- Second row - 2 columns -->
-                                        <div class="grid grid-cols-2 gap-4 mb-4">
-                                            <!-- Email Address -->
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">
-                                                    Email Address
-                                                </label>
-                                                <input type="email" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
-                                            </div>
-
-                                            <!-- Contact Number -->
-                                            <div>
-                                                <label class="block text-sm text-gray-600 mb-1">
-                                                    Contact Number
-                                                </label>
-                                                <input type="text" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D]">
-                                            </div>
-                                        </div>
-
-                                        <!-- Club Address - Full width -->
-                                        <div class="mb-4">
-                                            <label class="block text-sm text-gray-600 mb-1">
-                                                Club Address
-                                            </label>
-                                            <textarea rows="3" 
-                                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] focus:border-[#1C1C1D] resize-none"></textarea>
-                                        </div>
-
-                                        <!-- Buttons -->
-                                        <div class="flex items-center justify-end gap-3 pt-6">
-                                            <button type="button" 
-                                                    class="px-8 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-300 transition-colors">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" 
-                                                    class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] transition-colors">
-                                                Save
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -134,6 +170,6 @@
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @vite(['resources/js/app.js'])
-    @vite(['resources/js/dashboard.js'])
+    @vite(['resources/js/navbarDrop.js'])
 </body>
 </html>

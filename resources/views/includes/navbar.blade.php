@@ -3,7 +3,16 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center flex-1 md:mr-4">
                 <div class="relative w-full max-w-md">
-                    <h1 style="color: white;">LOGO</h1>
+                    @php
+                        $branding = \App\Models\Branding::first();
+                    @endphp
+                    @if(isset($branding) && $branding->logo_path)
+                        <img src="{{ Storage::url($branding->logo_path) }}" 
+                             alt="{{ $branding->club_name ?? 'Logo' }}" 
+                             class="h-10 w-auto object-contain">
+                    @else
+                        <h1 style="color: white;">LOGO</h1>
+                    @endif
                 </div>
             </div>
             <!-- Left side - Search bar -->

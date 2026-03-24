@@ -37,7 +37,7 @@ class CertificateController extends Controller
                 ];
             });
 
-        return view('certificate.index', compact('certificates'));
+        return view('certificates', compact('certificates'));
     }
 
     public function generate(Request $request)

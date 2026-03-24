@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('belt_levels', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->integer('rank_order');
-            $table->string('color_code')->nullable();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+             $table->unsignedBigInteger('branch_id')->nullable()->change();
+            //
         });
     }
 
@@ -25,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('belt_levels');
+        Schema::table('users', function (Blueprint $table) {
+             $table->unsignedBigInteger('branch_id')->nullable(false)->change();
+            //
+        });
     }
 };

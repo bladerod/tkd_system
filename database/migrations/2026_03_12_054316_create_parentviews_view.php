@@ -11,14 +11,13 @@ return new class extends Migration
     public function up(): void
     {
         DB::statement("
-            CREATE VIEW parentviews AS
-            SELECT 
-                CONCAT(u.fname, ' ', u.lname) AS fname,
-                p.emergency_contact AS mobile,
-                p.id_verified_flag AS status
-            FROM parents p
-            JOIN users u ON p.user_id = u.id
-            WHERE u.role = 'parent'
+    CREATE OR REPLACE VIEW parentviews AS
+    SELECT 
+    u.name AS fname,
+    p.mobile AS mobile,
+    p.status AS status
+    FROM parents p
+    JOIN users u ON p.user_id = u.id
         ");
     }
 

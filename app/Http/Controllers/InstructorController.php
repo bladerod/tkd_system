@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Instructor;
+use App\Models\User;
 
 class InstructorController extends Controller
 {
@@ -27,43 +28,58 @@ class InstructorController extends Controller
         return view('instructor', compact('instructors'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'fname' => 'required|string|max:255',
-            'lname' => 'required|string|max:255',
-            'email' => 'required|email|unique:instructors,email',
-            'username' => 'required|string|unique:instructors,username',
-            'contact' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6|confirmed',
-            'rank_belt' => 'nullable|string',
-            'certification_level' => 'nullable|string',
-            'specialization' => 'nullable|string|max:255',
-            'bio' => 'nullable|string',
-            'status' => 'required|string',
-            'photo' => 'nullable|image|max:2048'
-        ]);
+   public function store(Request $request)
+{
+    $request->validate([
+        'fname' => 'required|string|max:255',
+        'lname' => 'required|string|max:255',
+        'email' => 'required|email|unique:instructors,email|unique:users,email',
+        'username' => 'required|string|unique:instructors,username',
+        'contact' => 'nullable|string|max:20',
+        'password' => 'required|string|min:6|confirmed',
+        'rank_belt' => 'nullable|string',
+        'certification_level' => 'nullable|string',
+        'specialization' => 'nullable|string|max:255',
+        'bio' => 'nullable|string',
+        'status' => 'required|string',
+        'photo' => 'nullable|image|max:2048'
+    ]);
 
-        $photoPath = $request->hasFile('photo') ? $request->file('photo')->store('instructors', 'public') : null;
+    $photoPath = $request->hasFile('photo') ? $request->file('photo')->store('instructors', 'public') : null;
 
-        Instructor::create([
-            'fname' => $request->fname,
-            'lname' => $request->lname,
-            'email' => $request->email,
-            'username' => $request->username,
-            'contact' => $request->contact,
-            'password' => bcrypt($request->password),
-            'rank_belt' => $request->rank_belt,
-            'certification_level' => $request->certification_level,
-            'specialization' => $request->specialization,
-            'bio' => $request->bio,
-            'status' => $request->status,
-            'active_flag' => 1,
-            'photo' => $photoPath
-        ]);
+    // Create user account para sa Flutter login
+   $user = \App\Models\User::create([
+    'fname' => $request->fname,
+    'lname' => $request->lname,
+    'email' => $request->email,
+    'password' => bcrypt($request->password),
+    'role' => 'instructor',
+    'mobile' => $request->contact,
+    'username' => $request->username,
+    'branch_id' => null,
+    
+]);
 
-        return back()->with('success', 'Instructor added successfully!');
-    }
+    // Create instructor record
+    Instructor::create([
+        'user_id' => $user->id,
+        'fname' => $request->fname,
+        'lname' => $request->lname,
+        'email' => $request->email,
+        'username' => $request->username,
+        'contact' => $request->contact,
+        'password' => bcrypt($request->password),
+        'rank_belt' => $request->rank_belt,
+        'certification_level' => $request->certification_level,
+        'specialization' => $request->specialization,
+        'bio' => $request->bio,
+        'status' => $request->status,
+        'active_flag' => 1,
+        'photo' => $photoPath
+    ]);
+
+    return back()->with('success', 'Instructor added successfully!');
+}
 
     public function update(Request $request, $id)
     {

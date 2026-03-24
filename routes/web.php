@@ -14,7 +14,8 @@ use App\Models\Classes;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
+use App\Http\Controllers\ClubProfileController;
+use App\Http\Controllers\BrandingController;
 
 // Guest routes
 Route::middleware(['guest'])->group(function () {
@@ -78,11 +79,14 @@ Route::middleware(['auth'])->group(function () {
     // OTHER PAGES
 
 
-Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
-Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
-Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
-Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
+    Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
+    Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
+    Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
+    Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
 
+    route::get('/competition',function(){
+        return view('competition');
+    });
 
     Route::get('/billing', function () {
         return view('billing');
@@ -97,18 +101,27 @@ Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'
         return view('settings');
     });
     Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
-    Route::get('/settings/billing-rules', function () {
-        return view('billingrules');
-    });
-    Route::get('/settings/club-profile', function () {
-        return view('clubprofile');
-    });
-    Route::get('/settings/branding', function () {
-        return view('branding');
-    });
+    
+    //Billing Rules
+    Route::get('/settings/billing-rules', [BillingRulesController::class, 'index']);
+    Route::post('/settings/billing-rules', [BillingRulesController::class, 'update']);
+    //
+
+    // For Club Profile
+    Route::get('/settings/club-profile', [ClubProfileController::class, 'index'])->name('settings.club-profile');
+    Route::post('/settings/club-profile/update', [ClubProfileController::class, 'update'])->name('settings.club-profile.update');
+    //
+    
+    // For settings Branding
+    Route::get('/settings/branding', [BrandingController::class, 'index'])->name('settings.branding');
+    Route::post('/settings/branding/update', [BrandingController::class, 'update'])->name('settings.branding.update');
+    //
+
     Route::get('/settings/branding-rules', function () {
         return view('brandingrules');
     });
+    
+
     Route::get('/settings/discounts', function () {
         return view('discounts');
     });

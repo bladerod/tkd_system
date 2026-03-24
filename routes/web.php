@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
@@ -8,6 +9,10 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
+use App\Models\beltview;
+use App\Models\Classes;
+use App\Models\Student;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -125,7 +130,11 @@ Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'
         return view('report');
     })->name('report');
 
-
+Route::post('/branch/check', [BranchController::class, 'checkField'])->name('branch.check');
+Route::get('/branch', [BranchController::class,'index'])->name('branch');
+Route::post('/branch/store', [BranchController::class,'store'])->name('branch.store');
+Route::post('/branch/update/{id}', [BranchController::class,'update'])->name('branch.update');
+Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->name('branch.delete');
     Route::get('/student', [StudentController::class,'index'])->name('index');
     Route::post('/student', [StudentController::class,'store'])->name('student.store');
 
@@ -145,8 +154,21 @@ Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'
         return view('report');
     })->name('report');
 
+Route::get('/student', function () {
+    $users = User::all();
+    $classes = Classes::all();
+     $vwstudents = Student::select(
+        'id',
+        'student_name',
+        'current_belt',
+        'status',
+        'parent_name',
+        'balance',
+        'attendance'
+    )->get();
 
-    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+    return view('student', compact('vwstudents', 'classes', 'users'));
+})->name('student');
 
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
     Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
@@ -157,7 +179,7 @@ Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'
     Route::get('/check-username', function (Request $request) {
         $username = $request->query('username');
         $userId = $request->query('user_id');
-        $query = \App\Models\User::where('username', $username);
+        $query = User::where('username', $username);
         if ($userId) {
             $query->where('user_id', '!=', $userId);
         }

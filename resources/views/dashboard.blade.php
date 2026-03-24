@@ -17,6 +17,18 @@
         <div class="row">
              <main class="ml-64 p-6"> 
                 <div class="container-fluid">
+                    <!-- Success/Error Messages -->
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
                     <!-- Action Buttons -->
                     <div class="grid grid-cols-5 gap-4 mb-8"> 
                         <div>
@@ -372,17 +384,16 @@
                     
                     <!-- Form Body -->
                     <div class="px-6 pt-6 pb-4 bg-white">
-                        <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        <form action="{{ route('dashboard.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                             @csrf   
                             <!-- Branch - Moved to top as it's a primary identifier -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Branch <span class="text-red-500">*</span></label>
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
-                                    <option value="" disabled selected>Select Branch</option>
-                                    <option value="quezon-city">Quezon City</option>
-                                    <option value="bulacan">Bulacan</option>
-                                    <option value="caloocan">Caloocan</option>
-                                    <option value="manila">Manila</option>
+                                <select name="branch_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                        <option value="" disabled selected>Select gender</option>
+                                    @foreach ($branches as $branch)
+                                        <option value="{{ $branch->id }}">{{ $branch->code.' '.$branch->name.' '.$branch->city }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -390,20 +401,19 @@
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Firstname <span class="text-red-500">*</span></label>
-                                    <input type="text" placeholder="Ex. Juan" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                    <input name="first_name" type="text" placeholder="Ex. Juan" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Lastname <span class="text-red-500">*</span></label>
-                                    <input type="text" placeholder="Ex. Dela Cruz" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                    <input name="last_name" type="text" placeholder="Ex. Dela Cruz" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
-                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select gender</option>
                                         <option value="male">Male</option>
                                         <option value="female">Female</option>
-                                        <option value="other">Other</option>
-                                        <option value="prefer-not">Prefer not to say</option>
+                                        <option value="other">other</option>
                                     </select>
                                 </div>
                                 
@@ -414,26 +424,18 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Current Belt <span class="text-red-500">*</span></label>
-                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <select name="belt_level" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select Belt</option>
-                                        <option value="white">White Belt</option>
-                                        <option value="yellow">Yellow Belt</option>
-                                        <option value="orange">Orange Belt</option>
-                                        <option value="green">Green Belt</option>
-                                        <option value="purple">Purple Belt</option>
-                                        <option value="blue">Blue Belt</option>
-                                        <option value="blue-sr">Blue Sr. Belt</option>
-                                        <option value="brown">Brown Belt</option>
-                                        <option value="brown-sr">Brown Sr. Belt</option>
-                                        <option value="red">Red Belt</option>
-                                        <option value="jr-black">Jr. Black Belt</option>
-                                        <option value="black">Black Belt</option>
+                                        @foreach ($beltlevels as $beltlevel)
+                                            <option value="{{ $beltlevel->id }}">{{ $beltlevel->name }}</option>
+                                        @endforeach
+                                        
                                     </select>
                                     
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Birthday <span class="text-red-500">*</span></label>
-                                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <input name="birthdate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                 </div>
                             </div>
                             
@@ -443,6 +445,7 @@
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Medical Notes</label>
                                     <textarea rows="4" 
+                                        name="medical_notes"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[100px] bg-white placeholder-gray-400"
                                         placeholder="Any medical conditions, injuries, or special needs..."></textarea>
                                     <p class="text-xs text-gray-500 mt-1">Include any important medical information that instructors should know</p>
@@ -451,7 +454,7 @@
                                 <!-- Allergies -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Allergies</label>
-                                    <input type="text" placeholder="e.g., Dust, Pollen, Food allergies" 
+                                    <input name="allergies" type="text" placeholder="e.g., Dust, Pollen, Food allergies" 
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                             </div>
@@ -460,20 +463,20 @@
                             <div class="">
                                 
                                 
-                                <div class="grid grid-cols-3 gap-4">
+                                <div class="grid grid-cols-2 gap-4">
                                     <!-- Emergency Contact Person -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Contact Person <span class="text-red-500">*</span></label>
-                                        <input type="text" placeholder="Full name" 
+                                        <input name="contact_person" type="text" placeholder="Full name" 
                                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     </div>
                                     <!-- Emergency Phone Number -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span class="text-red-500">*</span></label>
-                                        <input type="tel" placeholder="Ex. 09123456789" 
+                                        <input name="contact_number" type="tel" placeholder="Ex. 09123456789" 
                                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     </div>
-                                    <!-- Relationship to Student -->
+                                    {{-- <!-- Relationship to Student -->
                                     <div class="">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Relationship to Student</label>
                                         <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
@@ -483,10 +486,8 @@
                                             <option value="sibling">Sibling</option>
                                             <option value="relative">Other Relative</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
                                 </div>
-
-                                
                             </div>
 
                             <!-- Guardian and Profile Picture - 2 columns -->
@@ -494,10 +495,11 @@
                                 <!-- Guardian Selection -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Primary Guardian <span class="text-red-500">*</span></label>
-                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <select name="primary_parent_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select Guardian</option>
-                                        <option value="maria-jose">Maria Jose</option>
-                                        <option value="juan-dela-cruz">Juan Dela Cruz</option>
+                                        @foreach ($parents as $parent)
+                                            <option value="{{ $parent->id }}">{{ $parent->fname.' '.$parent->lname }}</option>
+                                        @endforeach
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">Primary guardian for communications</p>
                                 </div>

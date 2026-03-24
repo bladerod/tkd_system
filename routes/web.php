@@ -1,21 +1,24 @@
 <?php
 
-use App\Http\Controllers\BranchController;
-use App\Http\Controllers\InstructorController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ChatController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
-use App\Models\beltview;
+use App\Http\Controllers\BillingRulesController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\BrandingController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClubProfileController;
+use App\Http\Controllers\DashboardPopulateController;
+use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\UserController;
 use App\Models\Classes;
 use App\Models\Student;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ClubProfileController;
-use App\Http\Controllers\BrandingController;
 
 // Guest routes
 Route::middleware(['guest'])->group(function () {
@@ -26,9 +29,8 @@ Route::middleware(['guest'])->group(function () {
 // Auth routes
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->name('dashboard.index');
+    Route::post('/dashboard', [DashboardPopulateController::class, 'store'])->name('dashboard.store');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -121,10 +123,15 @@ Route::middleware(['auth'])->group(function () {
         return view('brandingrules');
     });
     
+    // DISCOUNTS
+    Route::get('/settings/discounts', [DiscountController::class, 'index'])->name('discounts.index');
+    Route::post('/settings/discounts',[DiscountController::class,'store'])->name('discounts.store');
+    Route::get('/settings/discounts', [DiscountController::class, 'index'])->name('discounts.index');
+    Route::get('/discounts/{id}', [DiscountController::class, 'show'])->name('discounts.show');
+    Route::put('/discounts/{id}', [DiscountController::class, 'update'])->name('discounts.update');
+    Route::delete('/discounts/{id}', [DiscountController::class, 'destroy'])->name('discounts.destroy');
+    //
 
-    Route::get('/settings/discounts', function () {
-        return view('discounts');
-    });
     Route::get('/settings/roles-and-permissions', function () {
         return view('rolespermission');
     });
@@ -143,11 +150,13 @@ Route::middleware(['auth'])->group(function () {
         return view('report');
     })->name('report');
 
-Route::post('/branch/check', [BranchController::class, 'checkField'])->name('branch.check');
-Route::get('/branch', [BranchController::class,'index'])->name('branch');
-Route::post('/branch/store', [BranchController::class,'store'])->name('branch.store');
-Route::post('/branch/update/{id}', [BranchController::class,'update'])->name('branch.update');
-Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->name('branch.delete');
+    Route::post('/branch/check', [BranchController::class, 'checkField'])->name('branch.check');
+    Route::get('/branch', [BranchController::class,'index'])->name('branch');
+    Route::post('/branch/store', [BranchController::class,'store'])->name('branch.store');
+    Route::post('/branch/update/{id}', [BranchController::class,'update'])->name('branch.update');
+    Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->name('branch.delete');
+
+
     Route::get('/student', [StudentController::class,'index'])->name('index');
     Route::post('/student', [StudentController::class,'store'])->name('student.store');
 

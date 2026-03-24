@@ -14,7 +14,7 @@
 @include("includes.navbar")
 @include("includes.sidebar")
 
-<div class="main-content px-6 py-6">
+<div class="main-content px-6 py-6 mt-7">
     <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
         <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
         <span>/</span>

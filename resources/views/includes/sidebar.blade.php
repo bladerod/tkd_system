@@ -109,7 +109,7 @@
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
                         <i class="fa-solid fa-circle-exclamation"></i>
                     </div>
-                    <span class="text-white font-medium group-hover:text-[#1C1C1D]">Report</span>
+                    <span class="text-white font-medium group-hover:text-[#1C1C1D]">Reports</span>
                 </a>
             </li>
 

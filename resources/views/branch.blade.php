@@ -11,8 +11,15 @@
 @include('includes.navbar')
 @include('includes.sidebar')
 
-<main x-data="branchModal()" class="ml-64 pt-4 p-6">
-
+<main x-data="branchModal()" class="ml-64 pt-4 p-6 mt-2">
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
+        <span>/</span>
+        <span class="text-[#1C1C1D] font-medium">Settings</span>
+        <span>/</span>
+        <span class="text-[#1C1C1D] font-medium">User Management</span>
+    </div>
     <h1 class="text-3xl font-bold mb-4">Branch</h1>
 
     <!-- SUCCESS MESSAGE -->
@@ -22,94 +29,105 @@
         </div>
     @endif
 
-    <!-- SEARCH + FILTER -->
-    <form method="GET" class="flex gap-3 mb-4">
-        <input type="text" name="search" placeholder="Search name/code"
-            value="{{ request('search') }}"
-            class="border p-2 rounded w-64">
+    
 
-        <input type="text" name="city" placeholder="City"
-            value="{{ request('city') }}"
-            class="border p-2 rounded">
+    
 
-        <select name="status" class="border p-2 rounded">
-            <option value="">All Status</option>
-            <option value="active" {{ request('status')=='active'?'selected':'' }}>Active</option>
-            <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>Inactive</option>
-        </select>
+    {{-- table --}}
+    <div class="card z-index-2 bg-white rounded-xl shadow-sm">
+        <div class="card-header pb-0 bg-transparent">
+            <div class="p-3 bg-[#1C1C1D] rounded-t-xl">
+                <h6 class="text-gray-800 font-semibold text-xl text-white text-center">User Table</h6>
+            </div>
+        </div>
+        <div class="flex justify-end p-3">
+            <!-- ADD BUTTON -->
+            <button @click="openAdd()" class="bg-[#065f46] text-white px-4 py-3 rounded-xl">
+                <i class="fa fa-plus mr-2"></i>Add Branch
+            </button>
+        </div>
+        <div class="flex justify-between px-3">
+            <!-- SEARCH + FILTER -->
+            <form method="GET" class="flex gap-3 mb-2">
+                <input type="text" name="search" placeholder="Search name/code"
+                    value="{{ request('search') }}"
+                    class="border p-2 rounded w-64">
 
-        <button class="bg-[#065f46] text-white px-4 rounded">Filter</button>
-    </form>
+                <input type="text" name="city" placeholder="City"
+                    value="{{ request('city') }}"
+                    class="border p-2 rounded">
 
-    <!-- ADD BUTTON -->
-    <div class="flex justify-end mb-4">
-        <button @click="openAdd()" class="bg-[#065f46] text-white px-4 py-3 rounded-xl">
-            <i class="fa fa-plus mr-2"></i>Add Branch
-        </button>
-    </div>
+                <select name="status" class="border p-2 rounded">
+                    <option value="">All Status</option>
+                    <option value="active" {{ request('status')=='active'?'selected':'' }}>Active</option>
+                    <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>Inactive</option>
+                </select>
 
-    <!-- TABLE -->
-    <div class="mt-2 overflow-x-auto">
-        <table class="w-full border border-gray-200">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Code</th>
-                    <th>City</th>
-                    <th>Province</th>
-                    <th>Mobile</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach($branches as $branch)
-                <tr>
-                    <td>{{ $branch->name }}</td>
-                    <td>{{ $branch->code }}</td>
-                    <td>{{ $branch->city }}</td>
-                    <td>{{ $branch->province }}</td>
-                    <td>{{ $branch->mobile }}</td>
-                    <td>{{ $branch->email }}</td>
-                    <td>
-                        <span class="status {{ $branch->status }}">
-                            {{ ucfirst($branch->status) }}
-                        </span>
-                    </td>
-                    <td class="flex gap-2">
+                <button class="bg-[#065f46] text-white px-4 rounded">Filter</button>
+            </form>
+        </div>
+        <div class="mt-2 overflow-x-auto">
+            <table class="w-full border border-gray-200">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>City</th>
+                        <th>Province</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach($branches as $branch)
+                    <tr>
+                        <td>{{ $branch->name }}</td>
+                        <td>{{ $branch->code }}</td>
+                        <td>{{ $branch->city }}</td>
+                        <td>{{ $branch->province }}</td>
+                        <td>{{ $branch->mobile }}</td>
+                        <td>{{ $branch->email }}</td>
+                        <td>
+                            <span class="status {{ $branch->status }}">
+                                {{ ucfirst($branch->status) }}
+                            </span>
+                        </td>
+                        <td class="flex gap-2">
 
-                        <!-- EDIT -->
-                        <button
-                            @click.prevent="openEdit({
-                                id: '{{ $branch->id }}',
-                                name: '{{ $branch->name }}',
-                                code: '{{ $branch->code }}',
-                                address: '{{ $branch->address }}',
-                                city: '{{ $branch->city }}',
-                                province: '{{ $branch->province }}',
-                                mobile: '{{ $branch->mobile }}',
-                                email: '{{ $branch->email }}',
-                                status: '{{ $branch->status }}'
-                            })"
-                            class="btn-edit">
-                            <i class="fa fa-pen"></i>
-                        </button>
-
-                        <!-- DELETE -->
-                        <form action="{{ route('branch.delete', $branch->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-delete">
-                                <i class="fa fa-trash"></i>
+                            <!-- EDIT -->
+                            <button
+                                @click.prevent="openEdit({
+                                    id: '{{ $branch->id }}',
+                                    name: '{{ $branch->name }}',
+                                    code: '{{ $branch->code }}',
+                                    address: '{{ $branch->address }}',
+                                    city: '{{ $branch->city }}',
+                                    province: '{{ $branch->province }}',
+                                    mobile: '{{ $branch->mobile }}',
+                                    email: '{{ $branch->email }}',
+                                    status: '{{ $branch->status }}'
+                                })"
+                                class="btn-edit text-white bg-green-600 hover:bg-green-500 p-2.5 rounded-lg">
+                                <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                        </form>
 
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+                            <!-- DELETE -->
+                            <form action="{{ route('branch.delete', $branch->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-delete text-white bg-red-600 hover:bg-red-500 p-2.5 rounded-lg">
+                                    <i class="fa-regular fa-trash-can text-white"></i>
+                                </button>
+                            </form>
+
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- PAGINATION -->

@@ -9,5 +9,5 @@ class parentview extends Model
 {
     use HasFactory;
     protected $table = 'parentviews';
-    protected $fillable = ['fname', 'mobile','status'];
+    protected $fillable = ['id','fname', 'mobile','status'];
 }

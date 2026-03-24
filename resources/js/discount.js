@@ -1,22 +1,49 @@
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Discounts page initialized');
+    
+    // Initialize all functionality
+    initializeDiscountsPage();
+});
+
+function initializeDiscountsPage() {
+    // Initialize form handling
+    initializeFormHandling();
+    
+    // Attach button listeners using event delegation
+    attachTableEventListeners();
+    
+    // Initialize DataTable if table exists and has data
+    initializeDataTableIfNeeded();
+}
+
 // Modal functions
 window.openAddDiscountModal = function() {
-    document.getElementById('addDiscountModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    const modal = document.getElementById('addDiscountModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 window.closeAddDiscountModal = function() {
-    document.getElementById('addDiscountModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    document.getElementById('addDiscountForm').reset();
-    
-    // Reset any error messages
-    document.querySelectorAll('.error-message').forEach(el => {
-        el.classList.add('hidden');
-        el.textContent = '';
-    });
-    document.querySelectorAll('input, select').forEach(el => {
-        el.classList.remove('border-red-500', 'border-green-500');
-    });
+    const modal = document.getElementById('addDiscountModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        
+        // Reset form
+        const form = document.getElementById('addDiscountForm');
+        if (form) {
+            form.reset();
+        }
+        
+        // Reset error messages
+        resetErrorMessages();
+        
+        // Reset field borders
+        resetFieldBorders();
+    }
 }
 
 window.openEditDiscountModal = function(discountId) {
@@ -48,8 +75,11 @@ window.openEditDiscountModal = function(discountId) {
             console.log('Form action set to:', editForm.action);
             
             // Show modal
-            document.getElementById('editDiscountModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            const modal = document.getElementById('editDiscountModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
         })
         .catch(error => {
             console.error('Error loading discount:', error);
@@ -60,24 +90,58 @@ window.openEditDiscountModal = function(discountId) {
                 confirmButtonColor: '#3085d6'
             });
         });
-};
+}
 
 window.closeEditDiscountModal = function() {
-    document.getElementById('editDiscountModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    document.getElementById('editDiscountForm').reset();
-    
-    // Reset any error messages
+    const modal = document.getElementById('editDiscountModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        
+        // Reset form
+        const form = document.getElementById('editDiscountForm');
+        if (form) {
+            form.reset();
+        }
+        
+        // Reset error messages
+        resetErrorMessages();
+        
+        // Reset field borders
+        resetFieldBorders();
+    }
+}
+
+// Helper functions
+function resetErrorMessages() {
     document.querySelectorAll('.error-message').forEach(el => {
         el.classList.add('hidden');
         el.textContent = '';
     });
-    document.querySelectorAll('input, select').forEach(el => {
+}
+
+function resetFieldBorders() {
+    document.querySelectorAll('input, select, textarea').forEach(el => {
         el.classList.remove('border-red-500', 'border-green-500');
     });
 }
 
-// Handle table clicks using event delegation
+// Table event delegation
+function attachTableEventListeners() {
+    const table = document.getElementById('discountTable');
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    
+    // Remove existing listener if any
+    tbody.removeEventListener('click', handleTableClick);
+    
+    // Add new listener using delegation
+    tbody.addEventListener('click', handleTableClick);
+}
+
+// In your handleTableClick function, make sure the delete part is correct
 function handleTableClick(e) {
     // Handle edit button clicks
     const editButton = e.target.closest('.edit-discount-btn');
@@ -86,12 +150,12 @@ function handleTableClick(e) {
         const discountId = editButton.getAttribute('data-discount-id');
         console.log('Edit button clicked via delegation, discount ID:', discountId);
         if (discountId) {
-            openEditDiscountModal(discountId);
+            window.openEditDiscountModal(discountId);
         }
         return;
     }
     
-    // Handle delete button clicks
+    // Handle delete button clicks - FIXED to match user.js pattern
     const deleteButton = e.target.closest('.delete-discount-btn');
     if (deleteButton) {
         e.preventDefault();
@@ -110,6 +174,7 @@ function handleTableClick(e) {
         }).then((result) => {
             if (!result.isConfirmed) return;
             
+            // Create form and submit - same as user.js
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/discounts/${discountId}`;
@@ -118,7 +183,7 @@ function handleTableClick(e) {
             const csrfToken = document.createElement('input');
             csrfToken.type = 'hidden';
             csrfToken.name = '_token';
-            csrfToken.value = window.csrfToken || document.querySelector('meta[name="csrf-token"]').content;
+            csrfToken.value = getCsrfToken();
             
             const methodField = document.createElement('input');
             methodField.type = 'hidden';
@@ -133,34 +198,58 @@ function handleTableClick(e) {
     }
 }
 
-// Initialize DataTable
-function initializeDataTable(table) {
-    try {
-        const dataTable = new simpleDatatables.DataTable(table, {
-            perPage: 10,
-            perPageSelect: [5, 10, 25, 50, 100],
-            searchable: true,
-            sortable: true,
-            labels: {
-                placeholder: "Search discounts...",
-                perPage: "Entries per page",
-                noRows: "No discounts found",
-                info: "Showing {start} to {end} of {rows} discounts",
-                noResults: "No results match your search query"
+// Get CSRF token from meta tag
+function getCsrfToken() {
+    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    return tokenMeta ? tokenMeta.getAttribute('content') : '';
+}
+
+// Initialize Simple DataTable
+function initializeDataTableIfNeeded() {
+    const discountTable = document.getElementById('discountTable');
+    if (!discountTable) return;
+    
+    // Check if table has data
+    const tbody = discountTable.querySelector('tbody');
+    const rows = tbody ? tbody.querySelectorAll('tr') : [];
+    const hasData = rows.length > 0 && !rows[0].querySelector('td[colspan]');
+    
+    if (hasData && typeof simpleDatatables !== 'undefined') {
+        try {
+            // Check if DataTable is already initialized
+            if (discountTable.datatable) {
+                return;
             }
-        });
-        
-        // Re-attach listeners after DataTable redraws using event delegation
-        if (dataTable && typeof dataTable.on === 'function') {
-            dataTable.on('datatable.draw', function() {
-                console.log('DataTable redrawn, listeners maintained via delegation');
+            
+            const dataTable = new simpleDatatables.DataTable(discountTable, {
+                perPage: 10,
+                perPageSelect: [5, 10, 25, 50, 100],
+                searchable: true,
+                sortable: true,
+                labels: {
+                    placeholder: "Search discounts...",
+                    perPage: "Entries per page",
+                    noRows: "No discounts found",
+                    info: "Showing {start} to {end} of {rows} discounts",
+                    noResults: "No results match your search query"
+                }
             });
+            
+            // Store DataTable instance for potential later use
+            discountTable.datatable = dataTable;
+            
+            // Re-attach listeners after DataTable redraws
+            if (typeof dataTable.on === 'function') {
+                dataTable.on('datatable.draw', function() {
+                    console.log('DataTable redrawn, listeners maintained via delegation');
+                    // Listeners are maintained through event delegation, no need to reattach
+                });
+            }
+            
+            console.log('DataTable initialized successfully');
+        } catch (error) {
+            console.error('DataTable initialization failed:', error);
         }
-        
-        return dataTable;
-    } catch (error) {
-        console.error('DataTable initialization failed:', error);
-        return null;
     }
 }
 
@@ -169,62 +258,30 @@ function initializeFormHandling() {
     // Add form validation
     const addForm = document.getElementById('addDiscountForm');
     if (addForm) {
+        // Clone to remove existing event listeners
         const newAddForm = addForm.cloneNode(true);
         addForm.parentNode.replaceChild(newAddForm, addForm);
         
-        // Add validation to date fields
-        const validFrom = newAddForm.querySelector('#add_valid_from');
-        const validTo = newAddForm.querySelector('#add_valid_to');
+        // Add date validation
+        setupDateValidation(newAddForm);
         
-        if (validFrom && validTo) {
-            validFrom.addEventListener('change', function() {
-                if (validTo.value && this.value > validTo.value) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Invalid Date Range',
-                        text: 'Valid From date cannot be later than Valid To date',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    this.value = '';
-                }
-            });
-            
-            validTo.addEventListener('change', function() {
-                if (validFrom.value && this.value < validFrom.value) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Invalid Date Range',
-                        text: 'Valid To date cannot be earlier than Valid From date',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    this.value = '';
-                }
-            });
-        }
-        
+        // Add submit handler
         newAddForm.addEventListener('submit', function(e) {
             console.log('Add form submitted');
             
             // Validate date range
-            const fromDate = document.getElementById('add_valid_from').value;
-            const toDate = document.getElementById('add_valid_to').value;
-            
-            if (fromDate && toDate && fromDate > toDate) {
+            if (!validateDateRange('add_valid_from', 'add_valid_to')) {
                 e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Date Range',
-                    text: 'Valid From date must be before or equal to Valid To date',
-                    confirmButtonColor: '#3085d6'
-                });
                 return false;
             }
             
+            // Show loading state
             const submitBtn = document.getElementById('submitAddBtn');
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Adding...';
                 submitBtn.disabled = true;
             }
+            
             return true;
         });
     }
@@ -232,66 +289,103 @@ function initializeFormHandling() {
     // Edit form validation
     const editForm = document.getElementById('editDiscountForm');
     if (editForm) {
+        // Clone to remove existing event listeners
         const newEditForm = editForm.cloneNode(true);
         editForm.parentNode.replaceChild(newEditForm, editForm);
         
-        // Add validation to date fields
-        const validFrom = newEditForm.querySelector('#edit_valid_from');
-        const validTo = newEditForm.querySelector('#edit_valid_to');
+        // Add date validation
+        setupDateValidation(newEditForm, 'edit');
         
-        if (validFrom && validTo) {
-            validFrom.addEventListener('change', function() {
-                if (validTo.value && this.value > validTo.value) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Invalid Date Range',
-                        text: 'Valid From date cannot be later than Valid To date',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    this.value = '';
-                }
-            });
-            
-            validTo.addEventListener('change', function() {
-                if (validFrom.value && this.value < validFrom.value) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Invalid Date Range',
-                        text: 'Valid To date cannot be earlier than Valid From date',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    this.value = '';
-                }
-            });
-        }
-        
+        // Add submit handler
         newEditForm.addEventListener('submit', function(e) {
             console.log('Edit form submitted');
             console.log('Form action:', this.action);
             
             // Validate date range
-            const fromDate = document.getElementById('edit_valid_from').value;
-            const toDate = document.getElementById('edit_valid_to').value;
-            
-            if (fromDate && toDate && fromDate > toDate) {
+            if (!validateDateRange('edit_valid_from', 'edit_valid_to')) {
                 e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Date Range',
-                    text: 'Valid From date must be before or equal to Valid To date',
-                    confirmButtonColor: '#3085d6'
-                });
                 return false;
             }
             
+            // Show loading state
             const submitBtn = document.getElementById('submitEditBtn');
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Updating...';
                 submitBtn.disabled = true;
             }
+            
             return true;
         });
     }
+    
+    // Add real-time validation for numeric fields
+    setupNumericValidation();
+}
+
+function setupDateValidation(form, prefix = 'add') {
+    const validFrom = form.querySelector(`#${prefix}_valid_from`);
+    const validTo = form.querySelector(`#${prefix}_valid_to`);
+    
+    if (validFrom && validTo) {
+        validFrom.addEventListener('change', function() {
+            if (validTo.value && this.value > validTo.value) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Date Range',
+                    text: 'Valid From date cannot be later than Valid To date',
+                    confirmButtonColor: '#3085d6',
+                    timer: 3000,
+                    showConfirmButton: true
+                });
+                this.value = '';
+            }
+        });
+        
+        validTo.addEventListener('change', function() {
+            if (validFrom.value && this.value < validFrom.value) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Date Range',
+                    text: 'Valid To date cannot be earlier than Valid From date',
+                    confirmButtonColor: '#3085d6',
+                    timer: 3000,
+                    showConfirmButton: true
+                });
+                this.value = '';
+            }
+        });
+    }
+}
+
+function validateDateRange(fromId, toId) {
+    const fromDate = document.getElementById(fromId);
+    const toDate = document.getElementById(toId);
+    
+    if (fromDate && toDate && fromDate.value && toDate.value) {
+        if (fromDate.value > toDate.value) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Date Range',
+                text: 'Valid From date must be before or equal to Valid To date',
+                confirmButtonColor: '#3085d6'
+            });
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function setupNumericValidation() {
+    // Add validation for numeric fields to prevent negative values
+    const numericFields = document.querySelectorAll('input[type="number"][name="value"]');
+    numericFields.forEach(field => {
+        field.addEventListener('input', function() {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+    });
 }
 
 // Close modal when clicking outside
@@ -299,8 +393,12 @@ window.onclick = function(event) {
     const addModal = document.getElementById('addDiscountModal');
     const editModal = document.getElementById('editDiscountModal');
     
-    if (event.target === addModal) closeAddDiscountModal();
-    if (event.target === editModal) closeEditDiscountModal();
+    if (event.target === addModal && addModal) {
+        window.closeAddDiscountModal();
+    }
+    if (event.target === editModal && editModal) {
+        window.closeEditDiscountModal();
+    }
 }
 
 // Close modal with Escape key
@@ -310,38 +408,26 @@ document.addEventListener('keydown', function(event) {
     const addModal = document.getElementById('addDiscountModal');
     const editModal = document.getElementById('editDiscountModal');
     
-    if (addModal && !addModal.classList.contains('hidden')) closeAddDiscountModal();
-    if (editModal && !editModal.classList.contains('hidden')) closeEditDiscountModal();
+    if (addModal && !addModal.classList.contains('hidden')) {
+        window.closeAddDiscountModal();
+    }
+    if (editModal && !editModal.classList.contains('hidden')) {
+        window.closeEditDiscountModal();
+    }
 });
 
-// DOM Content Loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing discounts page...');
-    
-    // Initialize form handling
-    initializeFormHandling();
-    
-    // Attach button listeners using event delegation
+// Re-initialize after any dynamic content updates (e.g., after form submission)
+function refreshDiscountsTable() {
     const table = document.getElementById('discountTable');
-    if (table) {
-        const tbody = table.querySelector('tbody');
-        if (tbody) {
-            tbody.removeEventListener('click', handleTableClick);
-            tbody.addEventListener('click', handleTableClick);
-        }
-    }
-    
-    // Initialize DataTable if table exists and has data
-    const discountTable = document.getElementById('discountTable');
-    if (discountTable) {
-        const tbody = discountTable.querySelector('tbody');
-        const rows = tbody ? tbody.querySelectorAll('tr') : [];
-        const hasData = rows.length > 0 && !rows[0].querySelector('td[colspan]');
+    if (table && table.datatable) {
+        // Destroy existing DataTable
+        table.datatable.destroy();
+        delete table.datatable;
         
-        if (hasData) {
-            setTimeout(() => {
-                initializeDataTable(discountTable);
-            }, 100);
-        }
+        // Reinitialize
+        initializeDataTableIfNeeded();
     }
-});
+}
+
+// Export for global access
+window.refreshDiscountsTable = refreshDiscountsTable;

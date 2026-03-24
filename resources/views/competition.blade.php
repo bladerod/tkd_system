@@ -87,7 +87,7 @@
                                                                     <span class="px-2 py-1 font-medium">₱500</span>
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                                    <button class="bg-amber-500 hover:bg-amber-600 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group" title="Edit Competition">
+                                                                    <button class="bg-green-500 hover:bg-green-600 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group" title="Edit Competition">
                                                                         <i class="fa-solid fa-pen-to-square text-white text-sm"></i>
                                                                     </button>
                                                                 </td>
@@ -110,7 +110,7 @@
                                                                     <span class="px-2 py-1 font-medium text-right">₱1,000</span>
                                                                 </td>
                                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                                    <button class="bg-amber-500 hover:bg-amber-600 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group" title="Edit Competition">
+                                                                    <button class="bg-green-500 hover:bg-green-600 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group" title="Edit Competition">
                                                                         <i class="fa-solid fa-pen-to-square text-white text-sm"></i>
                                                                     </button>
                                                                 </td>

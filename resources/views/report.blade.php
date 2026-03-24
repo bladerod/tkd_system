@@ -18,9 +18,9 @@
   <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
       <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
       <span>/</span>
-      <span class="text-[#1C1C1D] font-medium">Attendance</span>
+      <span class="text-[#1C1C1D] font-medium">Reports</span>
   </div>
-  <h1 class="text-4xl font-bold text-[#1C1C1D] mb-3">Attendance</h1>
+  <h1 class="text-4xl font-bold text-[#1C1C1D] mb-3">Reports</h1>
 
   <!-- Attendance Reports -->
   <div class="report-card">

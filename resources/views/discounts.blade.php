@@ -7,7 +7,7 @@
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
-    @vite(['resources/css/attendance.css'])
+    @vite(['resources/css/discounts.css'])
     <!-- Add SweetAlert2 for better alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Add Simple-Datatables CSS -->
@@ -66,6 +66,7 @@
                                     <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
                                         <table id="discountTable" class="min-w-full divide-y divide-gray-200 p-3">
                                             <thead class="bg-gray-50">
+                                                <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount Name</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
@@ -86,7 +87,7 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="text-sm text-gray-900 font-medium">
-                                                            @if($discount->type == 'percentage')
+                                                            @if($discount->type == 'percent')
                                                                 {{ $discount->value }}%
                                                             @else
                                                                 ₱{{ number_format($discount->value, 2) }}
@@ -164,113 +165,65 @@
     {{-- Add Discount Modal --}}
     <div id="addDiscountModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
         <div class="relative top-20 mx-auto border w-[600px] shadow-lg rounded-xl bg-white">
-            <!-- Modal Header -->
             <div class="flex items-center p-3 border-b bg-[#1C1C1D] rounded-t-lg">
                 <i class="fa-solid fa-plus text-white text-xl pe-1"></i>
                 <h3 class="text-2xl font-bold text-[#ffffff]">Add Discount</h3>
             </div>
             <div class="p-4">
-                <!-- Modal Body - Form -->
-                <form id="addDiscountForm" method="POST" action="{{ route('discounts.store') }}" enctype="multipart/form-data">
+                <form id="addDiscountForm" method="POST" action="{{ route('discounts.store') }}">
                     @csrf
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Discount Name -->
                         <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Name <span class="text-[#FF0000]">*</span></label>
-                            <input type="text" 
-                                name="name" 
-                                id="add_name" 
-                                value="{{ old('name') }}"
-                                required 
-                                minlength="2"
-                                maxlength="100"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_name"></div>
+                            <input type="text" name="name" id="add_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Discount Type -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Type <span class="text-[#FF0000]">*</span></label>
-                            <select name="type" id="add_type" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                            <select name="type" id="add_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="">Select Type</option>
-                                <option value="percentage" {{ old('type') == 'percentage' ? 'selected' : '' }}>Percentage</option>
-                                <option value="fixed" {{ old('type') == 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
+                                <option value="percent">Percentage</option>
+                                <option value="fixed">Fixed Amount</option>
                             </select>
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_type"></div>
                         </div>
 
-                        <!-- Discount Value -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Value <span class="text-[#FF0000]">*</span></label>
-                            <input type="number" 
-                                name="value" 
-                                id="add_value" 
-                                value="{{ old('value') }}"
-                                required 
-                                min="0"
-                                step="0.01"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_value"></div>
-                            <div class="validation-hint text-gray-500 text-xs mt-1 hidden">Enter numeric value (e.g., 10 for 10% or 200 for ₱200)</div>
+                            <input type="number" name="value" id="add_value" required min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Applicable To -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Applicable To <span class="text-[#FF0000]">*</span></label>
-                            <select name="applicable_to" id="add_applicable_to" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                            <select name="applicable_to" id="add_applicable_to" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="">Select Applicable Fee</option>
-                                <option value="monthly_fee" {{ old('applicable_to') == 'monthly_fee' ? 'selected' : '' }}>Monthly Fee</option>
-                                <option value="enrollment" {{ old('applicable_to') == 'enrollment' ? 'selected' : '' }}>Enrollment</option>
-                                <option value="all" {{ old('applicable_to') == 'all' ? 'selected' : '' }}>All</option>
+                                <option value="monthly_fee">Monthly Fee</option>
+                                <option value="enrollment">Enrollment</option>
+                                <option value="all">All</option>
                             </select>
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_applicable_to"></div>
                         </div>
 
-                        <!-- Valid From -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Valid From <span class="text-[#FF0000]">*</span></label>
-                            <input type="date" 
-                                name="valid_from" 
-                                id="add_valid_from" 
-                                value="{{ old('valid_from') }}"
-                                required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_valid_from"></div>
+                            <input type="date" name="valid_from" id="add_valid_from" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Valid To -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Valid To <span class="text-[#FF0000]">*</span></label>
-                            <input type="date" 
-                                name="valid_to" 
-                                id="add_valid_to" 
-                                value="{{ old('valid_to') }}"
-                                required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_valid_to"></div>
+                            <input type="date" name="valid_to" id="add_valid_to" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Status -->
                         <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select name="status" id="add_status" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                                <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                            <select name="status" id="add_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Modal Footer -->
                     <div class="flex justify-end gap-3 mt-6 pt-3 border-t">
-                        <button type="button" onclick="closeAddDiscountModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" id="submitAddBtn" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D] transition-colors">
-                            Add Discount
-                        </button>
+                        <button type="button" onclick="closeAddDiscountModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                        <button type="submit" id="submitAddBtn" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D] transition-colors">Add Discount</button>
                     </div>
                 </form>
             </div>
@@ -280,106 +233,65 @@
     {{-- Edit Discount Modal --}}
     <div id="editDiscountModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
         <div class="relative top-20 mx-auto border w-[600px] shadow-lg rounded-xl bg-white">
-            <!-- Modal Header -->
             <div class="flex items-center p-3 border-b bg-[#1C1C1D] rounded-t-lg">
                 <i class="fa-regular fa-pen-to-square text-white text-xl pe-1"></i>
                 <h3 class="text-2xl font-bold text-[#ffffff]">Edit Discount</h3>
             </div>
             <div class="p-4">
-                <!-- Modal Body - Form -->
-                <form id="editDiscountForm" method="POST" enctype="multipart/form-data">
+                <form id="editDiscountForm" method="POST">
                     @csrf
                     @method('PUT')
                     
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Discount Name -->
                         <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Name <span class="text-[#FF0000]">*</span></label>
-                            <input type="text" 
-                                name="name" 
-                                id="edit_name" 
-                                required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_name"></div>
+                            <input type="text" name="name" id="edit_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Discount Type -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Type <span class="text-[#FF0000]">*</span></label>
-                            <select name="type" id="edit_type" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                                <option value="percentage">Percentage</option>
+                            <select name="type" id="edit_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="percent">Percentage</option>
                                 <option value="fixed">Fixed Amount</option>
                             </select>
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_type"></div>
                         </div>
 
-                        <!-- Discount Value -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Value <span class="text-[#FF0000]">*</span></label>
-                            <input type="number" 
-                                name="value" 
-                                id="edit_value" 
-                                required 
-                                min="0"
-                                step="0.01"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_value"></div>
+                            <input type="number" name="value" id="edit_value" required min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Applicable To -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Applicable To <span class="text-[#FF0000]">*</span></label>
-                            <select name="applicable_to" id="edit_applicable_to" required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                            <select name="applicable_to" id="edit_applicable_to" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="monthly_fee">Monthly Fee</option>
                                 <option value="enrollment">Enrollment</option>
                                 <option value="all">All</option>
                             </select>
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_applicable_to"></div>
                         </div>
 
-                        <!-- Valid From -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Valid From <span class="text-[#FF0000]">*</span></label>
-                            <input type="date" 
-                                name="valid_from" 
-                                id="edit_valid_from" 
-                                required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_valid_from"></div>
+                            <input type="date" name="valid_from" id="edit_valid_from" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Valid To -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Valid To <span class="text-[#FF0000]">*</span></label>
-                            <input type="date" 
-                                name="valid_to" 
-                                id="edit_valid_to" 
-                                required 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_valid_to"></div>
+                            <input type="date" name="valid_to" id="edit_valid_to" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                         </div>
 
-                        <!-- Status -->
                         <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select name="status" id="edit_status" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                            <select name="status" id="edit_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Modal Footer -->
                     <div class="flex justify-end gap-3 mt-6 pt-3 border-t">
-                        <button type="button" onclick="closeEditDiscountModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" id="submitEditBtn" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D] transition-colors">
-                            Update Discount
-                        </button>
+                        <button type="button" onclick="closeEditDiscountModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                        <button type="submit" id="submitEditBtn" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D] transition-colors">Update Discount</button>
                     </div>
                 </form>
             </div>
@@ -391,19 +303,111 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     @vite(['resources/js/app.js'])
-    @vite(['resources/js/dashboard.js'])
     @vite(['resources/js/navbarDrop.js'])
+    @vite(['resources/js/discount.js'])
     
     <script>
-        // CSRF Token setup
-        window.csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-        @if ($errors->any())
-            document.addEventListener('DOMContentLoaded', function() {
-                // If there are errors, automatically re-open the Add Modal
-                openAddDiscountModal();
-            });
-        @endif
+        // Debug: Check if discount.js is loaded
+        console.log('Discounts page loaded');
+        
+        // Make sure functions are globally available
+        window.openAddDiscountModal = function() {
+            console.log('Opening add modal');
+            const modal = document.getElementById('addDiscountModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        window.closeAddDiscountModal = function() {
+            console.log('Closing add modal');
+            const modal = document.getElementById('addDiscountModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                const form = document.getElementById('addDiscountForm');
+                if (form) form.reset();
+            }
+        }
+        
+        window.closeEditDiscountModal = function() {
+            console.log('Closing edit modal');
+            const modal = document.getElementById('editDiscountModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Test delete button click
+        document.addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('.delete-discount-btn');
+            if (deleteBtn) {
+                console.log('Delete button clicked');
+                e.preventDefault();
+                const discountId = deleteBtn.getAttribute('data-discount-id');
+                const discountName = deleteBtn.getAttribute('data-discount-name');
+                console.log('Delete discount ID:', discountId, 'Name:', discountName);
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `You are about to delete "${discountName}". This action cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/discounts/${discountId}`;
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                        form.innerHTML = `
+                            <input type="hidden" name="_token" value="${csrfToken}">
+                            <input type="hidden" name="_method" value="DELETE">
+                        `;
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            }
+        });
+        
+        // Test edit button click
+        document.addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.edit-discount-btn');
+            if (editBtn) {
+                e.preventDefault();
+                const discountId = editBtn.getAttribute('data-discount-id');
+                console.log('Edit button clicked for ID:', discountId);
+                
+                fetch(`/discounts/${discountId}`)
+                    .then(response => response.json())
+                    .then(discount => {
+                        console.log('Discount data:', discount);
+                        document.getElementById('edit_name').value = discount.name;
+                        document.getElementById('edit_type').value = discount.type;
+                        document.getElementById('edit_value').value = discount.value;
+                        document.getElementById('edit_applicable_to').value = discount.applicable_to;
+                        document.getElementById('edit_valid_from').value = discount.valid_from;
+                        document.getElementById('edit_valid_to').value = discount.valid_to;
+                        document.getElementById('edit_status').value = discount.status;
+                        
+                        const editForm = document.getElementById('editDiscountForm');
+                        editForm.action = `/discounts/${discount.id}`;
+                        
+                        document.getElementById('editDiscountModal').classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Failed to load discount data', 'error');
+                    });
+            }
+        });
     </script>
 </body>
 </html>

@@ -2,31 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-class StudentController extends Controller
-{
-
-use App\Models\Student;
-use App\Models\Classes;
-use App\Models\Instructor;
-use App\Models\SkillChecklist;
 use App\Models\AttendanceLog;
-use App\Models\Invoice;
-use App\Models\CompetitionEntry;
-use App\Models\Certificate;
-use App\Models\StudentEvaluation;
-use App\Models\ChatThread;
-use App\Models\ChatMessage;
 use App\Models\AuditLog;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\Branch;
+use App\Models\Certificate;
+use App\Models\ChatMessage;
+use App\Models\ChatThread;
+use App\Models\Classes;
+use App\Models\CompetitionEntry;
+use App\Models\Instructor;
+use App\Models\Invoice;
+use App\Models\SkillChecklist;
+use App\Models\Student;
+use App\Models\StudentEvaluation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+
+// class StudentController extends Controller
+// {
+
+
 
 class StudentController extends Controller
 {
     public function index()
     {
+
+        $branches = Branch::all();
         $beltLevels = SkillChecklist::select('belt_level')->distinct()->get();
         $classes = Classes::where('status', 'active')->get(); 
         $instructors = Instructor::where('active_flag', true)->with('user')->get();
@@ -54,7 +56,7 @@ class StudentController extends Controller
                 ];
             });
 
-        return view('student', compact('students', 'beltLevels', 'classes', 'instructors'));
+        return view('student', compact('students', 'beltLevels', 'classes', 'instructors', 'branches'));
     }
 
     // private function calculateBalance($student)
@@ -73,6 +75,8 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
+
+        
         $validated = $request->validate([
             'branch_id' => 'required',
             'first_name' => 'required|string|max:100',

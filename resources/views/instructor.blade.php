@@ -97,7 +97,7 @@
                                                         specialization: '{{ $inst->specialization }}',
                                                         bio: `{{ addslashes($inst->bio) }}`
                                                     })"
-                                                    class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg"
+                                                    class="text-white bg-green-600 hover:bg-green-500 p-2.5 rounded-lg"
                                                 >
                                                    <i class="fa-regular fa-pen-to-square"></i>
                                                 </button>
@@ -106,7 +106,7 @@
                                                 <form action="{{ route('instructor.delete', $inst->id) }}" method="POST" class="delete-form" data-instructor-name="{{ $inst->fname }} {{ $inst->lname }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-instructor-btn" data-instructor-id="{{ $inst->id }}" data-instructor-name="{{ $inst->fname }} {{ $inst->lname }}">
+                                                    <button type="button" class="bg-red-600 hover:bg-red-500 p-2.5 rounded-lg delete-instructor-btn" data-instructor-id="{{ $inst->id }}" data-instructor-name="{{ $inst->fname }} {{ $inst->lname }}">
                                                         <i class="fa-regular fa-trash-can text-white"></i>
                                                     </button>
                                                 </form>

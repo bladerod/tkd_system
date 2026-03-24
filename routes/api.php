@@ -71,16 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 
 
-
-Route::get('/students/{id}/profile', [StudentController::class, 'profile']);
-Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
-Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
-Route::get('/students/{id}/competitions', [StudentController::class, 'competitions']);
-Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
-Route::get('/students/{id}/progress', [StudentController::class, 'progress']);
-Route::get('/students/{id}', [StudentController::class, 'show']); // For chat thread info
-Route::post('/students/{id}/send-message', [StudentController::class, 'sendMessage']);
-Route::get('/students/{id}/documents', [StudentController::class, 'documents']);
 Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
 

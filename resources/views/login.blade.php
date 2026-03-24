@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="../assets/img/logo.png">
-    <title>TKD | Login</title>
+    <title>TrainNova | Login</title>
     @vite(['resources/css/app.css', 'resources/css/login.css'])
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <!-- Logo or Title -->
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-[#1C1C1D]">TKD</h1>
+            <h1 class="text-3xl font-bold text-[#1C1C1D]">TrainNova</h1>
         </div>
 
         <form action="{{ route('login.submit') }}" method="POST" id="loginForm">

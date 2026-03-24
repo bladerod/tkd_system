@@ -35,11 +35,11 @@
       <tbody>
         <tr>
           <td>Juan Dela Cruz</td><td>2026-02-04</td><td>08:05 AM</td><td>10:00 AM</td>
-          <td class="status late">Late</td><td>Sir Mark</td><td>Kids TKD</td>
+          <td class="status late">Late</td><td>Sir Mark</td><td>Kids TrainNova</td>
         </tr>
         <tr>
           <td>Maria Cruz</td><td>2026-02-04</td><td>08:00 AM</td><td>10:00 AM</td>
-          <td class="status present">Present</td><td>Sir Mark</td><td>Kids TKD</td>
+          <td class="status present">Present</td><td>Sir Mark</td><td>Kids TrainNova</td>
         </tr>
       </tbody>
     </table>
@@ -103,11 +103,11 @@
       </thead>
       <tbody>
         <tr>
-          <td>Sir Mark</td><td>2026-02-04</td><td>Kids TKD</td>
+          <td>Sir Mark</td><td>2026-02-04</td><td>Kids TrainNova</td>
           <td>15</td><td>08:00–10:00 AM</td><td>2 hrs</td>
         </tr>
         <tr>
-          <td>Sir John</td><td>2026-02-04</td><td>Adult TKD</td>
+          <td>Sir John</td><td>2026-02-04</td><td>Adult TrainNova</td>
           <td>15</td><td>08:00–10:00 AM</td><td>2 hrs</td>
         </tr>
       </tbody>

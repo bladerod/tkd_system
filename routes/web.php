@@ -12,6 +12,7 @@ use App\Http\Controllers\BillingRulesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClubProfileController;
 use App\Http\Controllers\BrandingController;
+use App\Http\Controllers\DiscountController;
 
 // Guest routes
 Route::middleware(['guest'])->group(function () {
@@ -121,6 +122,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/discounts', function () {
         return view('discounts');
     });
+    Route::post('/settings/discounts',[DiscountController::class,'store'])->name('discounts.store');
+
+
     Route::get('/settings/roles-and-permissions', function () {
         return view('rolespermission');
     });

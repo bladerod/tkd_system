@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TKD</title>
+    <title>TrainNova</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -72,7 +72,7 @@
                                                         <tbody class="divide-y divide-gray-100">
                                                             <!-- Row 1 - IN -->
                                                             <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Interclub TKD Sparring</td>
+                                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Interclub TrainNova Sparring</td>
                                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                                     <div class="flex items-center">
                                                                         <div class="ml-3">

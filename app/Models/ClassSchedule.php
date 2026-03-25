@@ -2,21 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClassSchedule extends Model
 {
+    use HasFactory;
+
     protected $table = 'class_schedules';
-    public $timestamps = false; // Schema does not include standard timestamps
 
     protected $fillable = [
-        'class_id', 
-        'day_of_week', 
-        'start_time', 
-        'end_time', 
-        'instructor_user_id', 
-        'room'
+        'class_id',
+        'day_of_week',
+        'start_time',
+        'end_time'
+    ];
+
+    protected $casts = [
+        'start_time' => 'string',
+        'end_time' => 'string',
     ];
 
     public function class(): BelongsTo
@@ -24,8 +29,16 @@ class ClassSchedule extends Model
         return $this->belongsTo(Classes::class, 'class_id');
     }
 
-    public function instructor(): BelongsTo
+    // Get day label
+    public function getDayLabelAttribute(): string
     {
-        return $this->belongsTo(User::class, 'instructor_user_id');
+        return ucfirst($this->day_of_week);
+    }
+
+    // Get formatted time range
+    public function getTimeRangeAttribute(): string
+    {
+        return date('g:i A', strtotime($this->start_time)) . ' - ' . 
+               date('g:i A', strtotime($this->end_time));
     }
 }

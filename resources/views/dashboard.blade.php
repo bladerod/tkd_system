@@ -384,7 +384,7 @@
                     
                     <!-- Form Body -->
                     <div class="px-6 pt-6 pb-4 bg-white">
-                        <form action="{{ route('dashboard.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                             @csrf   
                             <!-- Branch - Moved to top as it's a primary identifier -->
                             <div>
@@ -565,7 +565,7 @@
                 
                 <!-- Form Body -->
                 <div class="px-6 pt-6 pb-4 bg-white">
-                    <form action="{{ route('dashboard.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('parent.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <!-- Parent Name - 2 columns -->

@@ -1,5 +1,4 @@
 <?php
-// app/Models/Parents.php
 
 namespace App\Models;
 

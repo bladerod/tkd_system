@@ -13,8 +13,8 @@ use App\Http\Controllers\DashboardPopulateController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Models\BeltLevel;
@@ -172,11 +172,12 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
-
-    Route::get('/report', function () {
-        return view('report');
-    })->name('report');
+Route::prefix('reports')->group(function () {
+    Route::get('/attendance', [ReportController::class, 'attendance'])->name('reports.attendance');
+    Route::get('/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('/billing', [ReportController::class, 'billing'])->name('reports.billing');
+    Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
+});
 
 Route::get('/student', function () {
     $beltlevels = BeltLevel::all();

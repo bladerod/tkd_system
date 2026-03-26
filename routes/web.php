@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardPopulateController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
@@ -70,7 +71,7 @@ Route::middleware(['auth'])->group(function () {
 
     // STUDENTS - Main fix here!
     Route::post('/student', [StudentController::class,'store'])->name('student.store');
-    
+
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
@@ -115,16 +116,13 @@ Route::middleware(['auth'])->group(function () {
         return view('billing');
     });
 
-    Route::get('/report', function () {
-        return view('report');
-    })->name('report');
 
     // SETTINGS
     Route::get('/settings', function () {
         return view('settings');
     });
     Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
-    
+
     //Billing Rules
     Route::get('/settings/billing-rules', [BillingRulesController::class, 'index']);
     Route::post('/settings/billing-rules', [BillingRulesController::class, 'update']);
@@ -134,7 +132,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/club-profile', [ClubProfileController::class, 'index'])->name('settings.club-profile');
     Route::post('/settings/club-profile/update', [ClubProfileController::class, 'update'])->name('settings.club-profile.update');
     //
-    
+
     // For settings Branding
     Route::get('/settings/branding', [BrandingController::class, 'index'])->name('settings.branding');
     Route::post('/settings/branding/update', [BrandingController::class, 'update'])->name('settings.branding.update');
@@ -143,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/branding-rules', function () {
         return view('brandingrules');
     });
-    
+
     // DISCOUNTS
     Route::get('/settings/discounts', [DiscountController::class, 'index'])->name('discounts.index');
     Route::post('/settings/discounts',[DiscountController::class,'store'])->name('discounts.store');
@@ -163,13 +161,6 @@ Route::middleware(['auth'])->group(function () {
         return view('integration');
     });
 
-    Route::get('/chat', function () {
-        return view('chat');
-    })->name('chat');
-
-    Route::get('/report', function () {
-        return view('report');
-    })->name('report');
 
     Route::post('/branch/check', [BranchController::class, 'checkField'])->name('branch.check');
     Route::get('/branch', [BranchController::class,'index'])->name('branch');
@@ -181,16 +172,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
 
-    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
-
-    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
-    Route::get('/chat',[ChatController::class,'index'])->name('chat.index');
-
-    Route::get('/chat/{id}',[ChatController::class,'show'])->name('chat.show');
-
-    Route::post('/chat/{id}/send',[ChatController::class,'send'])->name('chat.send');
 
     Route::get('/report', function () {
         return view('report');

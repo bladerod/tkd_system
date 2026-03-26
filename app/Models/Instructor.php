@@ -9,6 +9,7 @@ class Instructor extends Model
     protected $table = 'instructors';
 
     protected $fillable = [
+        'user_id',
         'fname',
         'lname',
         'email',

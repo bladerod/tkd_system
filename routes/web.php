@@ -34,8 +34,8 @@ Route::middleware(['guest'])->group(function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->name('dashboard.index');
-    Route::post('/dashboard', [DashboardPopulateController::class, 'store'])->name('dashboard.store');
-    Route::post('/dashboard',[ParentsController::class,'store'])->name('dashboard.store');
+    Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->name('student.store');
+    Route::post('/dashboard/parent',[ParentsController::class,'store'])->name('parent.store');
 
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

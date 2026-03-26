@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardPopulateController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Models\BeltLevel;
@@ -33,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->name('dashboard.index');
     Route::post('/dashboard', [DashboardPopulateController::class, 'store'])->name('dashboard.store');
+    Route::post('/dashboard',[ParentsController::class,'store'])->name('dashboard.store');
+
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

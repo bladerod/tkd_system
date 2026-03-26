@@ -19,30 +19,24 @@ class ParentsController extends Controller
      */
     public function index()
     {
-        // Get all parents with their associated users and students through the pivot table
         $parents = Parents::with(['user', 'students'])->get();
         
-        // Get all students for the dropdown from the students table
-        $students = Student::select('student_id', 'fname', 'lname', 'student_code')
+        $students = Student::select('id', 'student_name', 'student_code')
                         ->where('status', 'active')
                         ->get();
         
-        // Fix: Get users that are either:
-        // 1. Already have role 'parent' OR
-        // 2. Don't have a parent record yet
         $users = User::where('role', 'parent')
-                    ->orWhereDoesntHave('parent') // This uses the relationship we just defined
+                    ->orWhereDoesntHave('parent') 
                     ->get();
         
-        // Get branches for potential use
         $branches = Branch::all();
         
-        return view('parent', [
-            'parents' => $parents,
-            'students' => $students,
-            'users' => $users,
-            'branches' => $branches
-        ]);
+        return view('parent', compact(
+            'parents',
+            'students',
+            'users',
+            'branches'
+        ));
     }
 
     /**
@@ -51,75 +45,112 @@ class ParentsController extends Controller
     public function store(Request $request)
     {
         try {
-            DB::beginTransaction();
 
             // Validate the request
-            $validated = $request->validate([
-                'firstname' => 'required|string|max:170',
-                'lastname' => 'required|string|max:170',
-                'gender' => 'required|string',
+            $request->validate([
+                'fname' => 'required|string|max:170',
+                'lname' => 'required|string|max:170',
                 'address' => 'required|string|max:255',
                 'relationship_note' => 'nullable|string',
-                'phone' => 'nullable|string|max:13',
-                'status' => 'nullable|in:active,inactive',
+                'mobile' => 'nullable|string|max:13',
+                'status' => 'required|in:1,0',
+                'email' => 'nullable|email|unique:users,email',
+                'password' => 'nullable|string|min:6|confirmed',
                 'students' => 'nullable|array',
-                'students.*' => 'exists:students,student_id',
-                'create_user_account' => 'nullable|boolean',
-                'email' => 'required_if:create_user_account,1|email|unique:users,email|nullable',
-                'username' => 'required_if:create_user_account,1|string|min:3|unique:users,username|nullable',
-                'password' => 'required_if:create_user_account,1|string|min:6|nullable',
-                'mobile_no' => 'required_if:create_user_account,1|string|max:13|nullable',
+                'students.*' => 'exists:students,id',
+                'photo_url' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             ]);
 
-            // Handle user account creation if requested
-            $userId = null;
-            if ($request->has('create_user_account') && $request->create_user_account) {
+            // Check if email exists
+            $existingUser = null;
+            $user = null;
+            
+            if ($request->filled('email')) {
+                $existingUser = User::where('email', $request->email)->first();
+                
+                if ($existingUser) {
+                    // If user exists, use that user account
+                    $user = $existingUser;
+                    
+                    // Update user details if needed
+                    $user->update([
+                        'fname' => $request->fname,
+                        'lname' => $request->lname,
+                        'mobile' => $request->mobile ?? $user->mobile,
+                        'status' => $request->status,
+                    ]);
+                }
+            }
+
+            if (!$user) {
+                
+                if ($request->filled('email') && User::where('email', $request->email)->exists()) {
+                    throw new \Exception('The email address is already registered. Please use a different email or login to an existing account.');
+                }
+                
                 $user = User::create([
-                    'branch_id' => 1, // Default branch, you might want to make this selectable
+                    'branch_id' => 1, // Default branch
                     'role' => 'parent',
-                    'fname' => $request->firstname,
-                    'lname' => $request->lastname,
-                    'username' => $request->username,
+                    'fname' => $request->fname,
+                    'lname' => $request->lname,
                     'email' => $request->email,
-                    'mobile_no' => $request->mobile_no,
-                    'password' => Hash::make($request->password),
+                    'mobile' => $request->mobile,
+                    'password' => Hash::make($request->password ?? 'default123'),
+                    'status' => $request->status,
+                    'created_at' => now(),
                 ]);
-                $userId = $user->user_id;
+            }
+
+            $existingParent = Parents::where('user_id', $user->id)->first();
+            
+            if ($existingParent) {
+                throw new \Exception('A parent record already exists for this user. Please edit the existing record instead.');
+            }
+
+            // Handle file upload for ID/photo
+            $photoUrl = null;
+            if ($request->hasFile('photo_url')) {
+                $photoUrl = $request->file('photo_url')->store('parent-ids', 'public');
             }
 
             // Create parent record
             $parent = Parents::create([
-                'user_id' => $userId,
-                'fname' => $request->firstname,
-                'lname' => $request->lastname,
-                'emergency_contact' => $request->phone,
+                'user_id' => $user->id,
+                'emergency_contact' => $request->mobile, 
                 'relationship_note' => $request->relationship_note,
                 'address' => $request->address,
-                'id_verified_flag' => 0, // Default to not verified
-                'status' => $request->status ?? 'active',
-                'gender' => $request->gender,
+                'id_verified_flag' => $photoUrl ? 1 : 0, 
                 'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            // Link students if any using the pivot table
+            // Link students if any using the parent_students table
             if ($request->has('students') && !empty($request->students)) {
                 foreach ($request->students as $studentId) {
                     DB::table('parent_students')->insert([
-                        'id' => $parent->id,
+                        'parent_id' => $parent->id,
                         'student_id' => $studentId,
-                        'relationship' => 'guardian', // Default, you might want to make this selectable
-                        'is_primary' => 0
+                        'relationship' => $request->relationship_note ?? 'guardian',
+                        'is_primary' => 0,
+                        'created_at' => now(),
                     ]);
                 }
             }
 
             DB::commit();
 
-            return redirect()->route('parents.index')
-                ->with('success', 'Parent created successfully!');
+            $message = $existingUser 
+                ? 'Parent created successfully! Linked to existing user account.' 
+                : 'Parent created successfully! New user account has been created.';
+            
+            return redirect()->route('dashboard.index')
+                ->with('success', $message);
+                
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to create parent: ' . $e->getMessage());
+            Log::error('Request data: ' . json_encode($request->all()));
+            
             return redirect()->back()
                 ->with('error', 'Failed to create parent. ' . $e->getMessage())
                 ->withInput();

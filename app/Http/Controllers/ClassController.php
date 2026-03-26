@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Classes;
+use App\Models\BeltLevel;
 use App\Models\Branch;
-use App\Models\Instructor;
-use App\Models\Student;
+use App\Models\Classes;
 use App\Models\ClassSchedule;
 use App\Models\ClassStudent;
+use App\Models\Instructor;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class ClassController extends Controller
 {
@@ -19,6 +21,7 @@ class ClassController extends Controller
      */
     public function index()
     {
+        $belt_level = BeltLevel::orderBy('rank_order')->get();
         $classes = Classes::with(['branch', 'primaryInstructor', 'assistantInstructor', 'schedules'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -34,7 +37,7 @@ class ClassController extends Controller
         $instructors = Instructor::where('status', 'active')->get();
         
         // Fix: Use 'classes' instead of 'classes.index' since the file is directly in views folder
-        return view('classes', compact('classes', 'branches', 'instructors'));
+        return view('classes', compact('classes', 'branches', 'instructors', 'belt_level'));
     }
 
     /**
@@ -297,18 +300,24 @@ class ClassController extends Controller
      */
     public function getAvailableStudents($classId)
     {
-        $class = Classes::findOrFail($classId);
-        
-        $enrolledStudentIds = ClassStudent::where('class_id', $classId)
-            ->pluck('student_id')
-            ->toArray();
-        
-        $availableStudents = Student::where('status', 'active')
-            ->where('branch_id', $class->branch_id)
-            ->whereNotIn('id', $enrolledStudentIds)
-            ->get(['id', 'first_name', 'last_name', 'current_belt']);
-        
-        return response()->json($availableStudents);
+        try {
+            $class = Classes::findOrFail($classId);
+            
+            $enrolledStudentIds = ClassStudent::where('class_id', $classId)
+                ->where('status', 'active')
+                ->pluck('student_id');
+            
+            $availableStudents = Student::where('status', 'active')
+                ->where('branch_id', $class->branch_id)
+                ->whereNotIn('id', $enrolledStudentIds)
+                ->get(['id', 'student_name', 'current_belt']);
+            
+            return response()->json($availableStudents);
+            
+        } catch (\Exception $e) {
+            Log::error('Error in getAvailableStudents: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to load students: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

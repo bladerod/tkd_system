@@ -61,9 +61,11 @@ class InstructorController extends Controller
         'role' => 'instructor',
         'mobile' => $request->contact,
         'username' => $request->username,
-        
-    ]);
 
+    ]);
+ if (!$user) {
+        throw new \Exception('Failed to create user account.');
+    }
     // Create instructor record
     Instructor::create([
         'user_id' => $user->id,

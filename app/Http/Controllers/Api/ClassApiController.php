@@ -108,4 +108,36 @@ class ClassApiController extends Controller
             'data' => $sessions
         ]);
     }
+
+    /**
+ * Get classes of the authenticated instructor
+ */
+
+    public function myClasses(Request $request)
+{
+    $user = $request->user();
+    $instructor = $user->instructor; 
+
+    if (!$instructor) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Instructor profile not found'
+        ], 404);
+    }
+
+    $classes = Classes::with(['branch', 'schedules', 'students' => function($q) {
+            $q->wherePivot('status', 'active');
+        }])
+        ->where(function($q) use ($instructor) {
+            $q->where('primary_instructor_id', $instructor->id)
+              ->orWhere('assistant_instructor_id', $instructor->id);
+        })
+        ->where('status', 'active')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $classes
+        ]);
+    }
 }

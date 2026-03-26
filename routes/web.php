@@ -93,7 +93,6 @@ Route::middleware(['auth'])->group(function () {
         return view('competition');
     });
 
-
     // Class Management Routes
     Route::prefix('classes')->name('classes.')->group(function () {
         Route::get('/', [ClassController::class, 'index'])->name('index');
@@ -106,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/enroll', [ClassController::class, 'enrollStudent'])->name('enroll');
         Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudent'])->name('remove-student');
         Route::get('/export/csv', [ClassController::class, 'exportCsv'])->name('export');
+
     });
 
     Route::get('/billing', function () {

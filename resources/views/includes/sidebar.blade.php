@@ -1,4 +1,4 @@
-<aside style="background: #1C1C1D;" class="w-64 shadow-lg h-[calc(100vh-24px)] overflow-y-auto" id="sidenav-main">
+<aside style="background: #1C1C1D;" class="w-64 shadow-lg h-[calc(100vh-65px)] overflow-y-auto" id="sidenav-main">
     <!-- Navigation -->
     <nav class="p-3">
         <ul class="space-y-1">

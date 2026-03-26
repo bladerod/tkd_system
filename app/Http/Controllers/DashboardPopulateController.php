@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BeltLevel;
 use App\Models\Branch;
+use App\Models\Student;
 use App\Models\StudentDisplay;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,11 +13,15 @@ class DashboardPopulateController extends Controller
 {
     public function index()
     {   
+
+        $students = Student::select('id', 'student_name', 'student_code')
+                    ->where('status', 'active')
+                    ->get();
         $parents = User::where('role', 'parent')->get();
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
 
-        return view('dashboard', compact('branches', 'beltlevels', 'parents'));
+        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students'));
 
     }
 

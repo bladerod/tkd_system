@@ -6,18 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttendanceLog extends Model
 {
-    protected $table = 'attendance_logs';
+    protected $table = 'vwattendancelog';
 
     protected $fillable = [
-        'student_id',
+        'student_code',
+        'student_name',
         'class_session_id',
         'checkin_time',
         'checkout_time',
         'method',
         'confidence_score',
-        'recorded_by_user_id',
         'device_id',
-        'status'
     ];
 
     protected $casts = [

@@ -1,4 +1,4 @@
-<aside style="background: #1C1C1D;" class="w-64 shadow-lg h-[calc(100vh-24px)] overflow-y-auto" id="sidenav-main">
+<aside style="background: #1C1C1D;" class="w-64 shadow-lg h-[calc(100vh-65px)] overflow-y-auto" id="sidenav-main">
     <!-- Navigation -->
     <nav class="p-3">
         <ul class="space-y-1">
@@ -113,14 +113,61 @@
                 </a>
             </li>
             <!-- Report -->
-            <li>
-                <a href="/report" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
-                    <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                    </div>
-                    <span class="text-white font-medium group-hover:text-[#1C1C1D]">Reports</span>
-                </a>
-            </li>
+           <li x-data="{ open: false }" class="mb-2">
+
+    <!-- MAIN BUTTON -->
+   <button @click="open = !open"
+            class="w-full flex items-center justify-between px-4 py-2 text-left text-gray-300 rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-200">
+        <span class="flex items-center gap-2 font-medium">
+            <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]"><i class="fas fa-chart-bar"></i></div>
+            Reports
+        </span>
+        <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]"><i class="fas fa-chevron-down transition-transform duration-200"
+           :class="{ 'rotate-180': open }"></i></div>
+
+    </button>
+
+    <!-- DROPDOWN -->
+    <ul x-show="open" x-transition class="ml-6 mt-2 space-y-1 text-sm">
+        <li>
+            <a href="{{ route('reports.attendance') }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:bg-white hover:text-gray-900 transition-all duration-200">
+                <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
+                <i class="fa-solid fa-user-check"></i></div>
+                <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Attendance</span>
+
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('reports.revenue') }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:bg-white hover:text-gray-900 transition-all duration-200">
+               <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]"><i class="fa-solid fa-chart-line"></i></div>
+<span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Revenue</span>
+
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('reports.billing') }}"
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:bg-white hover:text-gray-900 transition-all duration-200">
+               <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]"><i class="fa-solid fa-file-invoice"></i></div>
+
+               <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Billing</span>
+
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('reports.instructor') }} "
+               class="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:bg-white hover:text-gray-900 transition-all duration-200">
+               <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
+<i class="fa-solid fa-chalkboard-teacher"></i>
+               </div>
+
+               <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Instructor Load</span>
+            </a>
+        </li>
+    </ul>
+
+</li>
 
             <!-- Settings Dropdown - Toggleable with Alpine.js -->
             <li x-data="{ open: false }">

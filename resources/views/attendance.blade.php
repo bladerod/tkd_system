@@ -144,17 +144,6 @@
                                     </form>
                                     
                                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center gap-2">
-                                                    <h2 class="font-semibold text-gray-800">Attendance Logs</h2>
-                                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                                        {{ $attendanceLogs->total() ?? 0 }} entries
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
                                         <div class="overflow-x-auto">
                                             <table class="w-full text-sm">
                                                 <thead>
@@ -166,13 +155,12 @@
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camera</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match %</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recorded By</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                                     </tr>
                                                 </thead>
                                                 
                                                 <tbody class="divide-y divide-gray-100">
-                                                    @forelse($attendanceLogs ?? [] as $log)
+                                                    @forelse($attendanceLogs as $log)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {{ optional($log->checkin_time)->format('g:i A') ?? 'N/A' }}
@@ -182,23 +170,18 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center">
-                                                                <div class="flex-shrink-0 h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                                                    <span class="text-xs font-medium text-gray-600">
-                                                                        {{ substr(optional($log->student)->first_name ?? 'N', 0, 1) }}{{ substr(optional($log->student)->last_name ?? 'A', 0, 1) }}
-                                                                    </span>
-                                                                </div>
                                                                 <div class="ml-3">
                                                                     <p class="text-sm font-medium text-gray-800">
-                                                                        {{ optional($log->student)->first_name ?? 'Unknown' }} {{ optional($log->student)->last_name ?? '' }}
+                                                                        {{ $log->student_name ?? 'Unknown' }}
                                                                     </p>
                                                                     <p class="text-xs text-gray-500">
-                                                                        {{ optional($log->student)->student_code ?? 'No Code' }}
+                                                                        {{ $log->student_code ?? 'No Code' }}
                                                                     </p>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {{ optional(optional($log->classSession)->class)->class_name ?? 'N/A' }}
+                                                            {{ $log->class_session_id ?? 'N/A' }}
                                                             <br>
                                                             <span class="text-xs text-gray-500">{{ optional(optional($log->classSession)->class)->level ?? '' }}</span>
                                                         </td>
@@ -221,9 +204,6 @@
                                                                 @endif">
                                                                 {{ ucfirst($log->method ?? 'manual') }}
                                                             </span>
-                                                        </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {{ optional($log->recordedBy)->fname ?? 'System' }} {{ optional($log->recordedBy)->lname ?? '' }}
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             @if(!$log->checkout_time || $log->checkout_time->format('Y-m-d H:i:s') == '0000-00-00 00:00:00')
@@ -255,33 +235,6 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        
-                                        @if(($attendanceLogs ?? null) && $attendanceLogs->hasPages())
-                                        <div class="px-6 py-3 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-                                            <div class="text-xs text-gray-400">
-                                                Showing {{ $attendanceLogs->firstItem() ?? 0 }} to {{ $attendanceLogs->lastItem() ?? 0 }} of {{ $attendanceLogs->total() ?? 0 }} entries
-                                            </div>
-                                            <div class="flex gap-2">
-                                                @if($attendanceLogs->onFirstPage())
-                                                    <button class="px-3 py-1 text-xs border border-gray-200 rounded bg-white text-gray-300 cursor-not-allowed" disabled>Previous</button>
-                                                @else
-                                                    <a href="{{ $attendanceLogs->previousPageUrl() }}" class="px-3 py-1 text-xs border border-gray-200 rounded bg-white text-gray-500 hover:bg-gray-50">Previous</a>
-                                                @endif
-                                                
-                                                @foreach($attendanceLogs->getUrlRange(max(1, $attendanceLogs->currentPage() - 2), min($attendanceLogs->lastPage(), $attendanceLogs->currentPage() + 2)) as $page => $url)
-                                                    <a href="{{ $url }}" class="px-3 py-1 text-xs border border-gray-200 rounded {{ $page == $attendanceLogs->currentPage() ? 'bg-[#1C1C1D] text-white' : 'bg-white text-gray-500 hover:bg-gray-50' }}">
-                                                        {{ $page }}
-                                                    </a>
-                                                @endforeach
-                                                
-                                                @if($attendanceLogs->hasMorePages())
-                                                    <a href="{{ $attendanceLogs->nextPageUrl() }}" class="px-3 py-1 text-xs border border-gray-200 rounded bg-white text-gray-500 hover:bg-gray-50">Next</a>
-                                                @else
-                                                    <button class="px-3 py-1 text-xs border border-gray-200 rounded bg-white text-gray-300 cursor-not-allowed" disabled>Next</button>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @endif
                                     </div>
                                 </div>
                             </div>

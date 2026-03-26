@@ -40,7 +40,7 @@
                         <div>
                             <button command="show-modal" commandfor="parentDialog"  class="button w-full bg-[#1C1C1D] text-white px-4 py-3 rounded-lg hover:bg-[#535353] transition-colors flex items-center justify-center gap-2">
                                 <i class="fa fa-plus" aria-hidden="true"></i>
-                                Add Parent / Guardian
+                                Add Parent
                             </button>
                         </div>
                         <div>
@@ -549,8 +549,8 @@
     {{-- end add student modal --}}
 
 
-    {{-- start Parent model --}}
-    <el-dialog>
+    {{-- start Parent modal --}}
+<el-dialog>
     <dialog id="parentDialog" aria-labelledby="dialog-title" class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
         <el-dialog-backdrop class="fixed inset-0 bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
 
@@ -560,116 +560,154 @@
                 <!-- Header -->
                 <div class="bg-[#1c1c1d] p-4 text-white flex items-center gap-2">
                     <i class="fa fa-plus text-xl" aria-hidden="true"></i>
-                    <h1 class="font-bold text-xl">Add Parent / Guardian</h1>
+                    <h1 class="font-bold text-xl">Add Parent</h1>
                 </div>
                 
                 <!-- Form Body -->
                 <div class="px-6 pt-6 pb-4 bg-white">
-                    <form action="" class="space-y-5">
-                        <!-- Parent Name - 3 columns (matching student modal style) -->
-                        <div class="grid grid-cols-3 gap-4">
+                    <form action="{{ route('dashboard.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        
+                        <!-- Parent Name - 2 columns -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Firstname <span class="text-red-500">*</span></label>
-                                <input type="text" placeholder="Ex. Maria" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                <input name="fname" type="text" value="{{ old('fname') }}" placeholder="Ex. Maria" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                @error('fname')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Lastname <span class="text-red-500">*</span></label>
-                                <input type="text" placeholder="Ex. Santos" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
-                                    <option value="" disabled selected>Select gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                    <option value="prefer-not">Prefer not to say</option>
-                                </select>
+                                <input name="lname" type="text" value="{{ old('lname') }}" placeholder="Ex. Santos" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                @error('lname')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
 
                         <!-- Address -->
-                        <div>
+                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Complete Address <span class="text-red-500">*</span></label>
-                            <textarea rows="3" 
+                            <textarea name="address" rows="3" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[80px] bg-white placeholder-gray-400"
-                                placeholder="House/Block/Lot, Street, Barangay, City, Province"></textarea>
+                                placeholder="House/Block/Lot, Street, Barangay, City, Province">{{ old('address') }}</textarea>
+                            @error('address')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Relationship Note -->
-                        <div class="">
+                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Relationship Note</label>
-                            <textarea rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[80px] bg-white placeholder-gray-400"
-                                placeholder="e.g., Mother, Father, Legal Guardian, Aunt - Add any additional notes about the relationship"></textarea>
+                            <textarea name="relationship_note" rows="2" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[60px] bg-white placeholder-gray-400"
+                                placeholder="e.g., Mother, Father, Legal Guardian, Aunt">{{ old('relationship_note') }}</textarea>
                             <p class="text-xs text-gray-500 mt-1">Specify relationship to the student(s)</p>
                         </div>
 
                         <!-- Contact Information -->
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                                <input type="tel" placeholder="Ex. 09123456789" 
+                                <input name="mobile" type="tel" value="{{ old('mobile') }}" placeholder="Ex. 09123456789" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                @error('mobile')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
-                            <!-- Status -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
-                                    <option value="" disabled selected>Select Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input name="email" type="email" value="{{ old('email') }}" placeholder="example@gmail.com" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                @error('email')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
 
+                        <!-- Credentials -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input name="password" type="password" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                @error('password')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                <input name="password_confirmation" type="password" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
+                            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                <option value="" disabled {{ old('status') ? '' : 'selected' }}>Select Status</option>
+                                <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            @error('status')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- ID Upload -->
-                        <div>
+                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Valid ID Upload</label>
-                            <input type="file" accept=".png,.jpeg,.jpg,.pdf"
+                            <input name="photo_url" type="file" accept=".png,.jpeg,.jpg,.pdf"
                                 class="w-full text-sm text-gray-500 cursor-pointer 
                                     file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
                                     file:text-sm file:font-medium file:bg-[#1c1c1d] file:text-white
                                     hover:file:bg-[#2f2f2f] focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]
                                     transition-all duration-200">
                             <p class="text-xs text-gray-500 mt-1">PNG, JPEG, PDF only (max 5MB)</p>
+                            @error('photo_url')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Created At (from image - hidden but included for reference) -->
-                        <input type="hidden" name="created_at" value="{{ now() }}">
-
-                        <!-- Linked Students -->
-                        <div>
+                        <!-- Associated Students -->
+                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Associated Students</label>
-                            <div class="border border-gray-300 rounded-md p-3 max-h-32 overflow-y-auto">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <input type="checkbox" id="student1" class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d]">
-                                    <label for="student1" class="text-sm text-gray-700">Juan Dela Cruz (Student ID: STU-2025-001)</label>
-                                </div>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <input type="checkbox" id="student2" class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d]">
-                                    <label for="student2" class="text-sm text-gray-700">Maria Dela Cruz (Student ID: STU-2025-002)</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input type="checkbox" id="student3" class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d]">
-                                    <label for="student3" class="text-sm text-gray-700">Jose Dela Cruz (Student ID: STU-2025-003)</label>
-                                </div>
+                            <div class="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto bg-gray-50">
+                                @if(isset($students) && count($students) > 0)
+                                    @foreach($students as $student)
+                                        <div class="flex items-center gap-2 mb-2 hover:bg-gray-100 p-1 rounded">
+                                            <input type="checkbox" name="students[]" value="{{ $student->id }}" id="student_{{ $student->id }}" 
+                                                class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d] cursor-pointer"
+                                                {{ in_array($student->id, old('students', [])) ? 'checked' : '' }}>
+                                            <label for="student_{{ $student->id }}" class="text-sm text-gray-700 cursor-pointer flex-1">
+                                                <span class="font-medium">{{ $student->student_name }}</span>
+                                                <span class="text-xs text-gray-500 ml-2">({{ $student->student_code }})</span>
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <p class="text-sm text-gray-500 text-center py-4">No active students found. Please add students first.</p>
+                                @endif
                             </div>
                             <p class="text-xs text-gray-500 mt-1">Select students associated with this parent/guardian</p>
+                            @error('students')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <hr class="m-0 border-t border-gray-200 mt-4">
+                        <!-- Footer Buttons -->
+                        <div class="bg-gray-50 px-6 py-3 flex justify-end gap-2 mt-4">
+                            <button type="button" command="close" commandfor="parentDialog" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                Close
+                            </button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
+                                Add Parent
+                            </button>
                         </div>
                     </form>
-                </div>
-                
-                <hr class="m-0 border-t border-gray-200">
-                
-                <!-- Footer Buttons -->
-                <div class="bg-gray-50 px-6 py-3 flex justify-end gap-2">
-                    <button type="button" command="close" commandfor="parentDialog" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                        Close
-                    </button>
-                    <button type="submit" command="close" commandfor="parentDialog" class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
-                        Add
-                    </button>
                 </div>
             </el-dialog-panel>
         </div>

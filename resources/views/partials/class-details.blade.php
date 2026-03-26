@@ -93,7 +93,7 @@
         <div class="flex justify-between items-center mb-3">
             <h4 class="font-semibold text-gray-700">Enrolled Students</h4>
             <button onclick="openEnrollStudentModal({{ $class->id }})" 
-                    class="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors">
+                    class="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer">
                 <i class="fas fa-user-plus mr-1"></i> Enroll Student
             </button>
         </div>
@@ -115,7 +115,7 @@
                             <tr>
                                 <td class="px-4 py-2 text-sm">
                                     <a href="#" class="text-indigo-600 hover:text-indigo-800">
-                                        {{ $enrollment->student->student_name}}
+                                        {{ $enrollment->student->student_name ?? '' }} {{ $enrollment->student->last_name ?? '' }}
                                     </a>
                                 </td>
                                 <td class="px-4 py-2 text-sm">{{ $enrollment->student->current_belt ?? 'No Belt' }}</td>
@@ -129,8 +129,9 @@
                                 </td>
                                 <td class="px-4 py-2 text-sm">
                                     <button onclick="removeStudent({{ $class->id }}, {{ $enrollment->student->id }}, '{{ addslashes($enrollment->student->first_name . ' ' . $enrollment->student->last_name) }}')" 
-                                            class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
+                                            class="text-red-500 hover:text-red-700 transition-colors duration-200 p-1 rounded hover:bg-red-50"
+                                            title="Remove student from class">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </td>
                             </tr>

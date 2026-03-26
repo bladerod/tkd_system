@@ -57,7 +57,7 @@
     @endif
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-[#1c1c1d] rounded-xl shadow-lg p-5 text-white">
             <div class="flex justify-between items-start">
                 <div>
@@ -85,23 +85,6 @@
                     <h2 class="text-3xl font-bold">{{ $classes->sum('student_count') }}</h2>
                 </div>
                 <i class="fas fa-users text-3xl text-gray-400"></i>
-            </div>
-        </div>
-        
-        <div class="bg-[#1c1c1d] rounded-xl shadow-lg p-5 text-white">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-gray-300 text-sm font-medium mb-1">Capacity Used</p>
-                    <h2 class="text-3xl font-bold">
-                        @php
-                            $totalMax = $classes->sum('max_students');
-                            $totalStudents = $classes->sum('student_count');
-                            $percentage = $totalMax > 0 ? round(($totalStudents / $totalMax) * 100) : 0;
-                        @endphp
-                        {{ $percentage }}%
-                    </h2>
-                </div>
-                <i class="fas fa-chart-line text-3xl text-gray-400"></i>
             </div>
         </div>
     </div>
@@ -137,7 +120,7 @@
                             <p class="text-xl font-bold text-gray-700">{{ $class->student_count }} <span class="text-sm font-normal text-gray-400">/ {{ $class->max_students ?: '∞' }}</span></p>
                             @if($class->max_students > 0)
                                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                                    <div class="bg-indigo-600 h-1.5 rounded-full" style="width: {{ min(($class->student_count / $class->max_students) * 100, 100) }}%"></div>
+                                    <div class="bg-black-600 h-1.5 rounded-full" style="width: {{ min(($class->student_count / $class->max_students) * 100, 100) }}%"></div>
                                 </div>
                             @endif
                         </div>
@@ -187,7 +170,7 @@
                                     </div>
                                 @endforeach
                                 @if($class->schedules->count() > 2)
-                                    <p class="text-xs text-indigo-600">+{{ $class->schedules->count() - 2 }} more days</p>
+                                    <p class="text-xs text-black-600">+{{ $class->schedules->count() - 2 }} more days</p>
                                 @endif
                             </div>
                         </div>
@@ -197,17 +180,17 @@
                 <!-- Card Footer -->
                 <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 flex justify-between gap-2">
                     <button onclick="viewClass({{ $class->id }})" 
-                            class="flex-1 px-3 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
+                            class="flex-1 px-3 py-2 cursor-pointer text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
                         <i class="fas fa-eye"></i>
                         <span>View</span>
                     </button>
                     <button onclick="editClass({{ $class->id }})" 
-                            class="flex-1 px-3 py-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
+                            class="flex-1 px-3 py-2 cursor-pointer text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
                         <i class="fas fa-edit"></i>
                         <span>Edit</span>
                     </button>
                     <button onclick="deleteClass({{ $class->id }}, '{{ addslashes($class->class_name) }}')" 
-                            class="flex-1 px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
+                            class="flex-1 px-3 py-2 cursor-pointer text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
                         <i class="fas fa-trash"></i>
                         <span>Delete</span>
                     </button>
@@ -242,7 +225,7 @@
                     <!-- Branch -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Branch <span class="text-red-500">*</span></label>
-                        <select name="branch_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="branch_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
                             <option value="">Select Branch</option>
                             @foreach($branches as $branch)
                                 <option value="{{ $branch->id }}">{{ $branch->name }}</option>
@@ -254,7 +237,7 @@
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Class Name <span class="text-red-500">*</span></label>
                         <input type="text" name="class_name" required maxlength="150" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent"
                                placeholder="e.g., Beginner Taekwondo">
                     </div>
                     
@@ -262,30 +245,33 @@
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Age Group</label>
                         <input type="text" name="age_group" maxlength="50" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent"
                                placeholder="e.g., 5-7, 8-12, Adult">
                     </div>
                     
                     <!-- Level -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Level</label>
-                        <input type="text" name="level" maxlength="50" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                               placeholder="e.g., White Belt, Yellow Belt">
+                        <select name="level" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
+                            <option value="">Select Level</option>
+                            @foreach($belt_level as $belts)
+                                <option value="{{ $belts->name }}">{{ $belts->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     
                     <!-- Max Students -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Max Students</label>
                         <input type="number" name="max_students" min="0" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent"
                                placeholder="Leave empty for unlimited">
                     </div>
                     
                     <!-- Status -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                             <option value="cancelled">Cancelled</option>
@@ -295,7 +281,7 @@
                     <!-- Primary Instructor -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Primary Instructor</label>
-                        <select name="primary_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="primary_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
                             <option value="">Select Instructor</option>
                             @foreach($instructors as $instructor)
                                 <option value="{{ $instructor->id }}">{{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})</option>
@@ -306,7 +292,7 @@
                     <!-- Assistant Instructor -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Assistant Instructor</label>
-                        <select name="assistant_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="assistant_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
                             <option value="">Select Instructor</option>
                             @foreach($instructors as $instructor)
                                 <option value="{{ $instructor->id }}">{{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})</option>
@@ -320,13 +306,13 @@
                     <div class="flex justify-between items-center mb-3">
                         <label class="block text-sm font-medium text-gray-700">Class Schedule</label>
                         <button type="button" onclick="addScheduleRow()" 
-                                class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                                class="text-sm text-black-600 hover:text-black-800 flex items-center gap-1">
                             <i class="fas fa-plus"></i> Add Schedule
                         </button>
                     </div>
                     <div id="schedulesContainer" class="space-y-3">
                         <div class="schedule-row grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
-                            <select name="schedules[0][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <select name="schedules[0][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                                 <option value="">Select Day</option>
                                 <option value="monday">Monday</option>
                                 <option value="tuesday">Tuesday</option>
@@ -337,9 +323,9 @@
                                 <option value="sunday">Sunday</option>
                             </select>
                             <input type="time" name="schedules[0][start_time]" placeholder="Start Time" 
-                                   class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                   class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <input type="time" name="schedules[0][end_time]" placeholder="End Time" 
-                                   class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                   class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <button type="button" onclick="removeScheduleRow(this)" 
                                     class="text-red-500 hover:text-red-700 px-2 py-2">
                                 <i class="fas fa-trash"></i>
@@ -366,7 +352,7 @@
 </div>
 
 <!-- Edit Class Modal -->
-<div id="editClassModal" class="fixed inset-0 bg-black/50  overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+<div id="editClassModal" class="fixed inset-0 bg-black/50 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
     <div class="relative top-10 mx-auto border w-full max-w-3xl shadow-2xl rounded-xl bg-white">
         <div class="flex items-center justify-between p-2.5 border-b bg-green-600 rounded-t-xl">
             <div class="flex items-center gap-2">
@@ -383,7 +369,7 @@
                     <!-- Branch -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Branch <span class="text-red-500">*</span></label>
-                        <select name="branch_id" id="edit_branch_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="branch_id" id="edit_branch_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <option value="">Select Branch</option>
                             @foreach($branches as $branch)
                                 <option value="{{ $branch->id }}">{{ $branch->name }}</option>
@@ -395,34 +381,38 @@
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Class Name <span class="text-red-500">*</span></label>
                         <input type="text" name="class_name" id="edit_class_name" required 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                     </div>
                     
                     <!-- Age Group -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Age Group</label>
                         <input type="text" name="age_group" id="edit_age_group" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                     </div>
                     
-                    <!-- Level -->
+                    <!-- Level  -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Level</label>
-                        <input type="text" name="level" id="edit_level" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="level" id="edit_level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
+                            <option value="">Select Belt Level</option>
+                            @foreach($belt_level as $belt)
+                                <option value="{{ $belt->name }}">{{ $belt->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     
                     <!-- Max Students -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Max Students</label>
                         <input type="number" name="max_students" id="edit_max_students" min="0" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                     </div>
                     
                     <!-- Status -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select name="status" id="edit_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="status" id="edit_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                             <option value="cancelled">Cancelled</option>
@@ -432,7 +422,7 @@
                     <!-- Primary Instructor -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Primary Instructor</label>
-                        <select name="primary_instructor_id" id="edit_primary_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="primary_instructor_id" id="edit_primary_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <option value="">Select Instructor</option>
                             @foreach($instructors as $instructor)
                                 <option value="{{ $instructor->id }}">{{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})</option>
@@ -443,7 +433,7 @@
                     <!-- Assistant Instructor -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Assistant Instructor</label>
-                        <select name="assistant_instructor_id" id="edit_assistant_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="assistant_instructor_id" id="edit_assistant_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <option value="">Select Instructor</option>
                             @foreach($instructors as $instructor)
                                 <option value="{{ $instructor->id }}">{{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})</option>
@@ -457,7 +447,7 @@
                     <div class="flex justify-between items-center mb-3">
                         <label class="block text-sm font-medium text-gray-700">Class Schedule</label>
                         <button type="button" onclick="addEditScheduleRow()" 
-                                class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                                class="text-sm text-black-600 hover:text-black-800 flex items-center gap-1">
                             <i class="fas fa-plus"></i> Add Schedule
                         </button>
                     </div>
@@ -482,7 +472,7 @@
 
 <!-- View Class Modal -->
 <div id="viewClassModal" class="fixed inset-0 bg-black/50  overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
-    <div class="relative top-10 mx-auto border w-full max-w-5xl shadow-2xl rounded-xl bg-white">
+    <div class="relative top-10 mx-auto border w-full max-w-xl shadow-2xl rounded-xl bg-white">
         <div class="flex items-center justify-between p-2.5 border-b bg-blue-600 rounded-t-xl">
             <div class="flex items-center gap-2">
                 <i class="fas fa-eye text-white text-xl"></i>
@@ -492,7 +482,7 @@
         </div>
         <div class="p-6 max-h-[calc(100vh-200px)] overflow-y-auto" id="viewClassContent">
             <div class="text-center py-8">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-black-600"></div>
                 <p class="text-gray-500 mt-2">Loading class details...</p>
             </div>
         </div>
@@ -502,36 +492,33 @@
 <!-- Enroll Student Modal -->
 <div id="enrollStudentModal" class="fixed inset-0 bg-black/50  overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
     <div class="relative top-20 mx-auto border w-full max-w-md shadow-2xl rounded-xl bg-white">
-        <div class="flex items-center justify-between p-5 border-b bg-green-600 rounded-t-xl">
+        <div class="flex items-center justify-between p-2.5 border-b bg-green-600 rounded-t-xl">
             <div class="flex items-center gap-2">
                 <i class="fas fa-user-plus text-white text-xl"></i>
                 <h3 class="text-xl font-bold text-white">Enroll Student</h3>
             </div>
-            <button onclick="closeEnrollStudentModal()" class="text-white hover:text-gray-200 transition-colors">
-                <i class="fas fa-times text-xl"></i>
-            </button>
         </div>
         <div class="p-6">
             <form id="enrollStudentForm">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Select Student <span class="text-red-500">*</span></label>
-                    <select id="enroll_student_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    <select id="enroll_student_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500" required>
                         <option value="">Loading students...</option>
                     </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Start Date <span class="text-red-500">*</span></label>
-                    <input type="date" id="enroll_start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    <input type="date" id="enroll_start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500" required>
                 </div>
             </form>
         </div>
         <div class="flex justify-end gap-3 p-5 pt-0">
             <button type="button" onclick="closeEnrollStudentModal()" 
-                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer">
                 Cancel
             </button>
             <button type="button" onclick="submitEnrollment()" 
-                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer">
                 Enroll Student
             </button>
         </div>
@@ -625,7 +612,7 @@ function addScheduleRow() {
     const newRow = document.createElement('div');
     newRow.className = 'schedule-row grid grid-cols-1 sm:grid-cols-4 gap-3 items-center';
     newRow.innerHTML = `
-        <select name="schedules[${scheduleCounter}][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select name="schedules[${scheduleCounter}][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
             <option value="">Select Day</option>
             <option value="monday">Monday</option>
             <option value="tuesday">Tuesday</option>
@@ -635,8 +622,8 @@ function addScheduleRow() {
             <option value="saturday">Saturday</option>
             <option value="sunday">Sunday</option>
         </select>
-        <input type="time" name="schedules[${scheduleCounter}][start_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <input type="time" name="schedules[${scheduleCounter}][end_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <input type="time" name="schedules[${scheduleCounter}][start_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
+        <input type="time" name="schedules[${scheduleCounter}][end_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
         <button type="button" onclick="removeScheduleRow(this)" class="text-red-500 hover:text-red-700 px-2 py-2">
             <i class="fas fa-trash"></i>
         </button>
@@ -667,7 +654,7 @@ function addEditScheduleRow(day = '', startTime = '', endTime = '') {
     }
     
     newRow.innerHTML = `
-        <select name="schedules[${editScheduleCounter}][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select name="schedules[${editScheduleCounter}][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
             <option value="">Select Day</option>
             <option value="monday" ${day === 'monday' ? 'selected' : ''}>Monday</option>
             <option value="tuesday" ${day === 'tuesday' ? 'selected' : ''}>Tuesday</option>
@@ -677,8 +664,8 @@ function addEditScheduleRow(day = '', startTime = '', endTime = '') {
             <option value="saturday" ${day === 'saturday' ? 'selected' : ''}>Saturday</option>
             <option value="sunday" ${day === 'sunday' ? 'selected' : ''}>Sunday</option>
         </select>
-        <input type="time" name="schedules[${editScheduleCounter}][start_time]" value="${formattedStartTime}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <input type="time" name="schedules[${editScheduleCounter}][end_time]" value="${formattedEndTime}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <input type="time" name="schedules[${editScheduleCounter}][start_time]" value="${formattedStartTime}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
+        <input type="time" name="schedules[${editScheduleCounter}][end_time]" value="${formattedEndTime}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
         <button type="button" onclick="removeScheduleRow(this)" class="text-red-500 hover:text-red-700 px-2 py-2">
             <i class="fas fa-trash"></i>
         </button>
@@ -697,7 +684,7 @@ function closeAddClassModal() {
     document.getElementById('addClassForm').reset();
     document.getElementById('schedulesContainer').innerHTML = `
         <div class="schedule-row grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
-            <select name="schedules[0][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select name="schedules[0][day]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                 <option value="">Select Day</option>
                 <option value="monday">Monday</option>
                 <option value="tuesday">Tuesday</option>
@@ -707,8 +694,8 @@ function closeAddClassModal() {
                 <option value="saturday">Saturday</option>
                 <option value="sunday">Sunday</option>
             </select>
-            <input type="time" name="schedules[0][start_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <input type="time" name="schedules[0][end_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="time" name="schedules[0][start_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
+            <input type="time" name="schedules[0][end_time]" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
             <button type="button" onclick="removeScheduleRow(this)" class="text-red-500 hover:text-red-700 px-2 py-2">
                 <i class="fas fa-trash"></i>
             </button>
@@ -750,7 +737,21 @@ function editClass(classId) {
             document.getElementById('edit_branch_id').value = classData.branch_id;
             document.getElementById('edit_class_name').value = classData.class_name;
             document.getElementById('edit_age_group').value = classData.age_group || '';
-            document.getElementById('edit_level').value = classData.level || '';
+            
+            // Set the belt level select dropdown value
+            const levelSelect = document.getElementById('edit_level');
+            if (classData.level) {
+                // Find and select the matching belt level option
+                for (let i = 0; i < levelSelect.options.length; i++) {
+                    if (levelSelect.options[i].value === classData.level) {
+                        levelSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            } else {
+                levelSelect.value = '';
+            }
+            
             document.getElementById('edit_max_students').value = classData.max_students;
             document.getElementById('edit_status').value = classData.status;
             document.getElementById('edit_primary_instructor_id').value = classData.primary_instructor_id || '';
@@ -835,17 +836,41 @@ function deleteClass(classId, className) {
 
 function openEnrollStudentModal(classId) {
     currentClassId = classId;
+    
+    // Show loading state
+    const select = document.getElementById('enroll_student_id');
+    select.innerHTML = '<option value="">Loading students...</option>';
+    
     fetch(`/classes/${classId}/available-students`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(students => {
             const select = document.getElementById('enroll_student_id');
             select.innerHTML = '<option value="">Select Student</option>';
-            students.forEach(student => {
-                select.innerHTML += `<option value="${student.id}">${student.first_name} ${student.last_name} (${student.current_belt || 'No Belt'})</option>`;
-            });
+            
+            if (students.length === 0) {
+                select.innerHTML = '<option value="">No available students found</option>';
+            } else {
+                students.forEach(student => {
+                    select.innerHTML += `<option value="${student.id}">${student.student_name} (${student.current_belt || 'No Belt'})</option>`;
+                });
+            }
+            
             document.getElementById('enroll_start_date').valueAsDate = new Date();
             document.getElementById('enrollStudentModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+        })
+        .catch(error => {
+            console.error('Error loading students:', error);
+            Swal.fire('Error', 'Failed to load available students. Please try again.', 'error');
+            
+            // Reset select
+            const select = document.getElementById('enroll_student_id');
+            select.innerHTML = '<option value="">Error loading students</option>';
         });
 }
 
@@ -907,6 +932,86 @@ document.addEventListener('keydown', function(event) {
         closeEnrollStudentModal();
     }
 });
+
+function removeStudent(classId, studentId, studentName) {
+    Swal.fire({
+        title: 'Remove Student?',
+        html: `Are you sure you want to remove <strong>${studentName}</strong> from this class?<br><br>This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove student',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Removing student...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Make the API request to remove the student
+            fetch(`/classes/${classId}/students/${studentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.success,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the class details modal content to reflect changes
+                        const currentClassId = classId;
+                        fetch(`/classes/${currentClassId}`)
+                            .then(response => response.text())
+                            .then(html => {
+                                document.getElementById('viewClassContent').innerHTML = html;
+                            })
+                            .catch(error => {
+                                console.error('Error reloading class details:', error);
+                            });
+                    });
+                } else if (data.error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error removing student:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to remove student. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+    });
+}
+
 
 // Form validation for schedules
 document.getElementById('addClassForm')?.addEventListener('submit', function(e) {

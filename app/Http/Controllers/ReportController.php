@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -10,7 +11,7 @@ public function attendance(Request $request)
 {
     $search = $request->search;
 
-    $attendance = \DB::table('vw_attendance_reports')
+    $attendance = DB::table('vw_attendance_reports')
         ->when($search, function ($query) use ($search) {
             $query->where('student', 'like', "%$search%");
         })
@@ -22,7 +23,7 @@ public function attendance(Request $request)
     {
         $search = $request->search;
 
-        $revenue = \DB::table('vw_revenue_reports')
+        $revenue = DB::table('vw_revenue_reports')
             ->when($search, function ($query) use ($search) {
                 $query->where('student', 'like', "%$search%");
             })
@@ -35,7 +36,7 @@ public function attendance(Request $request)
     {
         $search = $request->search;
 
-        $billing = \DB::table('vw_billing_summary')
+        $billing = DB::table('vw_billing_summary')
             ->when($search, function ($query) use ($search) {
                 $query->where('parent', 'like', "%$search%");
             })
@@ -48,7 +49,7 @@ public function attendance(Request $request)
     {
         $search = $request->search;
 
-        $instructors = \DB::table('vw_instructor_load')
+        $instructors = DB::table('vw_instructor_load')
             ->when($search, function ($query) use ($search) {
                 $query->where('instructor', 'like', "%$search%");
             })

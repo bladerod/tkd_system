@@ -55,7 +55,7 @@ class DashboardPopulateController extends Controller
             'emergency_contact_name' => $validate['contact_person'],
             'emergency_contact_mobile' => $validate['contact_number'],
             'primary_parent_id' => $validate['primary_parent_id'],
-            'join_date' => now(), // Required by your SQL schema
+            'join_date' => now(),
             'status' => $validate['status'],
         ]);
 

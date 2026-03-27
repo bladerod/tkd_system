@@ -85,4 +85,15 @@ Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'message
 
     Route::get('/chat-threads/{id}/messages', [ParentsController::class, 'getThreadMessages']);
 
+    // Classes
+    Route::prefix('classes')->group(function () {
+    Route::get('/', [ClassApiController::class, 'index']);
+    Route::get('/{id}', [ClassApiController::class, 'show']);
+    Route::get('/{id}/sessions', [ClassApiController::class, 'sessions']);
+});
+
+Route::get('/instructor/classes', [ClassApiController::class, 'myClasses']);
+
+Route::get('/classes/{id}/students', [ClassApiController::class, 'classStudents']);
+
 });

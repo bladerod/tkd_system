@@ -1,7 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
+use App\Models\Student;
+use App\Models\Classes;
+use App\Models\Instructor;
+use App\Models\SkillChecklist;
 use App\Models\AttendanceLog;
 use App\Models\AuditLog;
 use App\Models\BeltLevel;
@@ -9,14 +13,9 @@ use App\Models\Branch;
 use App\Models\Certificate;
 use App\Models\ChatMessage;
 use App\Models\ChatThread;
-use App\Models\Classes;
 use App\Models\CompetitionEntry;
-use App\Models\Instructor;
 use App\Models\Invoice;
-use App\Models\SkillChecklist;
-use App\Models\Student;
 use App\Models\StudentEvaluation;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 

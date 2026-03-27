@@ -126,7 +126,7 @@ class ClassApiController extends Controller
     }
 
     $classes = Classes::with(['branch', 'schedules', 'students' => function($q) {
-            $q->wherePivot('status', 'active');
+            $q->where('status', 'active');
         }])
         ->where(function($q) use ($instructor) {
             $q->where('primary_instructor_id', $instructor->id)
@@ -140,4 +140,45 @@ class ClassApiController extends Controller
         'data' => $classes
         ]);
     }
+
+    public function classStudents($id)
+{
+    $class = Classes::find($id);
+
+    if (!$class) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Class not found'
+        ], 404);
+    }
+
+    $classStudents = \App\Models\ClassStudent::where('class_id', $id)
+        ->where('status', 'active')
+        ->get();
+
+    $students = $classStudents->map(function($cs) {
+    $student = \App\Models\Student::find($cs->student_id);
+
+    if (!$student) return null;
+
+    return [
+        'id' => $student->id,
+        'name' => $student->student_name ?? 'Unknown',
+        'belt' => $student->current_belt ?? 'No Belt',
+        'status' => $cs->status,
+    ];
+    })->filter()->values();
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'class' => [
+                'id' => $class->id,
+                'name' => $class->class_name,
+                'level' => $class->level,
+            ],
+            'students' => $students,
+        ]
+    ]);
+  }
 }

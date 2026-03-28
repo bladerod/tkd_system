@@ -1,16 +1,31 @@
 <?php
 // app/Models/ChatMessage.php
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ChatMessage extends Model {
-    protected $fillable = ['thread_id', 'sender_user_id', 'message', 'attachment_url', 'sent_at'];
-    protected $casts = ['sent_at' => 'datetime'];
+class ChatMessage extends Model
+{
+    protected $table = 'chat_messages';
+    public $timestamps = false;
 
-    public function thread(): BelongsTo { return $this->belongsTo(ChatThread::class); }
-     public function sender()
+    protected $fillable = [
+        'thread_id',
+        'sender_user_id',
+        'message',
+        'attachment_url',
+        'sent_at'
+    ];
+
+    protected $dates = ['sent_at'];
+
+    public function sender()
     {
-        return $this->belongsTo(User::class,'sender_user_id');
+        return $this->belongsTo(User::class, 'sender_user_id');
+    }
+
+    public function thread()
+    {
+        return $this->belongsTo(ChatThread::class, 'thread_id');
     }
 }

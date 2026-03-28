@@ -81,7 +81,7 @@
                             @csrf
                             <div class="chat-input">
                                 <input type="text" name="message" placeholder="Type a message..." required>
-                                <button type="submit">
+                                <button type="submit" class="send-btn">
                                     <i class="fa-solid fa-paper-plane"></i>
                                     Send
                                 </button>

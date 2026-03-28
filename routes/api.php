@@ -96,4 +96,10 @@ Route::get('/instructor/classes', [ClassApiController::class, 'myClasses']);
 
 Route::get('/classes/{id}/students', [ClassApiController::class, 'classStudents']);
 
+
+Route::get('/certificates/students', [CertificateController::class, 'getStudents']);
+Route::post('/certificates/generate', [CertificateController::class, 'generate']);
+Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
+Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 });

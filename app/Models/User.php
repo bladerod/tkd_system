@@ -22,7 +22,7 @@ class User extends Authenticatable
         'fname',
         'lname',
         'email',
-        'username', 
+        'username',
         'mobile',
         'password',
         'photo_url',
@@ -123,5 +123,8 @@ class User extends Authenticatable
         return $this->role === 'parent';
     }
 
-    
+    public function threads()
+{
+    return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
+}
 }

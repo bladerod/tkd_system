@@ -6,7 +6,7 @@
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/certificates.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <title>Certificates</title>
+    <title>Certificatess</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
@@ -18,7 +18,7 @@
     <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 mt-1">
         <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
         <span>/</span>
-        <span class="text-[#1C1C1D] font-medium">Certificate</span>
+        <span class="text-[#1C1C1D] font-medium">Certificatess</span>
     </div>
     <h1 class="text-4xl font-bold text-[#1C1C1D] mb-4">Certificate</h1>
     <div class="content-card">

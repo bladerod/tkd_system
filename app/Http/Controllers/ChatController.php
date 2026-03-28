@@ -5,50 +5,45 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ChatThread;
 use App\Models\ChatMessage;
-use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-
     public function index()
     {
+        $threads = auth()->user()->threads()
+            ->with(['messages.sender'])
+            ->get();
 
-        $threads = ChatThread::with(['messages.sender'])->get();
-
-        $thread = $threads->first();
-
-        return view('chat', compact('threads','thread'));
-
+        return view('chat', compact('threads'));
     }
 
     public function show($id)
     {
+        $threads = auth()->user()->threads()
+            ->with(['messages.sender'])
+            ->get();
 
-        $threads = ChatThread::with(['messages.sender'])->get();
+        $thread = ChatThread::with([
+            'messages.sender',
+            'participants'
+        ])->findOrFail($id);
 
-        $thread = ChatThread::with(['messages.sender'])
-                    ->findOrFail($id);
-
-        return view('chat', compact('threads','thread'));
-
+        return view('chat', compact('threads', 'thread'));
     }
 
-    public function send(Request $request,$id)
+    public function send(Request $request, $id)
     {
-
         $request->validate([
-            'message'=>'required'
+            'message' => 'required|string'
         ]);
 
         ChatMessage::create([
-    'thread_id' => $id,
-    'sender_user_id' => Auth::id(),
-    'message' => $request->message,
-    'sent_at' => now()
-]);
+            'thread_id' => $id,
+            'sender_user_id' => auth()->id(),
+            'message' => $request->message,
+            'sent_at' => now()
+        ]);
 
-        return redirect()->route('chat.show',$id);
-
+        return redirect()->route('chat.show', $id);
     }
-
 }

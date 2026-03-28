@@ -81,9 +81,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
     // CHAT
+Route::middleware(['auth'])->group(function () {
+
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+
     Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+
     Route::post('/chat/{id}/send', [ChatController::class, 'send'])->name('chat.send');
+
+});
 
     // OTHER PAGES
 
@@ -196,10 +202,10 @@ Route::get('/student', function () {
     return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
 })->name('student');
 
-    Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
-    Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
-    Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
-    Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
+
+Route::get('/certificates', [CertificateController::class, 'index']);
+Route::get('/certificates/{id}/download', [CertificateController::class, 'download']);
+Route::get('/certificates/print', [CertificateController::class, 'print']);
 
     // USERNAME CHECK (for user management)
     Route::get('/check-username', function (Request $request) {

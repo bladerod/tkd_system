@@ -116,7 +116,7 @@ class ClassApiController extends Controller
     public function myClasses(Request $request)
 {
     $user = $request->user();
-    $instructor = $user->instructor; 
+    $instructor = $user->instructor;
 
     if (!$instructor) {
         return response()->json([
@@ -125,21 +125,33 @@ class ClassApiController extends Controller
         ], 404);
     }
 
-    $classes = Classes::with(['branch', 'schedules', 'students' => function($q) {
+    $today = strtolower(now()->format('l')); // monday to sunday
+
+    $classes = Classes::with([
+        'branch',
+        'schedules' => function($q) use ($today) {
+            $q->where('day_of_week', $today); // today's schedule lang
+        },
+        'students' => function($q) {
             $q->where('status', 'active');
-        }])
-        ->where(function($q) use ($instructor) {
-            $q->where('primary_instructor_id', $instructor->id)
-              ->orWhere('assistant_instructor_id', $instructor->id);
-        })
-        ->where('status', 'active')
-        ->get();
+        }
+    ])
+    ->where(function($q) use ($instructor) {
+        $q->where('primary_instructor_id', $instructor->id)
+          ->orWhere('assistant_instructor_id', $instructor->id);
+    })
+    ->where('status', 'active')
+    ->whereHas('schedules', function($q) use ($today) {
+        $q->where('day_of_week', $today); // classes na may sched ngaun
+    })
+    ->get();
 
     return response()->json([
         'success' => true,
+        'today' => $today,
         'data' => $classes
-        ]);
-    }
+    ]);
+}
 
     public function classStudents($id)
 {
@@ -181,4 +193,91 @@ class ClassApiController extends Controller
         ]
     ]);
   }
+
+  public function startSession(Request $request, $id)
+{
+    $user = $request->user();
+    $instructor = $user->instructor;
+
+    if (!$instructor) {
+        return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+    }
+
+    // Find or create today's session
+    $session = ClassSession::firstOrCreate(
+        [
+            'class_id' => $id,
+            'session_date' => today()->toDateString(),
+        ],
+        [
+            'instructor_id' => $instructor->id,
+            'start_time' => now()->format('H:i:s'),
+            'end_time' => now()->addHours(1)->format('H:i:s'),
+            'session_status' => 'ongoing',
+        ]
+    );
+
+    // Update to ongoing if existing
+    if (!$session->wasRecentlyCreated) {
+        $session->update(['session_status' => 'ongoing']);
+    }
+
+    return response()->json([
+        'success' => true,
+        'session_id' => $session->id,
+    ]);
+}
+
+public function attendanceStats(Request $request)
+{
+    $user = $request->user();
+    $instructor = $user->instructor;
+
+    if (!$instructor) {
+        return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+    }
+
+    // Get today's class IDs ng instructor
+    $classIds = Classes::where(function($q) use ($instructor) {
+        $q->where('primary_instructor_id', $instructor->id)
+          ->orWhere('assistant_instructor_id', $instructor->id);
+    })->pluck('id');
+
+    // Get today's session IDs
+    $sessionIds = \DB::table('class_sessions')
+        ->whereIn('class_id', $classIds)
+        ->whereDate('session_date', today())
+        ->pluck('id');
+
+    // Count per status
+    $present = \DB::table('attendance_logs')
+        ->whereIn('class_session_id', $sessionIds)
+        ->where('attendance_status', 'present')
+        ->count();
+
+    $absent = \DB::table('attendance_logs')
+        ->whereIn('class_session_id', $sessionIds)
+        ->where('attendance_status', 'absent')
+        ->count();
+
+    $late = \DB::table('attendance_logs')
+        ->whereIn('class_session_id', $sessionIds)
+        ->where('attendance_status', 'late')
+        ->count();
+
+    $excused = \DB::table('attendance_logs')
+        ->whereIn('class_session_id', $sessionIds)
+        ->where('attendance_status', 'excused')
+        ->count();
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'present' => $present,
+            'absent' => $absent,
+            'late' => $late,
+            'excused' => $excused,
+        ]
+    ]);
+}
 }

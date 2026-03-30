@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
 // use App\Models\ClassSession;
-// use App\Models\Classes;
+use App\Models\Classes;
+use App\Models\Instructor;
 // use App\Models\User;
 // use App\Models\Device;
 use Illuminate\Http\Request;
@@ -22,36 +23,39 @@ class AttendanceController extends Controller
         $instructorId = $request->get('instructor_id');
         $deviceId = $request->get('device_id');
 
-        // // Build query with relationships
-        // $query = AttendanceLog::with([
-        //     'student', 
-        //     'classSession.class', 
-        //     'classSession.instructor',
-        //     'device',
-        //     'recordedBy'
-        // ]);
+        // Build query with relationships
+        $query = AttendanceLog::with([
+            'student', 
+            'classSession.class', 
+            'classSession.instructor',
+            'device',
+            'recordedBy'
+        ]);
 
-        // // Apply date filters
-        // if ($fromDate && $toDate) {
-        //     $query->whereBetween('checkin_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
-        // }
+        $classes = Classes::all();
+        $instructors = Instructor::all();
 
-        // // Apply other filters
-        // if ($classId) {
-        //     $query->whereHas('classSession', function($q) use ($classId) {
-        //         $q->where('class_id', $classId);
-        //     });
-        // }
+        // Apply date filters
+        if ($fromDate && $toDate) {
+            $query->whereBetween('checkin_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
+        }
 
-        // if ($instructorId) {
-        //     $query->whereHas('classSession', function($q) use ($instructorId) {
-        //         $q->where('instructor_id', $instructorId);
-        //     });
-        // }
+        // Apply other filters
+        if ($classId) {
+            $query->whereHas('classSession', function($q) use ($classId) {
+                $q->where('class_id', $classId);
+            });
+        }
 
-        // if ($deviceId) {
-        //     $query->where('device_id', $deviceId);
-        // }
+        if ($instructorId) {
+            $query->whereHas('classSession', function($q) use ($instructorId) {
+                $q->where('instructor_id', $instructorId);
+            });
+        }
+
+        if ($deviceId) {
+            $query->where('device_id', $deviceId);
+        }
 
         // Get attendance logs with pagination
         $attendanceLogs = AttendanceLog::all();
@@ -70,8 +74,8 @@ class AttendanceController extends Controller
 
         return view('attendance', compact(
             'attendanceLogs', 
-            // 'classes', 
-            // 'instructors', 
+            'classes', 
+            'instructors', 
             // 'devices',
             // 'fromDate',
             // 'toDate',

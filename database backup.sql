@@ -438,14 +438,17 @@ CREATE TABLE `competition_entries` (
   `result` enum('win','loss','draw','pending') NOT NULL,
   `medal` enum('gold','silver','bronze','none') DEFAULT 'none',
   `remarks` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `competition_id` (`competition_id`),
   KEY `student_id` (`student_id`),
   KEY `instructor_id` (`instructor_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `competition_entries` */
+
+insert  into `competition_entries`(`id`,`competition_id`,`student_id`,`instructor_id`,`category`,`division`,`result`,`medal`,`remarks`,`created_at`,`updated_at`) values (1,1,4,2,'Sparring','20','pending','bronze','Strong performance, won by points','2026-03-27 18:03:50','2026-03-27 18:03:50');
 
 /*Table structure for table `competitions` */
 
@@ -461,9 +464,11 @@ CREATE TABLE `competitions` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `competitions` */
+
+insert  into `competitions`(`id`,`name`,`location`,`date`,`organizer`,`level`,`created_at`,`updated_at`) values (1,'Metro Manila Taekwondo Open','Quezon City Sports Complex, Quezon City','2026-03-29','Philippine Taekwondo Association','regional','2026-03-27 11:46:41','2026-03-27 16:31:33'),(3,'Cebu Inter-School Taekwondo Championship','Cebu Coliseum, Cebu City','2026-04-10','Cebu Taekwondo Council','local','2026-03-27 11:59:22','2026-03-27 11:59:22');
 
 /*Table structure for table `devices` */
 
@@ -764,7 +769,7 @@ CREATE TABLE `sessions` (
 
 /*Data for the table `sessions` */
 
-insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values ('iiThWCnGKycjkFDY1mxlQV4WjoLT07dSnnUUmnqx',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiak9ZNmt6cjRLcU1PZDF4eW9iOXJaYlR1VDBKR25aa0toQlY1YXpuQiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjg6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9wYXJlbnQiO3M6NToicm91dGUiO3M6NjoicGFyZW50Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Nzt9',1774532595);
+insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values ('1sANdoWrL4GWMQIHERKX5R2OUxHthZZZsRfw2I4o',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRXpYaGxFSFFXRUtiM0hTZ0NIM0laMnhsOHZWUFh2UDZrVHBwY0JJVyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImRhc2hib2FyZC5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjc7fQ==',1774842687),('2M1hOlxmMSNtZTSG5rTwzsJaZJHS7mFloLTLA7jJ',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiRUFmZkI5eUJTVlZMazhRQnJmMnF0WVRTUDBGeGRQOWp3MWNJdHFubSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=',1774606893),('z4T8FIYnKVlxqhtrYMpyvaWnqxfAMsljTX9EDkpV',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiTGZub3k0YzJla1U0NWZzWGNncTlTWDVzdWxxU1NBdWRMR3pTamdleSI7czo3OiJzdWNjZXNzIjtzOjM4OiJZb3UgaGF2ZSBiZWVuIGxvZ2dlZCBvdXQgc3VjY2Vzc2Z1bGx5LiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjE6e2k6MDtzOjc6InN1Y2Nlc3MiO319fQ==',1774603144);
 
 /*Table structure for table `skill_checklist` */
 
@@ -857,6 +862,7 @@ CREATE TABLE `students` (
   `current_belt` varchar(50) DEFAULT NULL,
   `join_date` date NOT NULL,
   `status` enum('active','inactive','suspended') DEFAULT 'active',
+  `password` varchar(255) NOT NULL,
   `medical_notes` text DEFAULT NULL,
   `allergies` text DEFAULT NULL,
   `emergency_contact_name` varchar(150) DEFAULT NULL,
@@ -865,11 +871,11 @@ CREATE TABLE `students` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `student_code` (`student_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `students` */
 
-insert  into `students`(`id`,`branch_id`,`student_code`,`first_name`,`last_name`,`middle_name`,`birthdate`,`gender`,`photo_url`,`current_belt`,`join_date`,`status`,`medical_notes`,`allergies`,`emergency_contact_name`,`emergency_contact_mobile`,`primary_parent_id`,`created_at`) values (1,1,'tkd-00001','Mechelle','Stoneman','Malakas','2026-03-13','male',NULL,'1','2026-03-13','active',NULL,NULL,'Tyesha Freitag','0915-123-4567',10,'2026-03-13 10:42:11'),(2,1,'tkd-00002','Hyunwoo','Lee',NULL,'2026-04-07','male',NULL,'4','2026-03-24','active','testing','testing','dwajhduwyhaddfiuopghwascliugjkbhvdawbkljvdfwa','09499374690',10,'2026-03-24 15:49:41'),(3,4,'tkd-00003','Juan','Dela Cruz',NULL,'2008-06-11','male',NULL,'11','2026-03-24','active','testing','allergic to peanuts','Mr. Asimo','0999999999',20,'2026-03-24 16:03:29'),(4,4,'tkd-00004','Nicky','Minaj',NULL,'2005-03-24','female',NULL,'10','2026-03-24','active','Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.','blha blah blha blha','eddu manzano','09207020903',17,'2026-03-24 16:25:33'),(5,7,NULL,'Joshua','Dela Cruz',NULL,'2026-03-26','male',NULL,'1','2026-03-26','active',NULL,NULL,'Ashanti Dela Cruz','09182345679',29,'2026-03-26 21:41:23');
+insert  into `students`(`id`,`branch_id`,`student_code`,`first_name`,`last_name`,`middle_name`,`birthdate`,`gender`,`photo_url`,`current_belt`,`join_date`,`status`,`password`,`medical_notes`,`allergies`,`emergency_contact_name`,`emergency_contact_mobile`,`primary_parent_id`,`created_at`) values (1,1,'tkd-00001','Mechelle','Stoneman','Malakas','2026-03-13','male',NULL,'1','2026-03-13','active','',NULL,NULL,'Tyesha Freitag','0915-123-4567',10,'2026-03-13 10:42:11'),(2,1,'tkd-00002','Hyunwoo','Lee',NULL,'2026-04-07','male',NULL,'4','2026-03-24','active','','testing','testing','dwajhduwyhaddfiuopghwascliugjkbhvdawbkljvdfwa','09499374690',10,'2026-03-24 15:49:41'),(3,4,'tkd-00003','Juan','Dela Cruz',NULL,'2008-06-11','male',NULL,'11','2026-03-24','active','','testing','allergic to peanuts','Mr. Asimo','0999999999',20,'2026-03-24 16:03:29'),(4,4,'tkd-00004','Nicky','Minaj',NULL,'2005-03-24','female',NULL,'10','2026-03-24','active','','Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.','blha blah blha blha','eddu manzano','09207020903',17,'2026-03-24 16:25:33'),(5,7,NULL,'Joshua','Dela Cruz',NULL,'2026-03-26','male',NULL,'1','2026-03-26','active','',NULL,NULL,'Ashanti Dela Cruz','09182345679',29,'2026-03-26 21:41:23'),(6,5,NULL,'Princess','Lopez',NULL,'2003-08-25','female',NULL,'1','2026-03-30','active','',NULL,NULL,'Paolo Villanueva','09499937649',30,'2026-03-30 11:51:26');
 
 /*Table structure for table `users` */
 
@@ -898,7 +904,7 @@ CREATE TABLE `users` (
 
 /*Data for the table `users` */
 
-insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,`mobile`,`password`,`photo_url`,`status`,`last_login_at`,`created_at`,`updated_at`) values (7,2,'admin','1234admin','Nataniel','Herras','testing@gmail.com','09499333000','$2y$12$93a4KdYWPG1OSuQe0DtOyOzD7dW5HLaVLEMslAQGuV8Hq.knHl9Dq','profile-photos/1774326137_h9uoElzpCo.png',1,'2026-03-26 20:45:14','2026-03-03 06:58:17','2026-03-26 20:45:14'),(8,2,'staff','admin','Princes','Valdez','Jeyde@gmail.com','09444444444','$2y$12$.YTxMvTVmKVtYdEvF8hy..c92hVUDjMGUM7qWKaBbHjvczP0ZdZW6','profile-photos/2HlKZIUgnzfjIzUFdPXrvdYfXUdy81YXaoAGj6Yw.jpg',1,'2026-03-03 15:02:26','2026-03-03 07:02:26','2026-03-25 03:09:42'),(10,1,'parent','parent1234','Cletus','Christopher','magulang123@gmail.com','09329329939','$2y$12$I8ofrlo50mdWeSWCOxac8.7T4AKyJILkquPZJS5KqxrR7i4AoLP5q',NULL,1,'2026-03-11 03:58:31','2026-03-10 08:48:46','2026-03-25 02:19:21'),(11,1,'instructor','jdoe','John','Doe','jdoe@example.com','09171234567','hashed_pw1','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:47'),(12,1,'instructor','asmith','Alice','Smith','asmith@example.com','09181234567','hashed_pw2','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:46'),(13,2,'instructor','bchan','Brian','Chan','bchan@example.com','09191234567','hashed_pw3','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:46'),(14,2,'instructor','cmendoza','Carla','Mendoza','cmendoza@example.com','09201234567','hashed_pw4','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:45'),(15,3,'instructor','dlee','David','Lee','dlee@example.com','09211234567','hashed_pw5','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:43'),(16,1,'parent','msantos','Maria','Santos','msantos@example.com','09170000046','hashed_pw46','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:50'),(17,1,'parent','jcruz','Jose','Cruz','jcruz@example.com','09170000047','hashed_pw47','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:42'),(18,2,'parent','atan','Anna','Tan','atan@example.com','09170000048','hashed_pw48','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:43'),(19,2,'parent','cgarcia','Carlos','Garcia','cgarcia@example.com','09170000049','hashed_pw49','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:41'),(20,3,'parent','glee','Grace','Lee','glee@example.com','09170000050','hashed_pw50','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:41'),(21,5,'instructor','dwadwadawd','Lady Joy','Porrs','porras@porrs','09171234567','$2y$12$dvFe7NxBRoycJBI22wY0eenI/EWHoeYRqpGnls1u9tTvOOEZcq5YO',NULL,1,NULL,'2026-03-24 17:11:38','2026-03-25 03:09:32'),(22,1,'parent','','Maria','Santos','maria.santos@gmail.com','09171234567','$2y$12$WWjGmQB7YyWvbTaaDGC19ufnejfabt1p.KguzrAWsYQ8q/yP9f7tC',NULL,1,NULL,'2026-03-26 16:55:53','2026-03-26 16:55:53'),(23,1,'parent','','Jose','Dela Cruz','jose.delacruz@yahoo.com','09182345678','$2y$12$zXWVb5MQd.D51Qoi7qHd..Ma.iMkZHmGHqStCnqgrvRKnTfFeiMJK',NULL,1,NULL,'2026-03-26 17:05:12','2026-03-26 17:05:12'),(24,1,'parent','','Roberto','Garcia','roberto.garcia@yahoo.com','09351234567','$2y$12$4pQW.KPdZnpUnhnxC2Jn1.Rd7KNVfCh5tEq/HBhWtFGrQMNxdQ9VS',NULL,1,NULL,'2026-03-26 17:06:21','2026-03-26 17:06:21'),(25,1,'parent','','Carlos','Bautista','carlos.bautista@yahoo.com','09561234567','$2y$12$fo.PWI1/2kZu3kj3nZLdWOxMFvOemY1TBSlbk.04n9SoVF9ZfLplO',NULL,1,NULL,'2026-03-26 17:10:34','2026-03-26 17:10:34'),(26,1,'parent','emendoza','Elena','Mendoza','elena.mendoza@gmail.com','09471234567','$2y$12$COCaEXMXAyvmQ8b9QvZ0zuhK4uGwAj2IGrN7JRIRF4wVlTFVNaKBK',NULL,1,NULL,'2026-03-26 17:27:28','2026-03-26 17:27:28'),(27,1,'parent','','Ana','Reyes','ana.reyes@gmail.com','09291234567','$2y$12$POwOKx7oiWQLBod3n68G3OVYY2ClM/2xpvFvJUbuRBXhcG6uLCNb.',NULL,0,NULL,'2026-03-26 17:28:46','2026-03-26 17:28:46'),(28,1,'parent','','Liza','Ramos','liza.ramos@gmail.com','09184567891','$2y$12$YAyPricnrJoKilW5c./5DeYgGYSSPCuvB8toH0QiYRyv6PGRC9P9K',NULL,1,NULL,'2026-03-26 17:47:53','2026-03-26 17:47:53'),(29,1,'parent','','Manuel','Torres','manuel.torres@yahoo.com','09275678912','$2y$12$8RxLSeZ9.UREjr/7oL2fAuPhZA/fZX3WedQL.ihCOFnAJBTlgH6bO',NULL,1,NULL,'2026-03-26 17:50:16','2026-03-26 17:50:16'),(30,1,'parent','','Kimberly','Garcia','Kim@gmail.com','09384567891','$2y$12$9QgzxuHHNz.paOIEVBUfZubeWqOI.HKfKpM.6JF2PQtFc/dC9BLh2',NULL,1,NULL,'2026-03-26 21:43:05','2026-03-26 21:43:05');
+insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,`mobile`,`password`,`photo_url`,`status`,`last_login_at`,`created_at`,`updated_at`) values (7,1,'admin','1234admin','Nataniel','Herras','testing@gmail.com','09499333000','$2y$12$93a4KdYWPG1OSuQe0DtOyOzD7dW5HLaVLEMslAQGuV8Hq.knHl9Dq','profile-photos/1774326137_h9uoElzpCo.png',1,'2026-03-30 11:38:36','2026-03-03 06:58:17','2026-03-30 11:38:36'),(8,2,'staff','admin','Princes','Valdez','Jeyde@gmail.com','09444444444','$2y$12$.YTxMvTVmKVtYdEvF8hy..c92hVUDjMGUM7qWKaBbHjvczP0ZdZW6','profile-photos/2HlKZIUgnzfjIzUFdPXrvdYfXUdy81YXaoAGj6Yw.jpg',1,'2026-03-03 15:02:26','2026-03-03 07:02:26','2026-03-25 03:09:42'),(10,1,'parent','parent1234','Cletus','Christopher','magulang123@gmail.com','09329329939','$2y$12$I8ofrlo50mdWeSWCOxac8.7T4AKyJILkquPZJS5KqxrR7i4AoLP5q',NULL,1,'2026-03-11 03:58:31','2026-03-10 08:48:46','2026-03-25 02:19:21'),(11,1,'instructor','jdoe','John','Doe','jdoe@example.com','09171234567','hashed_pw1','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:47'),(12,1,'instructor','asmith','Alice','Smith','asmith@example.com','09181234567','hashed_pw2','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:46'),(13,2,'instructor','bchan','Brian','Chan','bchan@example.com','09191234567','hashed_pw3','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:46'),(14,2,'instructor','cmendoza','Carla','Mendoza','cmendoza@example.com','09201234567','hashed_pw4','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:45'),(15,3,'instructor','dlee','David','Lee','dlee@example.com','09211234567','hashed_pw5','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:43'),(16,1,'parent','msantos','Maria','Santos','msantos@example.com','09170000046','hashed_pw46','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:50'),(17,1,'parent','jcruz','Jose','Cruz','jcruz@example.com','09170000047','hashed_pw47','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:42'),(18,2,'parent','atan','Anna','Tan','atan@example.com','09170000048','hashed_pw48','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:43'),(19,2,'parent','cgarcia','Carlos','Garcia','cgarcia@example.com','09170000049','hashed_pw49','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:41'),(20,3,'parent','glee','Grace','Lee','glee@example.com','09170000050','hashed_pw50','',0,NULL,'2026-03-17 12:05:55','2026-03-18 16:57:41'),(21,5,'instructor','dwadwadawd','Lady Joy','Porrs','porras@porrs','09171234567','$2y$12$dvFe7NxBRoycJBI22wY0eenI/EWHoeYRqpGnls1u9tTvOOEZcq5YO',NULL,1,NULL,'2026-03-24 17:11:38','2026-03-25 03:09:32'),(22,1,'parent','','Maria','Santos','maria.santos@gmail.com','09171234567','$2y$12$WWjGmQB7YyWvbTaaDGC19ufnejfabt1p.KguzrAWsYQ8q/yP9f7tC',NULL,1,NULL,'2026-03-26 16:55:53','2026-03-26 16:55:53'),(23,1,'parent','','Jose','Dela Cruz','jose.delacruz@yahoo.com','09182345678','$2y$12$zXWVb5MQd.D51Qoi7qHd..Ma.iMkZHmGHqStCnqgrvRKnTfFeiMJK',NULL,1,NULL,'2026-03-26 17:05:12','2026-03-26 17:05:12'),(24,1,'parent','','Roberto','Garcia','roberto.garcia@yahoo.com','09351234567','$2y$12$4pQW.KPdZnpUnhnxC2Jn1.Rd7KNVfCh5tEq/HBhWtFGrQMNxdQ9VS',NULL,1,NULL,'2026-03-26 17:06:21','2026-03-26 17:06:21'),(25,1,'parent','','Carlos','Bautista','carlos.bautista@yahoo.com','09561234567','$2y$12$fo.PWI1/2kZu3kj3nZLdWOxMFvOemY1TBSlbk.04n9SoVF9ZfLplO',NULL,1,NULL,'2026-03-26 17:10:34','2026-03-26 17:10:34'),(26,1,'parent','emendoza','Elena','Mendoza','elena.mendoza@gmail.com','09471234567','$2y$12$COCaEXMXAyvmQ8b9QvZ0zuhK4uGwAj2IGrN7JRIRF4wVlTFVNaKBK',NULL,1,NULL,'2026-03-26 17:27:28','2026-03-26 17:27:28'),(27,1,'parent','','Ana','Reyes','ana.reyes@gmail.com','09291234567','$2y$12$POwOKx7oiWQLBod3n68G3OVYY2ClM/2xpvFvJUbuRBXhcG6uLCNb.',NULL,0,NULL,'2026-03-26 17:28:46','2026-03-26 17:28:46'),(28,1,'parent','','Liza','Ramos','liza.ramos@gmail.com','09184567891','$2y$12$YAyPricnrJoKilW5c./5DeYgGYSSPCuvB8toH0QiYRyv6PGRC9P9K',NULL,1,NULL,'2026-03-26 17:47:53','2026-03-26 17:47:53'),(29,1,'parent','','Manuel','Torres','manuel.torres@yahoo.com','09275678912','$2y$12$8RxLSeZ9.UREjr/7oL2fAuPhZA/fZX3WedQL.ihCOFnAJBTlgH6bO',NULL,1,NULL,'2026-03-26 17:50:16','2026-03-26 17:50:16'),(30,1,'parent','','Kimberly','Garcia','Kim@gmail.com','09384567891','$2y$12$9QgzxuHHNz.paOIEVBUfZubeWqOI.HKfKpM.6JF2PQtFc/dC9BLh2',NULL,1,NULL,'2026-03-26 21:43:05','2026-03-26 21:43:05');
 
 /*Table structure for table `parentviews` */
 
@@ -954,6 +960,24 @@ DROP TABLE IF EXISTS `vwattendancelog`;
  `status` int(1) 
 )*/;
 
+/*Table structure for table `vw_attendance_reports` */
+
+DROP TABLE IF EXISTS `vw_attendance_reports`;
+
+/*!50001 DROP VIEW IF EXISTS `vw_attendance_reports` */;
+/*!50001 DROP TABLE IF EXISTS `vw_attendance_reports` */;
+
+/*!50001 CREATE TABLE  `vw_attendance_reports`(
+ `id` int(100) ,
+ `student` varchar(201) ,
+ `date` date ,
+ `time_in` time ,
+ `time_out` time ,
+ `status` varchar(7) ,
+ `instructor` varchar(201) ,
+ `class` varchar(150) 
+)*/;
+
 /*Table structure for table `vw_billing_summary` */
 
 DROP TABLE IF EXISTS `vw_billing_summary`;
@@ -969,6 +993,42 @@ DROP TABLE IF EXISTS `vw_billing_summary`;
  `total_paid` decimal(33,2) ,
  `remaining_balance` decimal(32,2) ,
  `due_date` date 
+)*/;
+
+/*Table structure for table `vw_competition_entries` */
+
+DROP TABLE IF EXISTS `vw_competition_entries`;
+
+/*!50001 DROP VIEW IF EXISTS `vw_competition_entries` */;
+/*!50001 DROP TABLE IF EXISTS `vw_competition_entries` */;
+
+/*!50001 CREATE TABLE  `vw_competition_entries`(
+ `id` int(11) ,
+ `competition_id` int(11) ,
+ `student_name` varchar(201) ,
+ `instructor_name` varchar(201) ,
+ `category` varchar(100) ,
+ `division` varchar(100) ,
+ `result` enum('win','loss','draw','pending') ,
+ `medal` enum('gold','silver','bronze','none') ,
+ `remarks` text 
+)*/;
+
+/*Table structure for table `vw_instructor_load` */
+
+DROP TABLE IF EXISTS `vw_instructor_load`;
+
+/*!50001 DROP VIEW IF EXISTS `vw_instructor_load` */;
+/*!50001 DROP TABLE IF EXISTS `vw_instructor_load` */;
+
+/*!50001 CREATE TABLE  `vw_instructor_load`(
+ `id` bigint(20) unsigned ,
+ `instructor` varchar(201) ,
+ `date` date ,
+ `class` varchar(150) ,
+ `total_students` bigint(21) ,
+ `time` varchar(23) ,
+ `hours` bigint(21) 
 )*/;
 
 /*Table structure for table `vw_revenue_reports` */
@@ -1009,12 +1069,33 @@ DROP TABLE IF EXISTS `vw_revenue_reports`;
 
 /*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vwattendancelog` AS select `a`.`id` AS `id`,`s`.`student_code` AS `student_code`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `student_name`,`a`.`class_session_id` AS `class_session_id`,`a`.`checkin_time` AS `checkin_time`,`a`.`checkout_time` AS `checkout_time`,`a`.`method` AS `method`,`a`.`confidence_score` AS `confidence_score`,`a`.`device_id` AS `device_id`,`a`.`status` AS `status` from (`attendance_logs` `a` join `students` `s` on(`s`.`id` = `a`.`student_id`)) where `s`.`status` = 'active' */;
 
+/*View structure for view vw_attendance_reports */
+
+/*!50001 DROP TABLE IF EXISTS `vw_attendance_reports` */;
+/*!50001 DROP VIEW IF EXISTS `vw_attendance_reports` */;
+
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_attendance_reports` AS select `al`.`id` AS `id`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `student`,`cs`.`session_date` AS `date`,cast(`al`.`checkin_time` as time) AS `time_in`,cast(`al`.`checkout_time` as time) AS `time_out`,case when cast(`al`.`checkin_time` as time) > `cs`.`start_time` then 'Late' else 'Present' end AS `status`,concat(`i`.`fname`,' ',`i`.`lname`) AS `instructor`,`c`.`class_name` AS `class` from ((((`attendance_logs` `al` join `students` `s` on(`al`.`student_id` = `s`.`id`)) join `class_sessions` `cs` on(`al`.`class_session_id` = `cs`.`id`)) join `classes` `c` on(`cs`.`class_id` = `c`.`id`)) left join `instructors` `i` on(`cs`.`instructor_id` = `i`.`id`)) */;
+
 /*View structure for view vw_billing_summary */
 
 /*!50001 DROP TABLE IF EXISTS `vw_billing_summary` */;
 /*!50001 DROP VIEW IF EXISTS `vw_billing_summary` */;
 
 /*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_billing_summary` AS select `s`.`id` AS `id`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `student`,concat(`u`.`fname`,' ',`u`.`lname`) AS `parent`,sum(`i`.`amount`) AS `total_bill`,sum(`i`.`amount` - `i`.`total_due`) AS `total_paid`,sum(`i`.`total_due`) AS `remaining_balance`,max(`i`.`due_date`) AS `due_date` from ((`students` `s` left join `users` `u` on(`s`.`primary_parent_id` = `u`.`id`)) left join `invoices` `i` on(`s`.`id` = `i`.`student_id`)) group by `s`.`id` */;
+
+/*View structure for view vw_competition_entries */
+
+/*!50001 DROP TABLE IF EXISTS `vw_competition_entries` */;
+/*!50001 DROP VIEW IF EXISTS `vw_competition_entries` */;
+
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_competition_entries` AS select `c`.`id` AS `id`,`c`.`competition_id` AS `competition_id`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `student_name`,concat(`i`.`fname`,' ',`i`.`lname`) AS `instructor_name`,`c`.`category` AS `category`,`c`.`division` AS `division`,`c`.`result` AS `result`,`c`.`medal` AS `medal`,`c`.`remarks` AS `remarks` from ((`competition_entries` `c` join `instructors` `i` on(`c`.`instructor_id` = `i`.`id`)) join `students` `s` on(`c`.`student_id` = `s`.`id`)) */;
+
+/*View structure for view vw_instructor_load */
+
+/*!50001 DROP TABLE IF EXISTS `vw_instructor_load` */;
+/*!50001 DROP VIEW IF EXISTS `vw_instructor_load` */;
+
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_instructor_load` AS select `i`.`id` AS `id`,concat(`i`.`fname`,' ',`i`.`lname`) AS `instructor`,`cs`.`session_date` AS `date`,`c`.`class_name` AS `class`,(select count(0) from `tkd_db`.`class_students` `cls` where `cls`.`class_id` = `c`.`id`) AS `total_students`,concat(`cs`.`start_time`,' - ',`cs`.`end_time`) AS `time`,timestampdiff(HOUR,`cs`.`start_time`,`cs`.`end_time`) AS `hours` from ((`tkd_db`.`class_sessions` `cs` join `tkd_db`.`classes` `c` on(`cs`.`class_id` = `c`.`id`)) join `tkd_db`.`instructors` `i` on(`cs`.`instructor_id` = `i`.`id`)) */;
 
 /*View structure for view vw_revenue_reports */
 

@@ -248,38 +248,47 @@ class ClassController extends Controller
     /**
      * Remove the specified class.
      */
-    public function destroy($id)
-    {
-        try {
-            $class = Classes::findOrFail($id);
-            
-            // Check if class has active students
-            $activeStudents = ClassStudent::where('class_id', $id)
-                ->where('status', 'active')
-                ->count();
-            
-            if ($activeStudents > 0) {
-                return redirect()->back()
-                    ->with('error', 'Cannot delete class with active students. Please drop students first.');
-            }
-            
-            // Delete schedules
-            ClassSchedule::where('class_id', $id)->delete();
-            
-            // Delete class students
-            ClassStudent::where('class_id', $id)->delete();
-            
-            // Delete class
-            $class->delete();
-            
-            return redirect()->route('classes.index')
-                ->with('success', 'Class deleted successfully!');
-                
-        } catch (\Exception $e) {
+   public function destroy($id)
+{
+    try {
+        $class = Classes::findOrFail($id);
+        
+        // Check if class has active students
+        $activeStudents = ClassStudent::where('class_id', $id)
+            ->where('status', 'active')
+            ->count();
+        
+        if ($activeStudents > 0) {
             return redirect()->back()
-                ->with('error', 'Failed to delete class: ' . $e->getMessage());
+                ->with('error', 'Cannot delete class with active students. Please drop students first.');
         }
+        
+        // Delete attendance logs related to class sessions
+        DB::table('attendance_logs')
+            ->whereIn('class_session_id', function($query) use ($id) {
+                $query->select('id')->from('class_sessions')->where('class_id', $id);
+            })->delete();
+
+        // Delete class sessions
+        DB::table('class_sessions')->where('class_id', $id)->delete();
+        
+        // Delete schedules
+        ClassSchedule::where('class_id', $id)->delete();
+        
+        // Delete class students
+        ClassStudent::where('class_id', $id)->delete();
+        
+        // Delete class
+        $class->delete();
+        
+        return redirect()->route('classes.index')
+            ->with('success', 'Class deleted successfully!');
+            
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'Failed to delete class: ' . $e->getMessage());
     }
+}
 
     /**
      * Get class details for AJAX.

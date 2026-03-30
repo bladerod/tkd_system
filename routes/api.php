@@ -42,6 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/statistics', [DashboardApiController::class, 'statistics']);
     Route::get('/dashboard/attendance-trends', [DashboardApiController::class, 'attendanceTrends']);
 
+    Route::get('/student/profile', [StudentApiController::class, 'myProfile']);
+
+    // Instructor-specific na class stats
+    Route::get('/instructor/attendance-stats', [ClassApiController::class, 'attendanceStats']);
+
     // Students
     Route::prefix('students')->group(function () {
         Route::get('/', [StudentApiController::class, 'index']);
@@ -52,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Attendance
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
+    Route::post('/classes/{id}/start-session', [ClassApiController::class, 'startSession']);
     Route::post('/attendance', [AttendanceApiController::class, 'store']);
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);

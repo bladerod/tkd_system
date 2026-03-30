@@ -94,4 +94,44 @@ class AttendanceApiController extends Controller
             'message' => 'Manual attendance added successfully'
         ], 201);
     }
+
+   public function store(Request $request)
+{
+    $request->validate([
+        'session_id' => 'required|integer',
+        'attendances' => 'required|array',
+        'attendances.*.student_id' => 'required|integer',
+        'attendances.*.status' => 'required|in:present,late,absent,excused',
+    ]);
+
+    $user = $request->user();
+    $saved = 0;
+
+    foreach ($request->attendances as $attendance) {
+        \DB::table('attendance_logs')->updateOrInsert(
+            [
+                'class_session_id' => $request->session_id,
+                'student_id' => $attendance['student_id'],
+            ],
+            [
+                'attendance_status' => $attendance['status'],
+                'checkin_time' => now(),
+                'checkout_time' => now(),
+                'method' => 'manual',
+                'confidence_score' => '100',
+                'recorded_by_user_id' => $user->id,
+                'device_id' => 0,
+                'status' => 1,
+            ]
+        );
+        $saved++;
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Attendance saved successfully',
+        'saved_count' => $saved,
+    ]);
+}
+
 }

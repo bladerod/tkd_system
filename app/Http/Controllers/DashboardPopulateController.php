@@ -67,3 +67,4 @@ class DashboardPopulateController extends Controller
         return redirect()->route('dashboard.index')->with('success', 'Student added successfully!');
     }
 }
+}

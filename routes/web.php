@@ -9,6 +9,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClubProfileController;
+use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\DashboardPopulateController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\InstructorController;
@@ -93,8 +94,27 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
     Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
 
-    route::get('/competition',function(){
-        return view('competition');
+    // COMPETITION MANAGEMENT
+    Route::prefix('competition')->name('competition.')->group(function () {
+        Route::get('/', [CompetitionController::class, 'index'])->name('index');
+        Route::post('/store', [CompetitionController::class, 'store'])->name('store');
+        
+        // The endpoint for the View page
+        Route::get('/{id}', [CompetitionController::class, 'show'])->name('show');
+        
+        // The NEW endpoint for the Edit modal
+        Route::get('/{id}/json', [CompetitionController::class, 'getCompetitionJson'])->name('json');
+        
+        Route::put('/{id}', [CompetitionController::class, 'update'])->name('update');
+        Route::delete('/{id}', [CompetitionController::class, 'destroy'])->name('delete');
+        
+        // Competition Entry Routes
+        Route::get('/{competitionId}/entries/create', [CompetitionController::class, 'addEntryForm'])->name('entries.create');
+        Route::post('/{competitionId}/entries', [CompetitionController::class, 'storeEntry'])->name('entries.store');
+        Route::get('/{competitionId}/entries/{entryId}/edit', [CompetitionController::class, 'editEntry'])->name('entries.edit');
+        Route::put('/{competitionId}/entries/{entryId}', [CompetitionController::class, 'updateEntry'])->name('entries.update');
+        Route::delete('/{competitionId}/entries/{entryId}', [CompetitionController::class, 'destroyEntry'])->name('entries.destroy');
+        Route::get('/{competitionId}/entries/{entryId}/json', [CompetitionController::class, 'getEntryJson'])->name('entries.json');
     });
 
     // Class Management Routes
@@ -118,9 +138,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // SETTINGS
-    Route::get('/settings', function () {
-        return view('settings');
-    });
+    //For User settings
     Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
 
     //Billing Rules

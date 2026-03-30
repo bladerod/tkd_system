@@ -11,7 +11,7 @@ class CompetitionEntry extends Model
 
     protected $table = 'competition_entries';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'competition_id',
@@ -26,7 +26,9 @@ class CompetitionEntry extends Model
 
     protected $casts = [
         'result' => 'string',
-        'medal' => 'string'
+        'medal' => 'string',
+        'created_at' => 'string',
+        'updated_at' => 'string'
     ];
 
      public function competition()

@@ -5,17 +5,10 @@ use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Classes;
 use App\Models\Instructor;
-use App\Models\SkillChecklist;
 use App\Models\AttendanceLog;
-use App\Models\AuditLog;
 use App\Models\BeltLevel;
-use App\Models\Branch;
 use App\Models\Certificate;
-use App\Models\ChatMessage;
-use App\Models\ChatThread;
 use App\Models\CompetitionEntry;
-use App\Models\Invoice;
-use App\Models\StudentEvaluation;
 use Illuminate\Support\Str;
 
 
@@ -77,6 +70,7 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'gender' => 'required',
+            'password' => 'required', 
             'current_belt' => 'required',
             'birthdate' => 'required|date',
             'primary_parent_id' => 'required',
@@ -98,6 +92,7 @@ class StudentController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'gender' => $request->gender,
+            'password' => $request->password,
             'current_belt' => $request->current_belt,
             'birthdate' => $request->birthdate,
             'join_date' => now(), 

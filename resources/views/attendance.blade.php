@@ -192,16 +192,12 @@
                                                             {{ optional($log->device)->device_name ?? 'N/A' }}
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="px-2 py-1 text-xs font-medium {{ ($log->confidence_score ?? 0) >= 90 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }} rounded-full">
+                                                            <span class="px-2 py-1 text-xs font-medium {{ ($log->confidence_score ?? 0) >= 90 ?? '' }} rounded-full">
                                                                 {{ $log->confidence_score ?? 'N/A' }}{{ $log->confidence_score ? '%' : '' }}
                                                             </span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="px-2 py-1 text-xs font-medium rounded-full
-                                                                @if($log->method == 'face') bg-blue-100 text-blue-800
-                                                                @elseif($log->method == 'qr') bg-purple-100 text-purple-800
-                                                                @else bg-gray-100 text-gray-800
-                                                                @endif">
+                                                            <span class="px-2 py-1 text-xs font-medium rounded-full">
                                                                 {{ ucfirst($log->method ?? 'manual') }}
                                                             </span>
                                                         </td>
@@ -210,12 +206,6 @@
                                                                 <span class="px-3 py-1 text-xs font-medium bg-green-500 text-white rounded-full">IN</span>
                                                             @else
                                                                 <span class="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded-full">OUT</span>
-                                                            @endif
-                                                            
-                                                            @if($log->status == 1)
-                                                                <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full" title="Valid Log">Valid</span>
-                                                            @elseif($log->status == 0)
-                                                                <span class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-800 rounded-full" title="Invalid/Voided">Void</span>
                                                             @endif
                                                         </td>
                                                     </tr>

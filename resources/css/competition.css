@@ -1,3 +1,6 @@
+
+
+
 /* styling for datatables */
 .datatable-table {
     width: 100% !important;
@@ -17,6 +20,7 @@
 }
 .datatable-table tbody td {
     white-space: nowrap !important;
+    border-bottom: 1px solid gray;
 }
 .datatable-top, .datatable-bottom {
     background-color: #ffffff !important;

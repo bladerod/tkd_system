@@ -58,9 +58,9 @@
                                     </div>
                                 </div>
                                 
-                                <div class="p-6" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
+                                <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <!-- Create Button -->
-                                    <div class="flex justify-end mb-6">
+                                    <div class="flex justify-end p-6">
                                         <button onclick="openAddAnnouncementModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Create Announcement
@@ -68,7 +68,7 @@
                                     </div>
                                     
                                     <!-- Filter Section -->
-                                    <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div class="m-6 rounded-lg">
                                         <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                             Filter Options:
                                         </h3>
@@ -189,7 +189,7 @@
                                     </div>
                                     
                                     <!-- Table Section -->
-                                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div class="bg-white rounded-b-xl shadow-sm border border-gray-100 overflow-hidden">
                                         <!-- Table -->
                                         <div class="overflow-x-auto">
                                             <table id="announcementTable" class="w-full text-sm min-w-full divide-y divide-gray-200">

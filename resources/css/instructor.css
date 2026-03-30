@@ -5,7 +5,6 @@ button{
 table th{
     background-color: #1C1C1D;
     font-size: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.425);
     color: #fff;
     text-align: center;
 }
@@ -14,7 +13,7 @@ table th, table td{
 
 }
 table td{
-    border: 1px solid #1c1c1d46;
+    border-bottom: 1px solid #1c1c1d46;
 }
 table{
     border-collapse: collapse;

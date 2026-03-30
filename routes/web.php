@@ -23,6 +23,7 @@ use App\Models\Classes;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 // Guest routes
@@ -35,7 +36,7 @@ Route::middleware(['guest'])->group(function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->name('dashboard.index');
-    Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->name('student.store');
+    Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->name('dashboard.student.store');
     Route::post('/dashboard/parent',[ParentsController::class,'store'])->name('parent.store');
 
 
@@ -197,11 +198,16 @@ Route::prefix('reports')->group(function () {
     Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
 });
 
+// Don't forget to import DB at the top of web.php if it's not there:
+// use Illuminate\Support\Facades\DB;
+
 Route::get('/student', function () {
     $beltlevels = BeltLevel::all();
     $users = User::all();
     $classes = Classes::all();
-     $vwstudents = Student::select(
+    
+    // CHANGE THIS: Use the DB facade to pull from the view
+    $vwstudents = DB::table('student_overview')->select(
         'id',
         'student_name',
         'current_belt',

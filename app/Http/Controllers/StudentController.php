@@ -10,6 +10,7 @@ use App\Models\BeltLevel;
 use App\Models\Certificate;
 use App\Models\CompetitionEntry;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 
 class StudentController extends Controller
@@ -70,6 +71,7 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'gender' => 'required',
+            'email' => 'required', 
             'password' => 'required', 
             'current_belt' => 'required',
             'birthdate' => 'required|date',
@@ -85,14 +87,14 @@ class StudentController extends Controller
             $photoPath = $request->file('photo')->store('student-photos', 'public');
         }
 
-        // 4. Create the Record
         Student::create([
             'branch_id' => $request->branch_id,
             'student_code' => $studentCode,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'gender' => $request->gender,
-            'password' => $request->password,
+            'email' => $request->email,
+            'password' => Hash::make($request->password), 
             'current_belt' => $request->current_belt,
             'birthdate' => $request->birthdate,
             'join_date' => now(), 

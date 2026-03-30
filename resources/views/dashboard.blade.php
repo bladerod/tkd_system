@@ -383,7 +383,7 @@
                 
                 <!-- Form Body -->
                 <div class="px-6 pt-6 pb-4 bg-white">
-                    <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                    <form action="{{ route('dashboard.student.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                         @csrf   
                         <!-- Branch - Moved to top as it's a primary identifier -->
                         <div>
@@ -417,7 +417,11 @@
                             </div>
                             
                         </div>
-
+                        {{-- email --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                            <input name="email" type="email" placeholder="Ex. Dela Cruz" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                        </div>
 
                         <!-- Current Belt -->
                         <div class="grid grid-cols-2 gap-4">

@@ -82,6 +82,6 @@ try {
     return redirect()->back()->with('error', 'Student created but profile failed: ' . $e->getMessage());
 }
 
-return redirect()->back()->with('success', 'Student added successfully!');
+return redirect()->back()->with('success', 'Student successfuly added!');
 }
 }

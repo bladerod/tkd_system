@@ -466,7 +466,7 @@
                                         class="text-red-500">*</span></label>
                                 <select name="branch_id"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
-                                    <option value="" disabled selected>Select branch</option>
+                                    <option value="" disabled selected>Select branches</option>
                                     @foreach ($branches as $branch)
                                         <option value="{{ $branch->id }}">
                                             {{ $branch->code . ' ' . $branch->name . ' ' . $branch->city }}

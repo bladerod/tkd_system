@@ -13,7 +13,7 @@ class Student extends Model
     use HasFactory;
 
     // Connect to your database view
-    protected $table = 'student_overview';
+    protected $table = 'students';
 
     // Make sure Eloquent doesn't expect timestamps if the view doesn't have them
     public $timestamps = false;
@@ -25,6 +25,7 @@ class Student extends Model
         'birthdate',
         'gender',
         'photo_url',
+        'email',
         'password',
         'current_belt',
         'join_date',

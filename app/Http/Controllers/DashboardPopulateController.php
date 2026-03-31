@@ -64,6 +64,5 @@ class DashboardPopulateController extends Controller
             'status' => $validate['status'],
         ]);
 
-        return redirect()->route('dashboard.index')->with('success', 'Student added successfully!');
-    }
+return redirect()->back()->with('success', 'Student successfuly added!');
 }

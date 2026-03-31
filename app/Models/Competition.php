@@ -15,6 +15,7 @@ class Competition extends Model
         'date',
         'organizer',
         'level',
+        'status',
     ];
 
     protected $casts = [

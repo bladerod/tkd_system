@@ -44,7 +44,7 @@ class Student extends Model
 
     public function parent()
     {
-        return $this->belongsTo(ParentModel::class,'primary_parent_id');
+        return $this->belongsTo(Parents::class, 'primary_parent_id');
     }
 
     public function invoices(): HasMany

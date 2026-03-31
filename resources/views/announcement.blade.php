@@ -278,12 +278,12 @@
                                                                     </button>
                                                                     
                                                                     <!-- Delete Button -->
-                                                                    <button class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg transition-all duration-200 delete-announcement-btn"
+                                                                    {{-- <button class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg transition-all duration-200 delete-announcement-btn"
                                                                             data-announcement-id="{{ $announcement->id }}"
                                                                             data-announcement-title="{{ $announcement->title }}"
                                                                             title="Delete">
                                                                         <i class="fa-regular fa-trash-can text-white text-sm"></i>
-                                                                    </button>
+                                                                    </button> --}}
                                                                 </div>
                                                             </td>
                                                         </tr>

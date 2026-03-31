@@ -46,36 +46,11 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class);
     }
 
-
-    // public function instructor()
-    // {
-    //     return $this->hasOne(Instructor::class);
-    // }
-
-    // public function parent()
-    // {
-    //     return $this->hasOne(Parents::class);
-    // }
     public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
     public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
     public function notifications(): HasMany { return $this->hasMany(Notification::class); }
     public function chatParticipants() { return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id'); }
     public function sentMessages(): HasMany { return $this->hasMany(ChatMessage::class, 'sender_user_id'); }
-
-    // public function notifications()
-    // {
-    //     return $this->hasMany(Notification::class);
-    // }
-
-    // public function chatMessages()
-    // {
-    //     return $this->hasMany(ChatMessage::class, 'sender_user_id');
-    // }
-
-    // public function chatThreads()
-    // {
-    //     return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
-    // }
 
     public function announcements()
     {

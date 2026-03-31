@@ -18,7 +18,7 @@ class ParentsController extends Controller
      */
     public function index()
     {
-        $parents = Parents::with(['user', 'students'])->get();
+        $parents = Parents::with(['parent.user', 'students'])->get();
         
         $students = Student::select('id', 'student_name', 'student_code')
                         ->where('status', 'active')

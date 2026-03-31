@@ -35,7 +35,6 @@ window.openEditCompetitionModal = function(competitionId) {
             document.getElementById('edit_location').value = competition.location || '';
             let formattedDate = '';
             if (competition.date) {
-                // This splits "2026-03-29T00:00:00.000000Z" at the "T" and takes just "2026-03-29"
                 formattedDate = competition.date.split('T')[0];
             }
             document.getElementById('edit_date').value = formattedDate;
@@ -87,6 +86,72 @@ function initializeDataTable(table) {
     }
 }
 
+// Handle delete competition with SweetAlert2 and AJAX
+function deleteCompetition(competitionId, competitionName) {
+    Swal.fire({
+        title: 'Delete Competition?',
+        html: `Are you sure you want to delete <strong>${competitionName}</strong>?<br><br>This will mark the competition as inactive. You can restore it later if needed.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Deleting...',
+                text: 'Please wait while we delete the competition.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Send delete request via AJAX
+            fetch(`/competition/${competitionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        html: `Competition "<strong>${competitionName}</strong>" has been deleted.`,
+                        confirmButtonColor: '#3085d6'
+                    }).then(() => {
+                        // Reload the page to show updated list
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message || 'Failed to delete competition.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while deleting the competition.',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        }
+    });
+}
+
 // Handle table clicks using event delegation
 function handleTableClick(e) {
     // Handle view button clicks (eye icon)
@@ -95,7 +160,7 @@ function handleTableClick(e) {
         e.preventDefault();
         const competitionId = viewButton.getAttribute('data-competition-id');
         console.log('View button clicked, competition ID:', competitionId);
-        // Redirect to competition show page or open view modal
+        // Redirect to competition show page
         window.location.href = `/competition/${competitionId}`;
         return;
     }
@@ -119,38 +184,8 @@ function handleTableClick(e) {
         const competitionId = deleteButton.getAttribute('data-competition-id');
         const competitionName = deleteButton.getAttribute('data-competition-name') || 'this competition';
         
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `You are about to delete "${competitionName}". This action cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-            
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/competition/${competitionId}`;
-            form.style.display = 'none';
-            
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = window.csrfToken || document.querySelector('meta[name="csrf-token"]').content;
-            
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-            
-            form.appendChild(csrfToken);
-            form.appendChild(methodField);
-            document.body.appendChild(form);
-            form.submit();
-        });
+        // Call the delete function with AJAX
+        deleteCompetition(competitionId, competitionName);
     }
 }
 
@@ -200,13 +235,65 @@ function initializeFormHandling() {
         editForm.parentNode.replaceChild(newEditForm, editForm);
         
         newEditForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
             console.log('Edit form submitted');
             const submitBtn = document.getElementById('submitEditBtn');
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Updating...';
                 submitBtn.disabled = true;
             }
-            return true;
+            
+            const formData = new FormData(this);
+            const url = this.action;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: data.message || 'Competition updated successfully.',
+                        confirmButtonColor: '#3085d6'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message || 'Failed to update competition.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    // Re-enable submit button on error
+                    if (submitBtn) {
+                        submitBtn.innerHTML = 'Update Competition';
+                        submitBtn.disabled = false;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while updating the competition.',
+                    confirmButtonColor: '#3085d6'
+                });
+                // Re-enable submit button on error
+                if (submitBtn) {
+                    submitBtn.innerHTML = 'Update Competition';
+                    submitBtn.disabled = false;
+                }
+            });
         });
     }
 }
@@ -227,8 +314,6 @@ function attachButtonListeners() {
     // Add new listener using delegation
     tbody.addEventListener('click', handleTableClick);
 }
-
-
 
 // javascript for show.blade
 // --- ENTRY MODAL FUNCTIONS (For show.blade.php) ---

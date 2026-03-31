@@ -7,7 +7,6 @@ use App\Models\CompetitionEntry;
 use App\Models\Student;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CompetitionController extends Controller
 {
@@ -17,7 +16,8 @@ class CompetitionController extends Controller
     public function index()
     {   
         $competitionEntry = CompetitionEntry::all();
-        $competition = Competition::all();
+        
+        $competition = Competition::where('status', 'active')->get();
         
         $students = Student::where('status', 'active')->get();
         $instructors = Instructor::where('active_flag', 1)->get();
@@ -46,6 +46,9 @@ class CompetitionController extends Controller
             'level' => 'required|in:local,regional,national,international',
         ]);
 
+        // Set status to 'active' by default when creating
+        $validated['status'] = 'active';
+        
         Competition::create($validated);
 
         return redirect()->route('competition.index')
@@ -77,7 +80,6 @@ class CompetitionController extends Controller
         return response()->json($entry);
     }
 
-
     public function getCompetitionJson($id)
     {
         $competition = Competition::findOrFail($id);
@@ -107,6 +109,7 @@ class CompetitionController extends Controller
             'date' => 'required|date',
             'organizer' => 'nullable|string|max:150',
             'level' => 'required|in:local,regional,national,international',
+            'status' => 'required|in:active,inactive',
         ]);
 
         $competition->update($validated);
@@ -125,27 +128,80 @@ class CompetitionController extends Controller
     }
 
     /**
-     * Remove the specified competition from storage.
+     * Soft delete the specified competition (update status to inactive).
      */
     public function destroy($id)
     {
-        $competition = Competition::findOrFail($id);
-        
-        // Delete related entries first
-        $competition->entries()->delete();
-        $competition->delete();
-
-        // Check if it's an AJAX request
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Competition deleted successfully.'
+        try {
+            $competition = Competition::findOrFail($id);
+            
+            $competition->update([
+                'status' => 'inactive'
             ]);
-        }
 
-        return redirect()->route('competition.index')
-            ->with('success', 'Competition deleted successfully.');
+            
+            // Check if it's an AJAX request
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Competition deleted successfully.',
+                    'competition' => $competition
+                ]);
+            }
+            
+            return redirect()->route('competition.index')
+                ->with('success', 'Competition deleted successfully.');
+                
+        } catch (\Exception $e) {
+            // Handle error
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete competition: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->route('competition.index')
+                ->with('error', 'Failed to delete competition.');
+        }
     }
+
+    /**
+     * Restore a soft-deleted competition (set status back to active)
+     */
+    // public function restore($id)
+    // {
+    //     try {
+    //         $competition = Competition::findOrFail($id);
+            
+    //         // Restore: Update status to 'active'
+    //         $competition->update([
+    //             'status' => 'active'
+    //         ]);
+            
+    //         if (request()->ajax() || request()->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'message' => 'Competition restored successfully.',
+    //                 'competition' => $competition
+    //             ]);
+    //         }
+            
+    //         return redirect()->route('competition.index')
+    //             ->with('success', 'Competition restored successfully.');
+                
+    //     } catch (\Exception $e) {
+    //         if (request()->ajax() || request()->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Failed to restore competition: ' . $e->getMessage()
+    //             ], 500);
+    //         }
+            
+    //         return redirect()->route('competition.index')
+    //             ->with('error', 'Failed to restore competition.');
+    //     }
+    // }
 
     /**
      * Show form to add entry to competition.

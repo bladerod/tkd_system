@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.warn('Chart.js or ChartDataLabels not loaded yet');
     }
+
+    initStudentPasswordValidation();
 });
 
 // for sale report chart
@@ -228,6 +230,69 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Password toggle function
+    window.togglePasswordVisibility = function(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(iconId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        }
+    };
+
+    // Password validation for student modal
+    function initStudentPasswordValidation() {
+        const form = document.querySelector('#dialog form');
+        if (!form) return;
+        
+        const passwordInput = document.getElementById('student_password');
+        const confirmPasswordInput = document.getElementById('student_confirm_password');
+        const errorMessage = document.getElementById('password_match_error');
+        const submitBtn = document.getElementById('submit_student_btn');
+        
+        if (!passwordInput || !confirmPasswordInput) return;
+        
+        function validatePasswords() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword.length > 0 && password !== confirmPassword) {
+                if (errorMessage) errorMessage.classList.remove('hidden');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                return false;
+            } else {
+                if (errorMessage) errorMessage.classList.add('hidden');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                return true;
+            }
+        }
+        
+        confirmPasswordInput.addEventListener('input', validatePasswords);
+        passwordInput.addEventListener('input', validatePasswords);
+        
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validatePasswords()) {
+                    e.preventDefault();
+                    if (errorMessage) errorMessage.classList.remove('hidden');
+                }
+            });
+        }
+    }
+
+
     // Make function globally available for Alpine.js
     window.updateEnrolleesChartPeriod = function(period) {
         if (period === 'monthly') {

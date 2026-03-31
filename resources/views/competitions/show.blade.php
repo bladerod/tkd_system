@@ -3,15 +3,17 @@
 @section('title', $competition->name)
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@vite(['resources/js/competition.js'])
 <div class="container-fluid m-0">
     <div class="row">
-        <main class="ml-64 p-6">
+        <main class="">
             <div class="container-fluid">
                 <!-- Breadcrumb -->
                 <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
                     <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
                     <span>/</span>
-                    <a href="{{ route('competitions.index') }}" class="hover:text-[#1C1C1D]">Competitions</a>
+                    <a href="{{ route('competition.index') }}" class="hover:text-[#1C1C1D]">Competitions</a>
                     <span>/</span>
                     <span class="text-[#1C1C1D] font-medium">{{ $competition->name }}</span>
                 </div>
@@ -25,14 +27,10 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-4xl font-bold text-[#1C1C1D]">{{ $competition->name }}</h1>
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('competitions.add-entry', $competition->id) }}" 
-                           class="bg-[#62b236] hover:bg-[#6abc3a] p-3 rounded-xl font-medium text-white">
-                            <i class="fa-solid fa-plus mr-2"></i>Add Entry
-                        </a>
-                        <a href="{{ route('competitions.edit', $competition->id) }}" 
-                           class="bg-amber-500 hover:bg-amber-600 p-3 rounded-xl font-medium text-white">
-                            <i class="fa-solid fa-pen-to-square mr-2"></i>Edit
-                        </a>
+                        <button onclick="openAddEntryModal()" 
+                            class="bg-[#62b236] hover:bg-[#6abc3a] p-3 rounded-xl font-medium text-white transition-colors cursor-pointer">
+                                <i class="fa-solid fa-plus mr-2"></i>Add Entry
+                        </button>
                     </div>
                 </div>
 
@@ -109,10 +107,10 @@
                                 @forelse($competition->entries as $entry)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ $entry->student->first_name ?? 'N/A' }} {{ $entry->student->last_name ?? '' }}
+                                        {{ $entry->student->student_name ?? 'N/A' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ $entry->instructor->user->fname ?? 'N/A' }} {{ $entry->instructor->user->lname ?? '' }}
+                                        {{ $entry->instructor->fname ?? 'N/A' }} {{ $entry->instructor->lname ?? '' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $entry->category }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $entry->division }}</td>
@@ -142,11 +140,12 @@
                                     <td class="px-6 py-4">{{ $entry->remarks ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center gap-2">
-                                            <a href="{{ route('competitions.edit-entry', [$competition->id, $entry->id]) }}" 
-                                               class="text-blue-600 hover:text-blue-900">
+                                            <button type="button" 
+                                                    onclick="openEditEntryModal({{ $competition->id }}, {{ $entry->id }})" 
+                                                    class="text-blue-600 hover:text-blue-900 cursor-pointer">
                                                 <i class="fa-solid fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('competitions.destroy-entry', [$competition->id, $entry->id]) }}" 
+                                            </button>
+                                            {{-- <form action="{{ route('competitions.destroy-entry', [$competition->id, $entry->id]) }}" 
                                                   method="POST" 
                                                   class="inline-block"
                                                   onsubmit="return confirm('Are you sure you want to delete this entry?')">
@@ -155,7 +154,7 @@
                                                 <button type="submit" class="text-red-600 hover:text-red-900">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
-                                            </form>
+                                            </form> --}}
                                         </div>
                                     </td>
                                 </tr>
@@ -174,4 +173,155 @@
         </main>
     </div>
 </div>
+
+{{-- Start of modal --}}
+
+{{-- Add Entry Modal --}}
+    <div id="addEntryModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+        <div class="relative top-20 mx-auto border w-[600px] shadow-lg rounded-xl bg-white mb-20">
+            <div class="flex items-center justify-between p-3 border-b bg-[#1C1C1D] rounded-t-lg">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-user-plus text-white text-xl pe-2"></i>
+                    <h3 class="text-xl font-bold text-white">Add Participant Entry</h3>
+                </div>
+                <button onclick="closeAddEntryModal()" class="text-white hover:text-gray-300">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <form id="addEntryForm" action="{{ route('competition.entries.store', $competition->id) }}" method="POST">
+                    @csrf
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="col-span-2 md:col-span-1 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Student <span class="text-red-500">*</span></label>
+                            <select name="student_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="" disabled selected>Select student</option>
+                                @foreach($students as $student)
+                                    <option value="{{ $student->id }}">{{ $student->student_code }} - {{ $student->student_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-span-2 md:col-span-1 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Instructor <span class="text-red-500">*</span></label>
+                            <select name="instructor_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="" disabled selected>Select instructor</option>
+                                @foreach($instructors as $instructor)
+                                    <option value="{{ $instructor->id }}">Coach {{ $instructor->fname }} {{ $instructor->lname }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category <span class="text-red-500">*</span></label>
+                            <input type="text" name="category" placeholder="e.g. Sparring" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Division <span class="text-red-500">*</span></label>
+                            <input type="text" name="division" placeholder="e.g. Under 30" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Result <span class="text-red-500">*</span></label>
+                            <select name="result" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="pending" selected>Pending</option>
+                                <option value="win">Win</option>
+                                <option value="loss">Loss</option>
+                                <option value="draw">Draw</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Medal <span class="text-red-500">*</span></label>
+                            <select name="medal" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="none" selected>None</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="bronze">Bronze</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <textarea name="remarks" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-3 pt-3 border-t">
+                        <button type="button" onclick="closeAddEntryModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D]">Save Entry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Edit Entry Modal --}}
+    <div id="editEntryModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+        <div class="relative top-20 mx-auto border w-[600px] shadow-lg rounded-xl bg-white mb-20">
+            <div class="flex items-center justify-between p-3 border-b bg-[#1C1C1D] rounded-t-lg">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-pen-to-square text-white text-xl pe-2"></i>
+                    <h3 class="text-xl font-bold text-white">Edit Participant Entry</h3>
+                </div>
+                <button onclick="closeEditEntryModal()" class="text-white hover:text-gray-300">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <form id="editEntryForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="col-span-2 md:col-span-1 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Student <span class="text-red-500">*</span></label>
+                            <select name="student_id" id="edit_entry_student" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                @foreach($students as $student)
+                                    <option value="{{ $student->id }}">{{ $student->student_code }} - {{ $student->first_name }} {{ $student->last_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-span-2 md:col-span-1 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Instructor <span class="text-red-500">*</span></label>
+                            <select name="instructor_id" id="edit_entry_instructor" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                @foreach($instructors as $instructor)
+                                    <option value="{{ $instructor->id }}">Coach {{ $instructor->fname }} {{ $instructor->lname }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Category <span class="text-red-500">*</span></label>
+                            <input type="text" name="category" id="edit_entry_category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Division <span class="text-red-500">*</span></label>
+                            <input type="text" name="division" id="edit_entry_division" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Result <span class="text-red-500">*</span></label>
+                            <select name="result" id="edit_entry_result" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="pending">Pending</option>
+                                <option value="win">Win</option>
+                                <option value="loss">Loss</option>
+                                <option value="draw">Draw</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Medal <span class="text-red-500">*</span></label>
+                            <select name="medal" id="edit_entry_medal" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="none">None</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="bronze">Bronze</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <textarea name="remarks" id="edit_entry_remarks" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#1C1C1D]"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-3 pt-3 border-t">
+                        <button type="button" onclick="closeEditEntryModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D]">Update Entry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{{-- end of modal --}}
 @endsection

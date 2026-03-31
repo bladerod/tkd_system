@@ -8,6 +8,10 @@
     @vite(['resources/css/attendance.css'])
     @vite(['resources/css/student.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Add Simple-Datatables CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
+    <!-- Add SweetAlert2 for better alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
 
@@ -69,9 +73,9 @@
             </div>
         </div>
 
-        <div class="table-card mt-4">
+        <div class="mt-4">
             <div class="table-content overflow-x-auto">
-                <table class="student-table min-w-full divide-y divide-gray-200">
+                <table id="studentTable" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
                             <th>Name</th>
@@ -101,15 +105,14 @@
                             <td class="balance paid">{{ $student->balance }}</td>
                             <td>{{ $student->attendance }}%</td>
                             <td>
-                                <a href="#"
-                                   class="btn-view text-blue-600 hover:underline"
-                                   onclick="openModal(this)"
-                                   data-id="{{ $student->id }}"
-                                   data-name="{{ $student->student_name }}"
-                                   data-belt="{{ $student->current_belt }}"
-                                   data-status="{{ $student->status }}">
-                                   View
-                                </a>
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                                        onclick="openModal(this)"
+                                        data-id="{{ $student->id }}"
+                                        data-name="{{ $student->student_name }}"
+                                        data-belt="{{ $student->current_belt }}"
+                                        data-status="{{ $student->status }}">
+                                    View
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -178,6 +181,8 @@
 </div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+@vite('resources/js/student.js')
 <script>
 async function openModal(button) {
     const modal = document.getElementById("studentModal");

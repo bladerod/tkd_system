@@ -182,5 +182,6 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
 @vite('resources/js/student.js')
+@vite('resources/js/navbarDrop.js')
 </body>
 </html>

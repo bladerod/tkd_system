@@ -70,16 +70,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // STUDENTS - Main fix here!
-    Route::post('/student', [StudentController::class,'store'])->name('student.store');
-
-    Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
-    Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
-    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
-    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
-    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
-    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
-
+Route::get('/students', [StudentController::class, 'index']);
     // CHAT
 Route::middleware(['auth'])->group(function () {
 
@@ -185,22 +176,22 @@ Route::prefix('reports')->group(function () {
     Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
 });
 
-Route::get('/student', function () {
-    $beltlevels = BeltLevel::all();
-    $users = User::all();
-    $classes = Classes::all();
-     $vwstudents = Student::select(
-        'id',
-        'student_name',
-        'current_belt',
-        'status',
-        'parent_name',
-        'balance',
-        'attendance'
-    )->get();
+// Route::get('/student', function () {
+//     $beltlevels = BeltLevel::all();
+//     $users = User::all();
+//     $classes = Classes::all();
+//      $vwstudents = Student::select(
+//         'id',
+//         'student_name',
+//         'current_belt',
+//         'status',
+//         'parent_name',
+//         'balance',
+//         'attendance'
+//     )->get();
 
-    return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
-})->name('student');
+//     return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
+// })->name('student');
 
 
 Route::get('/certificates', [CertificateController::class, 'index']);

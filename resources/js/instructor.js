@@ -1,35 +1,65 @@
-// Make instructorModal function globally available 
+// Make instructorModal function globally available
 window.instructorModal = function() {
-    return {
+     return {
         showModal: false,
         isEdit: false,
-        form: {},
+        form: {
+            branch_id: '',
+            fname: '',
+            lname: '',
+            email: '',
+            username: '',
+            rank_belt: '',
+            certification_level: '',
+            contact: '',
+            status: '',
+            specialization: '',
+            bio: ''
+        },
+
+        openEdit(data) {
+            this.isEdit = true;
+
+            // 🔥 important: assign properly
+            this.form = {
+                ...this.form,
+                ...data
+            };
+
+            this.showModal = true;
+        },
+
         openAdd() {
             this.isEdit = false;
             this.form = {
-                id: null, fname: '', lname: '', email: '', username: '',
-                contact: '', password: '', password_confirmation: '',
-                rank_belt: 'Black Belt', certification_level: 'Head Instructor',
-                specialization: '', bio: '', status: 'active', photo: ''
+                branch_id: '',
+                fname: '',
+                lname: '',
+                email: '',
+                username: '',
+                rank_belt: '',
+                certification_level: '',
+                contact: '',
+                status: '',
+                specialization: '',
+                bio: ''
             };
             this.showModal = true;
         },
-        openEdit(data) {
-            this.isEdit = true;
-            this.form = { ...data, password: '', password_confirmation: '' };
-            this.showModal = true;
-        },
-        closeModal() { this.showModal = false; }
+
+        closeModal() {
+            this.showModal = false;
+        }
     }
 }
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Instructor JS loaded');
-    
+
     // Initialize DataTable
     initializeDataTable();
-    
+
     // Initialize delete buttons
     initializeDeleteButtons();
 });
@@ -37,11 +67,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeDataTable() {
     const instructorTable = document.getElementById('instructorTable');
     if (!instructorTable) return;
-    
+
     const tbody = instructorTable.querySelector('tbody');
     const rows = tbody ? tbody.querySelectorAll('tr') : [];
     const hasData = rows.length > 0 && !rows[0].querySelector('td[colspan]');
-    
+
     if (hasData && typeof simpleDatatables !== 'undefined') {
         try {
             const dataTable = new simpleDatatables.DataTable(instructorTable, {
@@ -57,14 +87,14 @@ function initializeDataTable() {
                     noResults: "No results match your search query"
                 }
             });
-            
+
             // Re-attach delete listeners after DataTable redraws
             if (dataTable && typeof dataTable.on === 'function') {
                 dataTable.on('datatable.draw', function() {
                     initializeDeleteButtons();
                 });
             }
-            
+
             console.log('DataTable initialized successfully');
         } catch (error) {
             console.error('DataTable initialization failed:', error);
@@ -78,16 +108,16 @@ function initializeDeleteButtons() {
         // Remove old event listeners by cloning
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
-        
+
         // Add new event listener
         newButton.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const instructorId = this.getAttribute('data-instructor-id');
             const instructorName = this.getAttribute('data-instructor-name') || 'this instructor';
             const form = this.closest('form');
-            
+
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     title: 'Are you sure?',

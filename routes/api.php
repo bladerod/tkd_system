@@ -43,12 +43,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/attendance-trends', [DashboardApiController::class, 'attendanceTrends']);
 
     // Students
-    Route::prefix('students')->group(function () {
-        Route::get('/', [StudentApiController::class, 'index']);
-        Route::get('/{id}', [StudentApiController::class, 'show']);
-        Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
-        Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
-    });
+    // Route::prefix('students')->group(function () {
+    //     Route::get('/', [StudentApiController::class, 'index']);
+    //     Route::get('/{id}', [StudentApiController::class, 'show']);
+    //     Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
+    //     Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
+    // });
 
     // Attendance
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
@@ -102,4 +102,7 @@ Route::post('/certificates/generate', [CertificateController::class, 'generate']
 Route::get('/certificates/{id}', [CertificateController::class, 'show']);
 Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
 Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
+
+Route::get('/students/{id}', [StudentController::class, 'show']);
+Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
 });

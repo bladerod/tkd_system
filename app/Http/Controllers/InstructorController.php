@@ -13,8 +13,10 @@ class InstructorController extends Controller
     public function index()
     {
         $branches = Branch::all();
-        $instructors = Instructor::select(
+         $instructors = Instructor::with('user')
+        ->select(
             'id',
+            'user_id',
             'fname',
             'lname',
             DB::raw("CONCAT(fname, ' ', lname) as name"),
@@ -26,9 +28,10 @@ class InstructorController extends Controller
             'specialization',
             'bio',
             'status'
-        )->get();
+        )
+        ->get();
 
-        return view('instructor', compact('instructors', 'branches'));
+    return view('instructor', compact('instructors', 'branches'));
     }
 
    public function store(Request $request)
@@ -109,6 +112,17 @@ class InstructorController extends Controller
         if ($request->hasFile('photo')) {
             $instructor->photo = $request->file('photo')->store('instructors', 'public');
         }
+           $user = User::where('id', $instructor->user_id)->update([
+        'branch_id' => $request->branch_id,
+        'fname' => $request->fname,
+        'lname' => $request->lname,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'role' => 'instructor',
+        'mobile' => $request->contact,
+        'username' => $request->username,
+
+    ]);
 
         $instructor->fname = $request->fname;
         $instructor->lname = $request->lname;

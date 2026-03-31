@@ -25,7 +25,7 @@
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-4xl font-bold mb-4 ">Instructor</h1>
     </div>
-    
+
 
     <!-- TABLE -->
     <div class="row mt-4">
@@ -57,7 +57,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            
+
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($instructors as $inst)
                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
@@ -86,6 +86,7 @@
                                                 <button
                                                     @click.prevent="openEdit({
                                                         id: '{{ $inst->id }}',
+                                                        branch_id: '{{ (string) ($inst->user->branch_id ?? '') }}',
                                                         fname: '{{ $inst->fname }}',
                                                         lname: '{{ $inst->lname }}',
                                                         email: '{{ $inst->email }}',
@@ -146,12 +147,20 @@
 
                     <label for="branch">Branch</label>
                     <div>
-                        <select name="branch_id" id="branch" class="rounded-md mb-3 py-2" style="border: solid 1px black; width: 100%;">
-                            <option value="" disabled selected>-- Select a Branch --</option>
-                            @foreach ($branches as $branch)
-                                <option value="{{ $branch->id }}">{{ $branch->code.' '.$branch->name.' '.$branch->city }}</option>
-                            @endforeach
-                        </select>
+                        <select
+    name="branch_id"
+    x-model="form.branch_id"
+    class="rounded-md mb-3 py-2"
+    style="border: solid 1px black; width: 100%;"
+>
+    <option value="" disabled>-- Select a Branch --</option>
+
+    @foreach ($branches as $branch)
+        <option value="{{ (string) $branch->id }}">
+            {{ $branch->code.' '.$branch->name.' '.$branch->city }}
+        </option>
+    @endforeach
+</select>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-3">
                         <div>

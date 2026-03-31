@@ -13,6 +13,7 @@ use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\DashboardPopulateController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\ReportController;
@@ -20,7 +21,6 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Models\BeltLevel;
 use App\Models\Classes;
-use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -132,11 +132,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export/csv', [ClassController::class, 'exportCsv'])->name('export');
 
     });
+    // 
 
-    Route::get('/billing', function () {
-        return view('billing');
+    // Billing Routes
+    Route::prefix('billing')->name('billing.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::post('/generate-monthly', [InvoiceController::class, 'generateMonthlyInvoices'])->name('generate-monthly');
+        Route::post('/mark-overdue', [InvoiceController::class, 'markOverdueInvoices'])->name('mark-overdue');
+        Route::post('/{invoiceId}/payment', [InvoiceController::class, 'processPayment'])->name('payment');
+        Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->name('reminder');
+        Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->name('receipt');
     });
-
+    // 
 
     // SETTINGS
     //For User settings

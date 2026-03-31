@@ -12,19 +12,17 @@ use Illuminate\Support\Facades\DB;
 class CompetitionController extends Controller
 {
     /**
-     * Display a listing of the competitions.
+     * Display a listing of the competition.
      */
     public function index()
-    {
-        $competitions = Competition::withCount('entries')
-            ->with('entries')
-            ->orderBy('date', 'desc')
-            ->paginate(10);
+    {   
+        $competitionEntry = CompetitionEntry::all();
+        $competition = Competition::all();
         
         $students = Student::where('status', 'active')->get();
         $instructors = Instructor::where('active_flag', 1)->get();
         
-        return view('competition', compact('competitions', 'students', 'instructors'));
+        return view('competition', compact('competition', 'students', 'instructors'));
     }
 
     /**
@@ -32,7 +30,7 @@ class CompetitionController extends Controller
      */
     public function create()
     {
-        return view('competitions.create');
+        return view('competition.create');
     }
 
     /**
@@ -44,25 +42,47 @@ class CompetitionController extends Controller
             'name' => 'required|string|max:150',
             'location' => 'required|string|max:150',
             'date' => 'required|date',
-            'organizer' => 'nullable|string|max:150',
+            'organizer' => 'required|string|max:150',
             'level' => 'required|in:local,regional,national,international',
         ]);
 
         Competition::create($validated);
 
-        return redirect()->route('competitions.index')
+        return redirect()->route('competition.index')
             ->with('success', 'Competition created successfully.');
     }
 
     /**
-     * Display the specified competition.
+     * Display the specified competition (For the View Page).
      */
     public function show($id)
     {
-        $competition = Competition::with(['entries.student', 'entries.instructor'])
-            ->findOrFail($id);
+        $competition = Competition::with(['entries.student', 'entries.instructor'])->findOrFail($id);
         
-        return view('competitions.show', compact('competition'));
+        // Pass students and instructors so the modals can use them in dropdowns
+        $students = Student::where('status', 'active')->get();
+        $instructors = Instructor::where('active_flag', 1)->get();
+        
+        return view('competitions.show', compact('competition', 'students', 'instructors'));
+    }
+
+    /**
+     * Fetch entry data for the Edit Modal (Returns JSON).
+     */
+    public function getEntryJson($competitionId, $entryId)
+    {
+        $entry = CompetitionEntry::where('competition_id', $competitionId)
+            ->findOrFail($entryId);
+            
+        return response()->json($entry);
+    }
+
+
+    public function getCompetitionJson($id)
+    {
+        $competition = Competition::findOrFail($id);
+        
+        return response()->json($competition);
     }
 
     /**
@@ -71,7 +91,7 @@ class CompetitionController extends Controller
     public function edit($id)
     {
         $competition = Competition::findOrFail($id);
-        return view('competitions.edit', compact('competition'));
+        return view('competition.edit', compact('competition'));
     }
 
     /**
@@ -91,7 +111,16 @@ class CompetitionController extends Controller
 
         $competition->update($validated);
 
-        return redirect()->route('competitions.index')
+        // Check if it's an AJAX request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Competition updated successfully.',
+                'competition' => $competition
+            ]);
+        }
+
+        return redirect()->route('competition.index')
             ->with('success', 'Competition updated successfully.');
     }
 
@@ -106,7 +135,15 @@ class CompetitionController extends Controller
         $competition->entries()->delete();
         $competition->delete();
 
-        return redirect()->route('competitions.index')
+        // Check if it's an AJAX request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Competition deleted successfully.'
+            ]);
+        }
+
+        return redirect()->route('competition.index')
             ->with('success', 'Competition deleted successfully.');
     }
 
@@ -141,7 +178,7 @@ class CompetitionController extends Controller
         
         CompetitionEntry::create($validated);
 
-        return redirect()->route('competitions.show', $competitionId)
+        return redirect()->route('competition.show', $competitionId)
             ->with('success', 'Entry added successfully.');
     }
 
@@ -155,7 +192,7 @@ class CompetitionController extends Controller
         $students = Student::where('status', 'active')->get();
         $instructors = Instructor::where('active_flag', 1)->get();
         
-        return view('competitions.edit-entry', compact('entry', 'students', 'instructors'));
+        return view('competition.edit-entry', compact('entry', 'students', 'instructors'));
     }
 
     /**
@@ -178,7 +215,7 @@ class CompetitionController extends Controller
 
         $entry->update($validated);
 
-        return redirect()->route('competitions.show', $competitionId)
+        return redirect()->route('competition.show', $competitionId)
             ->with('success', 'Entry updated successfully.');
     }
 
@@ -191,7 +228,7 @@ class CompetitionController extends Controller
             ->findOrFail($entryId);
         $entry->delete();
 
-        return redirect()->route('competitions.show', $competitionId)
+        return redirect()->route('competition.show', $competitionId)
             ->with('success', 'Entry deleted successfully.');
     }
 }

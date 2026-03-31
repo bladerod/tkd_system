@@ -27,12 +27,12 @@ table {
 
 table th, table td {
   padding: 8px;
-  border: 1px solid #1c1c1d46;
+  border-bottom: 1px solid #1c1c1d46;
 }
 
 table th {
   background: #1C1C1D;
-  border: 1px solid rgba(255, 255, 255, 0.425);
+  
   color: #fff;
 }
 /* Zebra rows like the screenshot */

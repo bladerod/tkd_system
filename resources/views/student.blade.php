@@ -8,6 +8,10 @@
     @vite(['resources/css/attendance.css'])
     @vite(['resources/css/student.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Add Simple-Datatables CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
+    <!-- Add SweetAlert2 for better alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
 
@@ -73,9 +77,9 @@
             </div>
         </div>
 
-        <div class="table-card mt-4">
+        <div class="mt-4">
             <div class="table-content overflow-x-auto">
-                <table class="student-table min-w-full divide-y divide-gray-200">
+                <table id="studentTable" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
                             <th>Name</th>
@@ -105,15 +109,14 @@
                             <td class="balance paid">{{ $student->balance }}</td>
                             <td>{{ $student->attendance }}%</td>
                             <td>
-                                <a href="#"
-                                   class="btn-view text-blue-600 hover:underline"
-                                   onclick="openModal(this)"
-                                   data-id="{{ $student->id }}"
-                                   data-name="{{ $student->student_name }}"
-                                   data-belt="{{ $student->current_belt }}"
-                                   data-status="{{ $student->status }}">
-                                   View
-                                </a>
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                                        onclick="openModal(this)"
+                                        data-id="{{ $student->id }}"
+                                        data-name="{{ $student->student_name }}"
+                                        data-belt="{{ $student->current_belt }}"
+                                        data-status="{{ $student->status }}">
+                                    View
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -177,89 +180,7 @@
 </div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
-<script>
-function openModal(button) {
-    const modal = document.getElementById("studentModal");
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-
-    const studentId = button.getAttribute("data-id");
-    const name = button.getAttribute("data-name");
-    const belt = button.getAttribute("data-belt");
-    const status = button.getAttribute("data-status");
-
-    document.getElementById("profileTab").innerHTML = `
-        <p><strong>Profile Information</strong></p>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Belt:</strong> ${belt}</p>
-        <p><strong>Status:</strong> ${status}</p>
-    `;
-
-    modal.dataset.studentId = studentId;
-    loadAttendanceData(studentId);
-}
-
-function closeModal() {
-    const modal = document.getElementById("studentModal");
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-}
-
-function switchTab(button) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active", "border-b-2", "border-blue-600"));
-    button.classList.add("active", "border-b-2", "border-blue-600");
-
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
-    const tabName = button.dataset.tab + "Tab";
-    document.getElementById(tabName).classList.remove("hidden");
-
-    if (button.dataset.tab === 'attendance') {
-        const studentId = document.getElementById("studentModal").dataset.studentId;
-        loadAttendanceData(studentId);
-    }
-}
-
-async function loadAttendanceData(studentId) {
-    const tbody = document.getElementById("attendanceTableBody");
-    const noData = document.getElementById("noAttendanceData");
-    tbody.innerHTML = '';
-    noData.classList.add("hidden");
-
-    try {
-        const res = await fetch(`/api/students/${studentId}/attendance`);
-        const data = await res.json();
-
-        if (!data.length) {
-            noData.classList.remove("hidden");
-            document.getElementById("totalSessions").textContent = 0;
-            document.getElementById("presentCount").textContent = 0;
-            document.getElementById("absentCount").textContent = 0;
-            return;
-        }
-
-        let present = 0, absent = 0;
-        data.forEach(log => {
-            if (log.status === "present") present++; else if (log.status === "absent") absent++;
-
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${new Date(log.checkin_time).toLocaleDateString()}</td>
-                <td>${new Date(log.checkin_time).toLocaleTimeString()}</td>
-                <td>${log.checkout_time ? new Date(log.checkout_time).toLocaleTimeString() : '-'}</td>
-                <td>${log.status}</td>
-                <td>${log.method || 'Manual'}</td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        document.getElementById("totalSessions").textContent = data.length;
-        document.getElementById("presentCount").textContent = present;
-        document.getElementById("absentCount").textContent = absent;
-
-    } catch (err) {
-        console.error(err);
-    }
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+@vite('resources/js/student.js')
 </body>
 </html>

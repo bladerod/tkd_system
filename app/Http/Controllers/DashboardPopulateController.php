@@ -8,13 +8,14 @@ use App\Models\Student;
 use App\Models\StudentDisplay;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class DashboardPopulateController extends Controller
 {
     public function index()
     {   
 
-        $students = Student::select('id', 'student_name', 'student_code')
+        $students = StudentDisplay::select('id', 'student_name', 'student_code')
                     ->where('status', 'active')
                     ->get();
         $parents = User::where('role', 'parent')->get();
@@ -27,61 +28,41 @@ class DashboardPopulateController extends Controller
 
 
     public function store(Request $request)
-{
-    $validate = $request->validate([
-        'branch_id' => 'required|exists:branches,id',
-        'first_name' => 'required|string|max:100',
-        'last_name' => 'required|string|max:100',
-        'birthdate' => 'required|date',
-        'gender' => 'required|in:male,female,other',
-        'belt_level' => 'required',
-        'status' => 'required',
-        'medical_notes' => 'nullable|string',
-        'allergies' => 'nullable|string',
-        'contact_person' => 'required|string',
-        'contact_number' => 'required|string',
-        'primary_parent_id' => 'nullable',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:6',
-    ]);
+    {
+        $validate = $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'birthdate' => 'required|date',
+            'gender' => 'required|in:male,female,other',
+            'email' => 'required', 
+            'password' => 'required', 
+            'belt_level' => 'required',
+            'status' => 'required',
+            'medical_notes' => 'nullable|string',
+            'allergies' => 'nullable|string',
+            'contact_person' => 'required|string',
+            'contact_number' => 'required|string',
+            'primary_parent_id' => 'required|exists:users,id',
+        ]);
 
-   // Create user account
-$user = User::create([
-    'branch_id' => $validate['branch_id'],
-    'role' => 'student',
-    'fname' => $validate['first_name'],
-    'lname' => $validate['last_name'],
-    'email' => $validate['email'],
-    'username' => strtolower($validate['first_name']) . '.' . strtolower($validate['last_name']) . rand(100, 999),
-    'password' => \Illuminate\Support\Facades\Hash::make($validate['password']),
-    'status' => $validate['status'] === 'active' ? 'active' : 'inactive',
-]);
-
-// Create student record
-try {
-    \DB::table('students')->insert([
-        'user_id' => $user->id,
-        'branch_id' => $validate['branch_id'],
-        'student_code' => 'TKD-' . strtoupper(\Illuminate\Support\Str::random(5)),
-        'first_name' => $validate['first_name'],
-        'last_name' => $validate['last_name'],
-        'birthdate' => $validate['birthdate'],
-        'gender' => $validate['gender'],
-        'current_belt' => $validate['belt_level'],
-        'medical_notes' => $validate['medical_notes'] ?? null,
-        'allergies' => $validate['allergies'] ?? null,
-        'emergency_contact_name' => $validate['contact_person'],
-        'emergency_contact_mobile' => $validate['contact_number'],
-        'primary_parent_id' => $validate['primary_parent_id'] ?? null,
-        'join_date' => now(),
-        'status' => $validate['status'],
-        'created_at' => now(),
-    ]);
-} catch (\Exception $e) {
-    \Log::error('Student insert error: ' . $e->getMessage());
-    return redirect()->back()->with('error', 'Student created but profile failed: ' . $e->getMessage());
-}
+        Student::create([
+            'branch_id' => $validate['branch_id'],
+            'first_name' => $validate['first_name'],
+            'last_name' => $validate['last_name'],
+            'birthdate' => $validate['birthdate'],
+            'gender' => $validate['gender'],
+            'email' => $request->email,
+            'password' => Hash::make($request->password), 
+            'current_belt' => $validate['belt_level'],
+            'medical_notes' => $validate['medical_notes'],
+            'allergies' => $validate['allergies'],
+            'emergency_contact_name' => $validate['contact_person'],
+            'emergency_contact_mobile' => $validate['contact_number'],
+            'primary_parent_id' => $validate['primary_parent_id'],
+            'join_date' => now(),
+            'status' => $validate['status'],
+        ]);
 
 return redirect()->back()->with('success', 'Student successfuly added!');
-}
 }

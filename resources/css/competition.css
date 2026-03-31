@@ -1,42 +1,5 @@
-button{
-    cursor: pointer;
-}
-
-table th{
-    background-color: #1C1C1D;
-    font-size: 16px;
-    color: #fff;
-    text-align: center;
-}
-table th, table td{
-    padding: 8px 25px;
-
-}
-table td{
-    border-bottom: 1px solid #1c1c1d46;
-}
-table{
-    border-collapse: collapse;
-}
 
 
-
-.status {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-
-}
-
-.status.active {
-    background: #d1fae5;
-    color: #065f46;
-}
-.status.inactive {
-    background: #fee2e2;
-    color: #7f1d1d;
-}
 
 /* styling for datatables */
 .datatable-table {
@@ -57,6 +20,7 @@ table{
 }
 .datatable-table tbody td {
     white-space: nowrap !important;
+    border-bottom: 1px solid gray;
 }
 .datatable-top, .datatable-bottom {
     background-color: #ffffff !important;

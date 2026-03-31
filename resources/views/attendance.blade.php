@@ -54,8 +54,8 @@
                                         <h6 class="text-gray-800 font-semibold text-xl text-white text-center">Today's Log</h6>
                                     </div>
                                 </div>
-                                <div class="p-3">
-                                    <div class="flex justify-end gap-3 mb-6">
+                                <div class="">
+                                    <div class="flex justify-end gap-3 mb-6 p-3">
                                         <form action="{{ route('attendance.manual-override') }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="bg-[#f99b20] px-6 py-2.5 rounded-xl hover:bg-[#fcb85f] font-medium transition-colors">
@@ -75,7 +75,7 @@
                                         </a>
                                     </div>
                                     
-                                    <form method="GET" action="{{ route('attendance.index') }}" class="mb-6">
+                                    <form method="GET" action="{{ route('attendance.index') }}" class="mb-6 p-3">
                                         <div class="flex items-center gap-2 mb-4">
                                             <h1 class="font-semibold text-gray-700">Filter Options</h1>
                                         </div>
@@ -143,19 +143,19 @@
                                         </div>
                                     </form>
                                     
-                                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div class="bg-white shadow-sm border border-gray-100 overflow-hidden">
                                         <div class="overflow-x-auto">
                                             <table class="w-full text-sm">
                                                 <thead>
-                                                    <tr class="bg-gray-50 border-b border-gray-200">
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instructor</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camera</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match %</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <tr class="border-b border-gray-200 bg-[#1C1C1D] ">
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Time</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Student Name</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Class</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Instructor</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Camera</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Match %</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Method</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
                                                     </tr>
                                                 </thead>
                                                 
@@ -192,16 +192,12 @@
                                                             {{ optional($log->device)->device_name ?? 'N/A' }}
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="px-2 py-1 text-xs font-medium {{ ($log->confidence_score ?? 0) >= 90 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }} rounded-full">
+                                                            <span class="px-2 py-1 text-xs font-medium {{ ($log->confidence_score ?? 0) >= 90 ?? '' }} rounded-full">
                                                                 {{ $log->confidence_score ?? 'N/A' }}{{ $log->confidence_score ? '%' : '' }}
                                                             </span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="px-2 py-1 text-xs font-medium rounded-full
-                                                                @if($log->method == 'face') bg-blue-100 text-blue-800
-                                                                @elseif($log->method == 'qr') bg-purple-100 text-purple-800
-                                                                @else bg-gray-100 text-gray-800
-                                                                @endif">
+                                                            <span class="px-2 py-1 text-xs font-medium rounded-full">
                                                                 {{ ucfirst($log->method ?? 'manual') }}
                                                             </span>
                                                         </td>
@@ -210,12 +206,6 @@
                                                                 <span class="px-3 py-1 text-xs font-medium bg-green-500 text-white rounded-full">IN</span>
                                                             @else
                                                                 <span class="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded-full">OUT</span>
-                                                            @endif
-                                                            
-                                                            @if($log->status == 1)
-                                                                <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full" title="Valid Log">Valid</span>
-                                                            @elseif($log->status == 0)
-                                                                <span class="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-800 rounded-full" title="Invalid/Voided">Void</span>
                                                             @endif
                                                         </td>
                                                     </tr>

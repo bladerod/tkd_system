@@ -9,7 +9,6 @@ use App\Models\StudentDisplay;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DashboardPopulateController extends Controller
 {
@@ -59,7 +58,22 @@ class DashboardPopulateController extends Controller
             'status' => $validate['status'] === 'active' ? 1 : 0,
         ]);
 
-        $studentCode = 'TKD-' . strtoupper(Str::random(5));
+        $currentYear = date('y');
+
+        $lastStudent = Student::where('student_code', 'LIKE', $currentYear . '-%')
+                              ->orderBy('id', 'desc')
+                              ->first();
+
+        if ($lastStudent && $lastStudent->student_code) {
+            $lastSequence = (int) explode('-', $lastStudent->student_code)[1];
+            $newSequence = $lastSequence + 1;
+        } else {
+            $newSequence = 1;
+        }
+
+        $paddedSequence = str_pad($newSequence, 5, '0', STR_PAD_LEFT);
+
+        $studentCode = $currentYear . '-' . $paddedSequence;
 
         Student::create([
             'user_id' => $user->id,

@@ -31,6 +31,16 @@
                             {{ session('error') }}
                         </div>
                     @endif
+
+                    @if ($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            <ul class="list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <!-- Action Buttons -->
                     <div class="grid grid-cols-5 gap-4 mb-8">
                         <div>
@@ -486,8 +496,8 @@
                                         <option value="other">other</option>
                                     </select>
                                 </div>
-                                
                             </div>
+
                             {{-- email --}}
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>

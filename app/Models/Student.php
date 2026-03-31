@@ -19,9 +19,12 @@ class Student extends Model
     public $timestamps = false;
     public $primaryKey = 'id';
     protected $fillable = [
+        'user_id', 
         'branch_id',
+        'student_code', 
         'first_name',
         'last_name',
+        'middle_name',  
         'birthdate',
         'gender',
         'photo_url',
@@ -29,6 +32,7 @@ class Student extends Model
         'password',
         'current_belt',
         'join_date',
+        'status',       
         'medical_notes',
         'allergies',
         'emergency_contact_name',
@@ -92,16 +96,6 @@ class Student extends Model
     {
         return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
     }
-
-    // public function announcements()
-    // {
-    //     return $this->belongsToMany(ClassModel::class,'class_students','student_id','class_id');
-    // }
-
-    // public function auditLogs()
-    // {
-    //     return $this->hasMany(AuditLog::class);
-    // }
 
     public function certificates()
     {

@@ -86,7 +86,9 @@ class UserController extends Controller
     {
         // Get all users with their branches
         $users = User::with('branch')->get();
-        $users = User::where('role','admin')->get();
+        $users = User::where('role','admin')
+        ->where('status',1)
+        ->get();
         // Get all branches for the dropdown
         $branches = Branch::all();
         

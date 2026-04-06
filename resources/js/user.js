@@ -31,7 +31,10 @@ function initializePasswordToggles() {
 const ValidationRules = {
     mobile: {
         pattern: /^(09|\+639)\d{9}$/,
-        message: 'Enter a valid PH mobile (09XXXXXXXXX)'
+        message: 'Enter a valid PH mobile (09XXXXXXXXX)',
+        format: function(val) {
+            return val.replace(/[^0-9+]/g, ''); // Strips spaces and dashes
+        }
     },
     email: {
         pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -40,6 +43,17 @@ const ValidationRules = {
     name: {
         pattern: /^[A-Za-z\s\-]+$/,
         message: 'Letters, spaces, and hyphens only'
+    },
+    passwordStrength: function(val) {
+        let strength = 0;
+        if (val.length >= 8) strength += 25;
+        if (val.match(/[a-z]+/)) strength += 25;
+        if (val.match(/[A-Z]+/)) strength += 25;
+        if (val.match(/[0-9]+/)) strength += 25;
+        
+        if (strength < 50) return { strength: 33, level: 'Weak', color: 'bg-red-500' };
+        if (strength < 100) return { strength: 66, level: 'Medium', color: 'bg-yellow-500' };
+        return { strength: 100, level: 'Strong', color: 'bg-green-500' };
     }
 };
 
@@ -47,42 +61,42 @@ const ValidationRules = {
 function validateField(field) {
     const fieldName = field.name;
     const fieldValue = field.value.trim();
-    const errorElement = document.getElementById(`error_${fieldName}`);
-    const fieldGroup = field.closest('.form-group');
+    const formId = field.closest('form').id;
     
-    if (!errorElement) return true;
+    // Determine the correct error ID based on which form we are in
+    const prefix = formId === 'editUserForm' ? 'edit_' : '';
+    const errorElement = document.getElementById(`error_${prefix}${fieldName}`);
     
     let isValid = true;
     let errorMessage = '';
+    
+    // Skip validation for password in edit mode if it's empty (since it's optional)
+    if (formId === 'editUserForm' && fieldName === 'password' && !fieldValue) {
+        clearFieldError(field, errorElement);
+        return true;
+    }
     
     // Required field validation
     if (field.required && !fieldValue) {
         isValid = false;
         errorMessage = 'This field is required';
     } else if (fieldValue) {
-        // Field-specific validation
         switch (fieldName) {
             case 'mobile':
                 const cleaned = ValidationRules.mobile.format(fieldValue);
-                if (fieldValue !== cleaned) {
-                    field.value = cleaned; // Auto-format
-                }
+                if (fieldValue !== cleaned) field.value = cleaned;
+                
                 if (!ValidationRules.mobile.pattern.test(cleaned)) {
                     isValid = false;
                     errorMessage = ValidationRules.mobile.message;
-                } else if (cleaned.length < 11 || cleaned.length > 13) {
-                    isValid = false;
-                    errorMessage = 'Mobile number must be 11-13 digits';
                 }
                 break;
-                
             case 'email':
                 if (!ValidationRules.email.pattern.test(fieldValue)) {
                     isValid = false;
                     errorMessage = ValidationRules.email.message;
                 }
                 break;
-                
             case 'fname':
             case 'lname':
                 if (fieldValue.length < 2) {
@@ -93,13 +107,11 @@ function validateField(field) {
                     errorMessage = ValidationRules.name.message;
                 }
                 break;
-                
             case 'password':
                 if (fieldValue.length < 6) {
                     isValid = false;
                     errorMessage = 'Must be at least 6 characters';
                 } else {
-                    // Check password strength
                     const strength = ValidationRules.passwordStrength(fieldValue);
                     updatePasswordStrength(field, strength);
                 }
@@ -107,39 +119,31 @@ function validateField(field) {
         }
     }
     
-    // Update UI based on validation
     if (isValid) {
-        field.classList.remove('border-red-500');
-        field.classList.add('border-green-500');
-        errorElement.classList.add('hidden');
-        errorElement.textContent = '';
-        
-        // Hide validation hint if visible
-        const hint = fieldGroup.querySelector('.validation-hint');
-        if (hint) hint.classList.add('hidden');
+        clearFieldError(field, errorElement);
     } else {
-        showFieldError(field, errorMessage);
+        showFieldError(field, errorElement, errorMessage);
     }
     
     return isValid;
 }
 
-function showFieldError(field, message) {
-    const fieldName = field.name;
-    const errorElement = document.getElementById(`error_${fieldName}`);
-    const fieldGroup = field.closest('.form-group');
-    
-    field.classList.remove('border-green-500');
+function clearFieldError(field, errorElement) {
+    field.classList.remove('border-red-500');
+    field.classList.add('border-gray-300'); // Or border-green-500 if you want success borders
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+        errorElement.textContent = '';
+    }
+}
+
+function showFieldError(field, errorElement, message) {
+    field.classList.remove('border-gray-300', 'border-green-500');
     field.classList.add('border-red-500');
-    
     if (errorElement) {
         errorElement.textContent = message;
         errorElement.classList.remove('hidden');
     }
-    
-    // Show validation hint
-    const hint = fieldGroup.querySelector('.validation-hint');
-    if (hint) hint.classList.remove('hidden');
 }
 
 function updatePasswordStrength(field, strength) {
@@ -286,7 +290,6 @@ window.openEditUserModal = function(userId) {
             document.getElementById('edit_fname').value = user.fname || '';
             document.getElementById('edit_lname').value = user.lname || '';
             document.getElementById('edit_email').value = user.email || '';
-            document.getElementById('edit_status').value = user.status;
             
             // Fix: Use correct ID for mobile field
             const mobileField = document.getElementById('edit_mobile');
@@ -342,14 +345,7 @@ window.closeEditUserModal = function() {
     document.querySelectorAll('.eye-closed').forEach(icon => icon.classList.add('hidden'));
 }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const addModal = document.getElementById('addUserModal');
-    const editModal = document.getElementById('editUserModal');
-    
-    if (event.target === addModal) closeAddUserModal();
-    if (event.target === editModal) closeEditUserModal();
-}
+
 
 // Close modal with Escape key
 document.addEventListener('keydown', function(event) {
@@ -548,65 +544,62 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
 function initializeFormHandling() {
-    // Add form
+
     const addForm = document.getElementById('addUserForm');
     if (addForm) {
-        // Remove old listeners by cloning
         const newAddForm = addForm.cloneNode(true);
         addForm.parentNode.replaceChild(newAddForm, addForm);
         
-        // Add new submit handler
         newAddForm.addEventListener('submit', function(e) {
-            console.log('Add form submitted');
+            e.preventDefault(); 
             
-            // Show loading state
+  
+            if (!validateForm('addUserForm')) {
+                return false; 
+            }
+            
+           
             const submitBtn = document.getElementById('submitAddBtn');
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Adding...';
                 submitBtn.disabled = true;
             }
             
-            // Let the form submit normally
-            return true;
+            this.submit(); 
         });
     }
     
-    // Edit form
     const editForm = document.getElementById('editUserForm');
     if (editForm) {
-        // Remove old listeners by cloning
         const newEditForm = editForm.cloneNode(true);
         editForm.parentNode.replaceChild(newEditForm, editForm);
         
-        // Add new submit handler
         newEditForm.addEventListener('submit', function(e) {
-            console.log('Edit form submitted');
-            console.log('Form action:', this.action);
+            e.preventDefault(); 
             
-            // Show loading state
+            if (!validateForm('editUserForm')) {
+                return false; 
+            }
+            
             const submitBtn = document.getElementById('submitEditBtn');
             if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Updating...';
                 submitBtn.disabled = true;
             }
             
-            // Let the form submit normally
-            return true;
+            this.submit(); 
         });
     }
     
-    // Initialize password toggles again for new forms
     initializePasswordToggles();
+
+    document.querySelectorAll('#addUserForm input, #addUserForm select, #editUserForm input, #editUserForm select').forEach(field => {
+        field.addEventListener('input', function() {
+            validateField(this);
+        });
+    });
 }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const addModal = document.getElementById('addUserModal');
-    const editModal = document.getElementById('editUserModal');
-    
-    if (event.target === addModal) closeAddUserModal();
-    if (event.target === editModal) closeEditUserModal();
-}
 
 // Close modal with Escape key
 document.addEventListener('keydown', function(event) {
@@ -617,4 +610,42 @@ document.addEventListener('keydown', function(event) {
     
     if (addModal && !addModal.classList.contains('hidden')) closeAddUserModal();
     if (editModal && !editModal.classList.contains('hidden')) closeEditUserModal();
+});
+
+
+let isMouseDownInsideModal = false;
+
+document.addEventListener('mousedown', function(event) {
+    const addModalPanel = document.querySelector('#addUserModal .bg-white');
+    const editModalPanel = document.querySelector('#editUserModal .bg-white');
+    
+    if ((addModalPanel && addModalPanel.contains(event.target)) || 
+        (editModalPanel && editModalPanel.contains(event.target))) {
+        isMouseDownInsideModal = true;
+    } else {
+        isMouseDownInsideModal = false;
+    }
+});
+
+document.addEventListener('mouseup', function(event) {
+    const addModal = document.getElementById('addUserModal');
+    const editModal = document.getElementById('editUserModal');
+    
+    const addModalPanel = document.querySelector('#addUserModal .bg-white');
+    const editModalPanel = document.querySelector('#editUserModal .bg-white');
+    
+    if (addModal && !addModal.classList.contains('hidden')) {
+        if (addModalPanel && !addModalPanel.contains(event.target) && !isMouseDownInsideModal) {
+            closeAddUserModal();
+        }
+    }
+    
+    if (editModal && !editModal.classList.contains('hidden')) {
+        // If they let go outside the white box AND they didn't start clicking inside it
+        if (editModalPanel && !editModalPanel.contains(event.target) && !isMouseDownInsideModal) {
+            closeEditUserModal();
+        }
+    }
+    
+    isMouseDownInsideModal = false;
 });

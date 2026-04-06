@@ -262,8 +262,7 @@
                                     value="{{ old('mobile') }}"
                                     required 
                                     placeholder="09XXXXXXXXX"
-                                    maxlength="13"
-                                    minlength="11"
+                                    maxlength="11"
                                     pattern="^(09|\+639)\d{9}$"
                                     title="Please enter a valid Philippine mobile number (11-13 digits starting with 09 or +639)"
                                     class="w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] @error('mobile') border-red-500 @enderror">
@@ -439,7 +438,7 @@
                         </div>
 
                         <!-- photo_url -->
-                        <div class=" form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">New Profile Photo</label>
                             <input type="file" 
                                 name="photo_url" 
@@ -450,7 +449,7 @@
                             <p class="text-xs text-gray-500 mt-1">PNG, JPEG, JPG only (max 2MB)</p>
                         </div>
 
-                        <!-- status -->
+                        {{-- <!-- status -->
                         <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
                             <select name="status" id="edit_status" required 
@@ -458,7 +457,7 @@
                                 <option value="1">Active</option>
                                 <option value="0">Inactive / Deactivated</option>
                             </select>
-                        </div>
+                        </div> --}}
                     </div>
 
                     <!-- Modal Footer -->

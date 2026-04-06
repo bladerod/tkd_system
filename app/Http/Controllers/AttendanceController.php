@@ -58,7 +58,7 @@ class AttendanceController extends Controller
         }
 
         // Get attendance logs with pagination
-        $attendanceLogs = AttendanceLog::all();
+        $attendanceLogs = AttendanceLog::orderBy('id','desc')->get();
 
         // // Get filter data for dropdowns
         // $classes = Classes::where('status', 'active')->get();

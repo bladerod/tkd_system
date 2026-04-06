@@ -78,7 +78,7 @@ class DashboardPopulateController extends Controller
         Student::create([
             'user_id' => $user->id,
             'branch_id' => $validate['branch_id'],
-            'student_code' => $studentCode, // <-- Added student code
+            'student_code' => $studentCode, 
             'first_name' => $validate['first_name'],
             'last_name' => $validate['last_name'],
             'middle_name' => $validate['middle_name'] ?? null,

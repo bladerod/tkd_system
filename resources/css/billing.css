@@ -1,3 +1,7 @@
+thead{
+    background-color: #1c1c1d;
+}
+
 /* DataTable custom styling */
 .datatable-table {
     width: 100% !important;

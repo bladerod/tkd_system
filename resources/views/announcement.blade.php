@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova - Announcements</title>
+    <title>TrainNova | Announcements</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -60,7 +60,7 @@
                                 
                                 <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <!-- Create Button -->
-                                    <div class="flex justify-end p-6">
+                                    <div class="flex justify-end pt-6 pe-6">
                                         <button onclick="openAddAnnouncementModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Create Announcement

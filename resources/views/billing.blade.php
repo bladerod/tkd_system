@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>TrainNova - Billing</title>
+    <title>TrainNova | Billing</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -53,26 +53,26 @@
                                             <h6 class="text-gray-800 font-semibold text-xl text-white text-center">Invoices Log</h6>
                                         </div>
                                     </div>
-                                    <div class="flex justify-end p-3">
+                                    {{-- <div class="flex justify-end p-3">
                                         <button onclick="openPaymentModal()" class="bg-[#63ad35] p-3 rounded-xl hover:bg-[#71c93e] font-medium text-white">
                                             Record Payment
                                         </button>
-                                    </div>
+                                    </div> --}}
                                     <!-- Table Section -->
-                                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-5">
+                                    <div class="bg-white rounded-b-xl shadow-sm border border-gray-100 overflow-hidden">
                                         <!-- Table -->
                                         <div class="overflow-x-auto">
                                             <table id="invoiceTable" class="min-w-full divide-y divide-gray-200">
                                                 <!-- Table Head -->
                                                 <thead class="bg-gray-50">
                                                     <tr>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice#</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parent</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Invoice#</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Student Name</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Parent</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Amount</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Due</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Action</th>
                                                     </tr>
                                                 </thead>
                                                 

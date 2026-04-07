@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Students</title>
+    <title>TrainNova | Students</title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/attendance.css'])

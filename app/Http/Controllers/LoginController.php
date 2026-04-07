@@ -40,7 +40,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             
             // 3. Keep your existing Admin-only check
-            if (Auth::user()->role !== 'admin') {
+            if (!in_array(Auth::user()->role, ['admin', 'staff'])){
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();

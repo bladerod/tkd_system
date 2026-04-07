@@ -3,6 +3,11 @@
 @section('title', 'Class Management - TKD CMS')
 
 @section('content')
+@php
+    $canCreateClass = auth()->user()->canCreate('classes');
+    $canEditUser = auth()->user()->canEdit('classes');
+    $canDeleteUser = auth()->user()->canDelete('classes');
+@endphp
 <div class="container-fluid">
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
@@ -14,8 +19,12 @@
             </nav>
             <h1 class="text-3xl font-bold text-gray-800">Class Management</h1>
         </div>
-        <button type="button" onclick="openAddClassModal()" 
-                class="bg-[#1c1c1d] hover:bg-[#3d3d3f] cursor-pointer text-white px-5 py-2.5 rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-sm">
+        
+        <button type="button" 
+            {{-- Only attach the click event if they have permission --}}
+            @if($canCreateClass) onclick="openAddClassModal()" @endif
+            
+            class="bg-[#1c1c1d] hover:bg-[#3d3d3f] cursor-pointer text-white px-5 py-2.5  @if(!$canCreateClass) hidden @endif rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-sm">
             <i class="fas fa-plus"></i>
             <span>Add New Class</span>
         </button>
@@ -184,13 +193,30 @@
                         <i class="fas fa-eye"></i>
                         <span>View</span>
                     </button>
-                    <button onclick="editClass({{ $class->id }})" 
-                            class="flex-1 px-3 py-2 cursor-pointer text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
+                    <button 
+                        @if ($canEditUser)
+                            onclick="editClass({{ $class->id }})" 
+                        @endif
+                        class="flex-1 px-3 py-2 cursor-pointer text-sm text-green-600 hover:text-green-700 
+                        @if (!$canEditUser)
+                            hidden
+                        @endif
+                        hover:bg-green-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
+
+                        
+                   
                         <i class="fas fa-edit"></i>
                         <span>Edit</span>
                     </button>
-                    <button onclick="deleteClass({{ $class->id }}, '{{ addslashes($class->class_name) }}')" 
-                            class="flex-1 px-3 py-2 cursor-pointer text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
+                    <button 
+                        @if ($canDeleteUser)
+                            onclick="deleteClass({{ $class->id }}, '{{ addslashes($class->class_name) }}')" 
+                        @endif
+                        class="flex-1 px-3 py-2 cursor-pointer text-sm text-red-600 hover:text-red-700 
+                        @if (!$canDeleteUser)
+                            hidden
+                        @endif
+                        hover:bg-red-50 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1">
                         <i class="fas fa-trash"></i>
                         <span>Delete</span>
                     </button>

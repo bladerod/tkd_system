@@ -57,29 +57,12 @@ class User extends Authenticatable
         return $this->hasMany(Announcement::class, 'created_by_user_id');
     }
 
-    // public function auditLogs()
-    // {
-    //     return $this->hasMany(AuditLog::class);
-    // }
-
-    // public function certificates()
-    // {
-    //     return $this->hasMany(Certificate::class, 'issued_by_user_id');
-    // }
     /**
      * Check if user is an admin.
      */
     public function isAdmin()
     {
         return $this->role === 'admin';
-    }
-
-    /**
-     * Check if user is an instructor.
-     */
-    public function isInstructor()
-    {
-        return $this->role === 'instructor';
     }
 
     /**
@@ -90,13 +73,54 @@ class User extends Authenticatable
         return $this->role === 'staff';
     }
 
-    /**
-     * Check if user is a parent.
-     */
-    public function isParent()
+
+     // Check if user has any role (admin or staff only)
+    public function hasSystemAccess(): bool
     {
-        return $this->role === 'parent';
+        return in_array($this->role, ['admin', 'staff']);
     }
 
+    // Get role permissions from database
+    public function getPermissionsAttribute()
+    {
+        return RolePermission::where('role', $this->role)->get();
+    }
+
+    // Check specific permission
+    public function canView($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_view : false;
+    }
+
+    public function canCreate($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_create : false;
+    }
+
+    public function canEdit($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_edit : false;
+    }
+
+    public function canDelete($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_delete : false;
+    }
     
 }

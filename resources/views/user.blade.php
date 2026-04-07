@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova</title>
+    <title>TrainNova | User Management</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -449,15 +449,15 @@
                             <p class="text-xs text-gray-500 mt-1">PNG, JPEG, JPG only (max 2MB)</p>
                         </div>
 
-                        {{-- <!-- status -->
-                        <div class="form-group">
+                        <!-- status -->
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
                             <select name="status" id="edit_status" required 
                                 class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="1">Active</option>
                                 <option value="0">Inactive / Deactivated</option>
                             </select>
-                        </div> --}}
+                        </div>
                     </div>
 
                     <!-- Modal Footer -->

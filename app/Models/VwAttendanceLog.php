@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceLog extends Model
+class VwAttendanceLog extends Model
 {
-    protected $table = 'attendance_logs';
+    protected $table = 'vwattendancelog';
 
     protected $fillable = [
         'student_code',

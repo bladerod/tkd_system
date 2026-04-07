@@ -1,0 +1,11 @@
+ input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+label {
+    cursor: pointer;
+}
+.fa-check-circle {
+    font-size: 18px;
+}

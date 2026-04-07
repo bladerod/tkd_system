@@ -542,4 +542,6 @@ function initializeParentDataTable() {
             console.error('Parent DataTable initialization failed:', error);
         }
     }
-}
+};
+
+console.log("tang ina mo");

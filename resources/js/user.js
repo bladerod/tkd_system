@@ -272,9 +272,9 @@ function handlePasswordToggle(e) {
 
 // Edit user functions
 window.openEditUserModal = function(userId) {
-    console.log('Opening edit modal for user ID:', userId);
+    // console.log('Opening edit modal for user ID:', userId);
     
-    fetch(`/users/${userId}`)
+    fetch(`/settings/user/${userId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -282,7 +282,7 @@ window.openEditUserModal = function(userId) {
             return response.json();
         })
         .then(user => {
-            console.log('User data received:', user);
+            // console.log('User data received:', user);
             
             // Populate form fields
             document.getElementById('edit_branch_id').value = user.branch_id || '';
@@ -299,9 +299,9 @@ window.openEditUserModal = function(userId) {
             
             // Set form action URL - use user.id
             const editForm = document.getElementById('editUserForm');
-            editForm.action = `/users/${user.id}`;
+            editForm.action = `/settings/user/${user.id}`;
             
-            console.log('Form action set to:', editForm.action);
+            // console.log('Form action set to:', editForm.action);
             
             // Show modal
             document.getElementById('editUserModal').classList.remove('hidden');
@@ -389,7 +389,7 @@ function handleDeleteClick(e) {
         
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/users/${userId}`;
+        form.action = `/settings/user/${userId}`;
         form.style.display = 'none';
         
         const csrfToken = document.createElement('input');
@@ -434,7 +434,7 @@ function handleTableClick(e) {
     if (editButton) {
         e.preventDefault();
         const userId = editButton.getAttribute('data-user-id');
-        console.log('Edit button clicked via delegation, user ID:', userId);
+        // console.log('Edit button clicked via delegation, user ID:', userId);
         if (userId) {
             openEditUserModal(userId);
         }
@@ -462,7 +462,7 @@ function handleTableClick(e) {
             
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/users/${userId}`;
+            form.action = `/settings/user/${userId}`;
             form.style.display = 'none';
             
             const csrfToken = document.createElement('input');

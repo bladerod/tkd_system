@@ -33,206 +33,187 @@ Route::middleware(['guest'])->group(function () {
 });
 
 // Auth routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
 
-    Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->name('dashboard.index');
-    Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->name('dashboard.student.store');
-    Route::post('/dashboard/parent',[ParentsController::class,'store'])->name('parent.store');
-
+    Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->middleware('permission:dashboard,view')->name('dashboard.index');
+    Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->middleware('permission:students,create')->name('dashboard.student.store');
+    Route::post('/dashboard/parent',[ParentsController::class,'store'])->middleware('permission:parents,create')->name('parent.store');
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // USER MANAGEMENT
-    Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
-    Route::post('/settings/user', [UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
-    Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-
     // ANNOUNCEMENTS
-    Route::get('/announcement', [AnnouncementController::class, 'index'])->name('announcements.index');
-    Route::post('/announcement', [AnnouncementController::class, 'store'])->name('announcements.store');
-    Route::get('/announcement/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
-    Route::put('/announcement/{id}', [AnnouncementController::class, 'update'])->name('announcements.update');
-    Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-
+    Route::get('/announcement', [AnnouncementController::class, 'index'])->middleware('permission:announcements,view')->name('announcements.index');
+    Route::post('/announcement', [AnnouncementController::class, 'store'])->middleware('permission:announcements,create')->name('announcements.store');
+    Route::get('/announcement/{id}', [AnnouncementController::class, 'show'])->middleware('permission:announcements,view')->name('announcements.show');
+    Route::put('/announcement/{id}', [AnnouncementController::class, 'update'])->middleware('permission:announcements,edit')->name('announcements.update');
+    Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->middleware('permission:announcements,delete')->name('announcements.destroy');
+    
     // PARENTS
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
-    })->name('parent');
+    })->middleware('permission:parents,view')->name('parent');
 
     // ATTENDANCE
-    Route::prefix('attendance')->name('attendance.')->group(function () {
-        Route::get('/', [AttendanceController::class, 'index'])->name('index');
-        Route::post('/manual-override', [AttendanceController::class, 'manualOverride'])->name('manual-override');
-        Route::post('/add-manual', [AttendanceController::class, 'addManual'])->name('add-manual');
-        Route::get('/export', [AttendanceController::class, 'exportCsv'])->name('export');
+    Route::get('/attendance', [AttendanceController::class, 'index'])->middleware('permission:attendance,view')->name('attendance.index');
+    Route::post('/attendance/add-manual', [AttendanceController::class, 'addManual'])->middleware('permission:attendance,create')->name('attendance.add-manual');
+    Route::post('/attendance/manual-override', [AttendanceController::class, 'manualOverride'])->middleware('permission:attendance,edit')->name('attendance.manual-override');
+    Route::get('/attendance/export', [AttendanceController::class, 'exportCsv'])->middleware('permission:attendance,view')->name('attendance.export');
+    
+    // STUDENTS 
+    Route::post('/student', [StudentController::class,'store'])->middleware('permission:students,create')->name('student.store');
+
+    // Student Tabs
+    Route::prefix('students/{student}')->middleware('permission:students,view')->group(function () {
+        Route::get('/profile', [StudentController::class, 'profile']);
+        Route::get('/attendance', [StudentController::class, 'attendance']);
+        Route::get('/billing', [StudentController::class, 'billing']);
+        Route::get('/competition', [StudentController::class, 'competition']);
+        Route::get('/certificates', [StudentController::class, 'certificates']);
+        Route::get('/progress', [StudentController::class, 'progress']);
+        Route::get('/chat', [StudentController::class, 'chat']);
     });
-
-    // STUDENTS - Main fix here!
-    Route::post('/student', [StudentController::class,'store'])->name('student.store');
-
-    Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
-    Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
-    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
-    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
-    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
-    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
     // CHAT
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-    Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
-    Route::post('/chat/{id}/send', [ChatController::class, 'send'])->name('chat.send');
-
-    // OTHER PAGES
-
-
-    Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
-    Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
-    Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->name('instructor.update');
-    Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->name('instructor.delete');
-
+    Route::get('/chat', [ChatController::class, 'index'])->middleware('permission:chat,view')->name('chat.index');
+    Route::get('/chat/{id}', [ChatController::class, 'show'])->middleware('permission:chat,view')->name('chat.show');
+    Route::post('/chat/{id}/send', [ChatController::class, 'send'])->middleware('permission:chat,create')->name('chat.send');
+   
+    // INSTRUCTORS
+    Route::get('/instructor', [InstructorController::class, 'index'])->middleware('permission:instructors,view')->name('instructor.index');
+    Route::post('/instructor/store', [InstructorController::class, 'store'])->middleware('permission:instructors,create')->name('instructor.store');
+    Route::post('/instructor/update/{id}', [InstructorController::class, 'update'])->middleware('permission:instructors,edit')->name('instructor.update');
+    Route::delete('/instructor/delete/{id}', [InstructorController::class, 'destroy'])->middleware('permission:instructors,delete')->name('instructor.delete');
+    
     // COMPETITION MANAGEMENT
     Route::prefix('competition')->name('competition.')->group(function () {
-        Route::get('/', [CompetitionController::class, 'index'])->name('index');
-        Route::post('/store', [CompetitionController::class, 'store'])->name('store');
-        
-        // The endpoint for the View page
-        Route::get('/{id}', [CompetitionController::class, 'show'])->name('show');
-        
-        // The NEW endpoint for the Edit modal
-        Route::get('/{id}/json', [CompetitionController::class, 'getCompetitionJson'])->name('json');
-        
-        Route::put('/{id}', [CompetitionController::class, 'update'])->name('update');
-        Route::delete('/{id}', [CompetitionController::class, 'destroy'])->name('delete');
+        Route::get('/', [CompetitionController::class, 'index'])->middleware('permission:competitions,view')->name('index');
+        Route::post('/store', [CompetitionController::class, 'store'])->middleware('permission:competitions,create')->name('store');
+        Route::get('/{id}', [CompetitionController::class, 'show'])->middleware('permission:competitions,view')->name('show');
+        Route::get('/{id}/json', [CompetitionController::class, 'getCompetitionJson'])->middleware('permission:competitions,view')->name('json');
+        Route::put('/{id}', [CompetitionController::class, 'update'])->middleware('permission:competitions,edit')->name('update');
+        Route::delete('/{id}', [CompetitionController::class, 'destroy'])->middleware('permission:competitions,delete')->name('delete');
         
         // Competition Entry Routes
-        Route::get('/{competitionId}/entries/create', [CompetitionController::class, 'addEntryForm'])->name('entries.create');
-        Route::post('/{competitionId}/entries', [CompetitionController::class, 'storeEntry'])->name('entries.store');
-        Route::get('/{competitionId}/entries/{entryId}/edit', [CompetitionController::class, 'editEntry'])->name('entries.edit');
-        Route::put('/{competitionId}/entries/{entryId}', [CompetitionController::class, 'updateEntry'])->name('entries.update');
-        Route::delete('/{competitionId}/entries/{entryId}', [CompetitionController::class, 'destroyEntry'])->name('entries.destroy');
-        Route::get('/{competitionId}/entries/{entryId}/json', [CompetitionController::class, 'getEntryJson'])->name('entries.json');
+        Route::get('/{competitionId}/entries/create', [CompetitionController::class, 'addEntryForm'])->middleware('permission:competitions,create')->name('entries.create');
+        Route::post('/{competitionId}/entries', [CompetitionController::class, 'storeEntry'])->middleware('permission:competitions,create')->name('entries.store');
+        Route::get('/{competitionId}/entries/{entryId}/edit', [CompetitionController::class, 'editEntry'])->middleware('permission:competitions,edit')->name('entries.edit');
+        Route::put('/{competitionId}/entries/{entryId}', [CompetitionController::class, 'updateEntry'])->middleware('permission:competitions,edit')->name('entries.update');
+        Route::delete('/{competitionId}/entries/{entryId}', [CompetitionController::class, 'destroyEntry'])->middleware('permission:competitions,delete')->name('entries.destroy');
+        Route::get('/{competitionId}/entries/{entryId}/json', [CompetitionController::class, 'getEntryJson'])->middleware('permission:competitions,view')->name('entries.json');
     });
 
-    // Class Management Routes
+    // CLASS MANAGEMENT
     Route::prefix('classes')->name('classes.')->group(function () {
-        Route::get('/', [ClassController::class, 'index'])->name('index');
-        Route::post('/', [ClassController::class, 'store'])->name('store');
-        Route::get('/{id}', [ClassController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [ClassController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [ClassController::class, 'update'])->name('update');
-        Route::delete('/{id}', [ClassController::class, 'destroy'])->name('destroy');
-        Route::get('/{id}/available-students', [ClassController::class, 'getAvailableStudents'])->name('available-students');
-        Route::post('/{id}/enroll', [ClassController::class, 'enrollStudent'])->name('enroll');
-        Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudent'])->name('remove-student');
-        Route::get('/export/csv', [ClassController::class, 'exportCsv'])->name('export');
-
+        Route::get('/', [ClassController::class, 'index'])->middleware('permission:classes,view')->name('index');
+        Route::post('/', [ClassController::class, 'store'])->middleware('permission:classes,create')->name('store');
+        Route::get('/{id}', [ClassController::class, 'show'])->middleware('permission:classes,view')->name('show');
+        Route::get('/{id}/edit', [ClassController::class, 'edit'])->middleware('permission:classes,edit')->name('edit');
+        Route::put('/{id}', [ClassController::class, 'update'])->middleware('permission:classes,edit')->name('update');
+        Route::delete('/{id}', [ClassController::class, 'destroy'])->middleware('permission:classes,delete')->name('destroy');
+        Route::get('/{id}/available-students', [ClassController::class, 'getAvailableStudents'])->middleware('permission:classes,view')->name('available-students');
+        Route::post('/{id}/enroll', [ClassController::class, 'enrollStudent'])->middleware('permission:classes,create')->name('enroll');
+        Route::delete('/{classId}/students/{studentId}', [ClassController::class, 'removeStudent'])->middleware('permission:classes,delete')->name('remove-student');
+        Route::get('/export/csv', [ClassController::class, 'exportCsv'])->middleware('permission:classes,view')->name('export');
     });
-    // 
 
-    // Billing Routes
+    // BILLING
     Route::prefix('billing')->name('billing.')->group(function () {
-        Route::get('/', [InvoiceController::class, 'index'])->name('index');
-        Route::post('/generate-monthly', [InvoiceController::class, 'generateMonthlyInvoices'])->name('generate-monthly');
-        Route::post('/mark-overdue', [InvoiceController::class, 'markOverdueInvoices'])->name('mark-overdue');
-        Route::post('/{invoiceId}/payment', [InvoiceController::class, 'processPayment'])->name('payment');
-        Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->name('reminder');
-        Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->name('receipt');
+        Route::get('/', [InvoiceController::class, 'index'])->middleware('permission:billing,view')->name('index');
+        Route::post('/generate-monthly', [InvoiceController::class, 'generateMonthlyInvoices'])->middleware('permission:billing,create')->name('generate-monthly');
+        Route::post('/mark-overdue', [InvoiceController::class, 'markOverdueInvoices'])->middleware('permission:billing,edit')->name('mark-overdue');
+        Route::post('/{invoiceId}/payment', [InvoiceController::class, 'processPayment'])->middleware('permission:billing,edit')->name('payment');
+        Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->middleware('permission:billing,view')->name('reminder');
+        Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->middleware('permission:billing,view')->name('receipt');
     });
-    // 
+
+    
+   // BRANCHES
+    Route::post('/branch/check', [BranchController::class, 'checkField'])->middleware('permission:branches,view')->name('branch.check');
+    Route::get('/branch', [BranchController::class,'index'])->middleware('permission:branches,view')->name('branch');
+    Route::post('/branch/store', [BranchController::class,'store'])->middleware('permission:branches,create')->name('branch.store');
+    Route::post('/branch/update/{id}', [BranchController::class,'update'])->middleware('permission:branches,edit')->name('branch.update');
+    Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->middleware('permission:branches,delete')->name('branch.delete');
+    
+    // REPORTS
+    Route::prefix('reports')->middleware('permission:reports,view')->group(function () {
+        Route::get('/attendance', [ReportController::class, 'attendance'])->name('reports.attendance');
+        Route::get('/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
+        Route::get('/billing', [ReportController::class, 'billing'])->name('reports.billing');
+        Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
+    });
+
+    Route::get('/student', function () {
+        $beltlevels = BeltLevel::all();
+        $users = User::all();
+        $classes = Classes::all();
+        
+        // CHANGE THIS: Use the DB facade to pull from the view
+        $vwstudents = DB::table('student_overview')->select(
+            'id',
+            'student_name',
+            'current_belt',
+            'status',
+            'parent_name',
+            'balance',
+            'attendance'
+        )->get();
+
+        return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
+    })->name('student');
+
+    // CERTIFICATES
+    Route::get('/certificates', [CertificateController::class, 'index'])->middleware('permission:certificates,view')->name('certificates.index');
+    Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->middleware('permission:certificates,view')->name('certificates.download');
+    Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->middleware('permission:certificates,view')->name('certificates.print');
+    Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->middleware('permission:certificates,view')->name('certificates.verify');
+    
 
     // SETTINGS
-    //For User settings
-    Route::get('/settings/user', [UserController::class, 'index'])->name('users.index');
+    Route::prefix('settings')->group(function () {
 
-    //Billing Rules
-    Route::get('/settings/billing-rules', [BillingRulesController::class, 'index']);
-    Route::post('/settings/billing-rules', [BillingRulesController::class, 'update']);
-    //
+        // User Management
+        Route::prefix('user')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->middleware('permission:users,view')->name('index');
+            Route::post('/', [UserController::class, 'store'])->middleware('permission:users,create')->name('store');
+            Route::get('/{id}', [UserController::class, 'show'])->middleware('permission:users,view')->name('show');
+            Route::get('/{id}/edit', [UserController::class, 'edit'])->middleware('permission:users,edit')->name('edit');
+            Route::put('/{id}', [UserController::class, 'update'])->middleware('permission:users,edit')->name('update');
+            Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users,delete')->name('destroy');
+        });
 
-    // For Club Profile
-    Route::get('/settings/club-profile', [ClubProfileController::class, 'index'])->name('settings.club-profile');
-    Route::post('/settings/club-profile/update', [ClubProfileController::class, 'update'])->name('settings.club-profile.update');
-    //
+    // Billing Rules
+    Route::get('/billing-rules', [BillingRulesController::class, 'index'])->middleware('permission:settings,view');
+    Route::post('/billing-rules', [BillingRulesController::class, 'update'])->middleware('permission:settings,edit');
 
-    // For settings Branding
-    Route::get('/settings/branding', [BrandingController::class, 'index'])->name('settings.branding');
-    Route::post('/settings/branding/update', [BrandingController::class, 'update'])->name('settings.branding.update');
-    //
+    // Club Profile
+    Route::get('/club-profile', [ClubProfileController::class, 'index'])->middleware('permission:settings,view')->name('settings.club-profile');
+    Route::post('/club-profile/update', [ClubProfileController::class, 'update'])->middleware('permission:settings,edit')->name('settings.club-profile.update');
 
-    Route::get('/settings/branding-rules', function () {
-        return view('brandingrules');
+    // Branding
+    Route::get('/branding', [BrandingController::class, 'index'])->middleware('permission:settings,view')->name('settings.branding');
+    Route::post('/branding/update', [BrandingController::class, 'update'])->middleware('permission:settings,edit')->name('settings.branding.update');
+    Route::get('/branding-rules', function () { return view('brandingrules'); })->middleware('permission:settings,view');
+
+    // Discounts
+    Route::get('/discounts', [DiscountController::class, 'index'])->middleware('permission:settings,view')->name('discounts.index');
+    Route::post('/discounts',[DiscountController::class,'store'])->middleware('permission:settings,create')->name('discounts.store');
+    Route::get('/discounts/{id}', [DiscountController::class, 'show'])->middleware('permission:settings,view')->name('discounts.show');
+    Route::put('/discounts/{id}', [DiscountController::class, 'update'])->middleware('permission:settings,edit')->name('discounts.update');
+    Route::delete('/discounts/{id}', [DiscountController::class, 'destroy'])->middleware('permission:settings,delete')->name('discounts.destroy');
+
+    // Roles and Permissions
+    Route::prefix('roles-and-permissions')->name('settings.roles-permissions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\RolePermissionController::class, 'index'])->middleware('permission:settings,view')->name('index');
+        Route::put('/', [\App\Http\Controllers\RolePermissionController::class, 'update'])->middleware('permission:settings,edit')->name('update');
+        Route::post('/reset', [\App\Http\Controllers\RolePermissionController::class, 'reset'])->middleware('permission:settings,edit')->name('reset');
     });
 
-    // DISCOUNTS
-    Route::get('/settings/discounts', [DiscountController::class, 'index'])->name('discounts.index');
-    Route::post('/settings/discounts',[DiscountController::class,'store'])->name('discounts.store');
-    Route::get('/settings/discounts', [DiscountController::class, 'index'])->name('discounts.index');
-    Route::get('/discounts/{id}', [DiscountController::class, 'show'])->name('discounts.show');
-    Route::put('/discounts/{id}', [DiscountController::class, 'update'])->name('discounts.update');
-    Route::delete('/discounts/{id}', [DiscountController::class, 'destroy'])->name('discounts.destroy');
-    //
-
-    Route::get('/settings/roles-and-permissions', function () {
-        return view('rolespermission');
-    });
-    Route::get('/settings/device', function () {
-        return view('device');
-    });
-    Route::get('/settings/integration', function () {
-        return view('integration');
-    });
-
-
-    Route::post('/branch/check', [BranchController::class, 'checkField'])->name('branch.check');
-    Route::get('/branch', [BranchController::class,'index'])->name('branch');
-    Route::post('/branch/store', [BranchController::class,'store'])->name('branch.store');
-    Route::post('/branch/update/{id}', [BranchController::class,'update'])->name('branch.update');
-    Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->name('branch.delete');
-
-
-
-
-
-Route::prefix('reports')->group(function () {
-    Route::get('/attendance', [ReportController::class, 'attendance'])->name('reports.attendance');
-    Route::get('/revenue', [ReportController::class, 'revenue'])->name('reports.revenue');
-    Route::get('/billing', [ReportController::class, 'billing'])->name('reports.billing');
-    Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
+    Route::get('/device', function () { return view('device'); })->middleware('permission:settings,view');
+    Route::get('/integration', function () { return view('integration'); })->middleware('permission:settings,view');
 });
 
-// Don't forget to import DB at the top of web.php if it's not there:
-// use Illuminate\Support\Facades\DB;
-
-Route::get('/student', function () {
-    $beltlevels = BeltLevel::all();
-    $users = User::all();
-    $classes = Classes::all();
-    
-    // CHANGE THIS: Use the DB facade to pull from the view
-    $vwstudents = DB::table('student_overview')->select(
-        'id',
-        'student_name',
-        'current_belt',
-        'status',
-        'parent_name',
-        'balance',
-        'attendance'
-    )->get();
-
-    return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
-})->name('student');
-
-    Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
-    Route::get('/certificates/{id}/download', [CertificateController::class, 'download'])->name('certificates.download');
-    Route::get('/certificates/{id}/print', [CertificateController::class, 'print'])->name('certificates.print');
-    Route::get('/certificates/verify/{qrCode}', [CertificateController::class, 'verify'])->name('certificates.verify');
-
-    // USERNAME CHECK (for user management)
+    // USERNAME CHECK
     Route::get('/check-username', function (Request $request) {
         $username = $request->query('username');
         $userId = $request->query('user_id');
@@ -241,5 +222,5 @@ Route::get('/student', function () {
             $query->where('user_id', '!=', $userId);
         }
         return response()->json(['available' => !$query->exists()]);
-    })->name('check.username');
+    })->middleware('permission:users,view')->name('check.username');
 });

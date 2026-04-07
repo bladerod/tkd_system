@@ -167,14 +167,17 @@ table th {
 
 
 /* styling for datatables */
-.datatable-table {
+    .dataTable-table {
     width: 100% !important;
     border-collapse: collapse !important;
 }
-.datatable-wrapper{
+
+.dataTable-wrapper {
     border: none !important;
+    overflow: visible !important; 
 }
-.datatable-table thead th {
+
+.dataTable-table thead th {
     background-color: #1c1c1d !important;
     padding: 0.75rem 1.5rem !important;
     font-size: 0.75rem !important;
@@ -183,21 +186,38 @@ table th {
     letter-spacing: 0.05em !important;
     color: #ffffff !important;
 }
-.datatable-table tbody td {
+
+.dataTable-table tbody td {
     white-space: nowrap !important;
 }
-.datatable-top, .datatable-bottom {
+
+.dataTable-top, .dataTable-bottom {
     background-color: #ffffff !important;
+    padding: 1rem 0 !important;
 }
-.datatable-search input {
+
+/* The Search Box */
+.dataTable-input {
     border: 1px solid #d1d5db !important;
     border-radius: 0.375rem !important;
-    padding: 0.5rem !important;
+    padding: 0.5rem 1rem !important;
     margin-left: 0.5rem !important;
+    outline: none !important;
+    color: #1c1c1d !important;
 }
-.datatable-selector {
+
+.dataTable-input:focus {
+    border-color: #1c1c1d !important;
+    box-shadow: 0 0 0 1px #1c1c1d !important;
+}
+
+/* The Entries per page Dropdown */
+.dataTable-selector {
     border: 1px solid #d1d5db !important;
     border-radius: 0.375rem !important;
-    padding: 0.5rem !important;
+    padding: 0.5rem 2rem 0.5rem 1rem !important; /* Extra padding on right for the arrow */
     margin: 0 0.5rem !important;
+    background-color: white !important;
+    color: #1c1c1d !important;
+    outline: none !important;
 }

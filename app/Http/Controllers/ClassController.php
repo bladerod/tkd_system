@@ -120,7 +120,7 @@ class ClassController extends Controller
             'primaryInstructor', 
             'assistantInstructor', 
             'schedules',
-            'students.student',
+            'students.student.currentBelt',
             'sessions'
         ])->findOrFail($id);
         
@@ -316,10 +316,19 @@ class ClassController extends Controller
                 ->where('status', 'active')
                 ->pluck('student_id');
             
-            $availableStudents = Student::where('status', 'active')
+            $availableStudents = Student::with('currentBelt')
+                ->where('status', 'active')
                 ->where('branch_id', $class->branch_id)
                 ->whereNotIn('id', $enrolledStudentIds)
-                ->get(['id', 'student_name', 'current_belt']);
+                ->get(['id', 'first_name', 'last_name', 'current_belt'])
+                ->map(function ($student) {
+                    return [
+                        'id' => $student->id,
+                        'student_name' => $student->first_name . ' ' . $student->last_name,
+                        // Grab the name from the relationship, fallback to 'No Belt' if null
+                        'current_belt' => $student->currentBelt->name ?? 'No Belt'
+                    ];
+                });
             
             return response()->json($availableStudents);
             

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Instructor</title>
+    <title>TrainNova | Instructor</title>
     @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     @vite("resources/js/instructor.js")

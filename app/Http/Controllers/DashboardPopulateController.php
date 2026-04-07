@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttendanceLog;
 use App\Models\BeltLevel;
 use App\Models\Branch;
 use App\Models\Student;
@@ -18,11 +19,19 @@ class DashboardPopulateController extends Controller
         $students = StudentDisplay::select('id', 'student_name', 'student_code')
                     ->where('status', 'active')
                     ->get();
-        $parents = User::where('role', 'parent')->get();
+        $parents = User::where('role', 'parent')
+            ->where('status', 1)
+            ->get();
+
+        $todayAttendance = AttendanceLog::with(['student', 'classSession.class', 'classSession.instructor'])
+            ->whereDate('checkin_time', today())
+            ->orderBy('checkin_time', 'desc')
+            ->get();
+
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
 
-        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students'));
+        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students', 'todayAttendance'));
 
     }
 

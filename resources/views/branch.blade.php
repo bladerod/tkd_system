@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Branch</title>
+    <title>TrainNova | Branch</title>
     @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css', 'resources/css/branch.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     <!-- Add Simple-Datatables CSS -->

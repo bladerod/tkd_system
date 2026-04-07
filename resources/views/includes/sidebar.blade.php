@@ -1,8 +1,8 @@
 <aside style="background: #1C1C1D;" class="w-64 shadow-lg h-[calc(100vh-65px)] overflow-y-auto" id="sidenav-main">
-    <!-- Navigation -->
     <nav class="p-3">
         <ul class="space-y-1">
-            <!-- Dashboard -->
+            
+            @if(auth()->user()->canView('dashboard'))
             <li>
                 <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-dashboard">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -11,8 +11,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Dashboard</span>
                 </a>
             </li>
+            @endif
 
-            <!-- Students -->
+            @if(auth()->user()->canView('students'))
             <li>
                 <a href="/student" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-product">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -21,8 +22,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Students</span>
                 </a>
             </li>
+            @endif
 
-            <!-- Parents -->
+            @if(auth()->user()->canView('parents'))
             <li>
                 <a href="/parent" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -31,7 +33,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Parents</span>
                 </a>
             </li>
-            <!-- instructor -->
+            @endif
+
+            @if(auth()->user()->canView('instructors'))
             <li>
                 <a href="/instructor" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -40,7 +44,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Instructor</span>
                 </a>
             </li>
-            <!-- classes -->
+            @endif
+
+            @if(auth()->user()->canView('classes'))
             <li>
                 <a href="/classes" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -49,7 +55,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Classes</span>
                 </a>
             </li>
-            <!-- Branch -->
+            @endif
+
+            @if(auth()->user()->canView('branches'))
             <li>
                 <a href="/branch" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -58,7 +66,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Branch</span>
                 </a>
             </li>
-            <!-- Attendance -->
+            @endif
+
+            @if(auth()->user()->canView('attendance'))
             <li>
                 <a href="/attendance" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -67,7 +77,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Attendance</span>
                 </a>
             </li>
-            <!-- Billing -->
+            @endif
+
+            @if(auth()->user()->canView('billing'))
             <li>
                 <a href="/billing" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -76,7 +88,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Billing</span>
                 </a>
             </li>
-            <!-- Certificate -->
+            @endif
+
+            @if(auth()->user()->canView('certificates'))
             <li>
                 <a href="/certificates" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -85,7 +99,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Certificate</span>
                 </a>
             </li>
-            <!-- Competitions -->
+            @endif
+
+            @if(auth()->user()->canView('competitions'))
             <li>
                 <a href="/competition" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -94,7 +110,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Competitions</span>
                 </a>
             </li>
-            <!-- Announcements -->
+            @endif
+
+            @if(auth()->user()->canView('announcements'))
             <li>
                 <a href="/announcement" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -103,7 +121,9 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Announcements</span>
                 </a>
             </li>
-            <!-- Chat -->
+            @endif
+
+            @if(auth()->user()->canView('chat'))
             <li>
                 <a href="/chat" class="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group" id="nav-membership">
                     <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -112,10 +132,10 @@
                     <span class="text-white font-medium group-hover:text-[#1C1C1D]">Chat</span>
                 </a>
             </li>
+            @endif
             
-            <!-- Report -->
+            @if(auth()->user()->canView('reports'))
             <li x-data="{ open: false }" class="mb-2">
-                <!-- MAIN BUTTON -->
                 <button @click="open = !open" 
                         class="w-full flex items-center justify-between gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                     <div class="flex items-center gap-3">
@@ -133,7 +153,6 @@
                     </svg>
                 </button>
 
-                <!-- DROPDOWN -->
                 <ul x-show="open"
                     x-transition:enter="transition ease-out duration-100"
                     x-transition:enter-start="transform opacity-0 scale-95"
@@ -184,10 +203,10 @@
                     </li>
                 </ul>
             </li>
+            @endif
 
-            <!-- Settings Dropdown - Toggleable with Alpine.js -->
+            @if(auth()->user()->canView('settings') || auth()->user()->canView('users'))
             <li x-data="{ open: false }">
-                <!-- Settings Toggle Button -->
                 <button @click="open = !open" class="w-full flex items-center justify-between gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                     <div class="flex items-center gap-3">
                         <div class="w-5 h-5 flex items-center justify-center text-gray-500 group-hover:text-[#1C1C1D]">
@@ -204,7 +223,6 @@
                     </svg>
                 </button>
 
-                <!-- Dropdown Menu Items -->
                 <ul x-show="open"
                     x-transition:enter="transition ease-out duration-100"
                     x-transition:enter-start="transform opacity-0 scale-95"
@@ -214,7 +232,7 @@
                     x-transition:leave-end="transform opacity-0 scale-95"
                     class="ml-8 mt-1 space-y-1">
 
-                    <!-- Users -->
+                    @if(auth()->user()->canView('users'))
                     <li>
                         <a href="/settings/user" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -223,8 +241,9 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">User Management</span>
                         </a>
                     </li>
+                    @endif
 
-                    <!-- Club Profile -->
+                    @if(auth()->user()->canView('settings'))
                     <li>
                         <a href="/settings/club-profile" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -234,7 +253,6 @@
                         </a>
                     </li>
 
-                    <!-- Branding -->
                     <li>
                         <a href="/settings/branding" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -244,7 +262,6 @@
                         </a>
                     </li>
 
-                    <!-- Billing Rules -->
                     <li>
                         <a href="/settings/billing-rules" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -254,7 +271,6 @@
                         </a>
                     </li>
 
-                    <!-- Discounts -->
                     <li>
                         <a href="/settings/discounts" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -264,7 +280,6 @@
                         </a>
                     </li>
 
-                    <!-- Roles & Permissions -->
                     <li>
                         <a href="/settings/roles-and-permissions" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -274,7 +289,6 @@
                         </a>
                     </li>
 
-                    <!-- Devices -->
                     <li>
                         <a href="/settings/device" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -284,7 +298,6 @@
                         </a>
                     </li>
 
-                    <!-- Integration -->
                     <li>
                         <a href="/settings/integration" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-white hover:text-[#1C1C1D] transition-colors group">
                             <div class="w-4 h-4 flex items-center justify-center">
@@ -293,8 +306,10 @@
                             <span class="text-white/80 font-medium group-hover:text-[#1C1C1D]">Integration</span>
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
+            @endif
         </ul>
     </nav>
 </aside>

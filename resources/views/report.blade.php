@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Martial Arts School Reports</title>
+  <title>TrainNova | Martial Arts School Reports</title>
   <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   @vite(['resources/css/app.css'])
   @vite(['resources/css/reports.css'])

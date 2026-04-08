@@ -1,3 +1,8 @@
+@php
+    $canCreateCompetion = auth()->user()->canCreate('classes');
+    $canEditCompetion = auth()->user()->canEdit('classes');
+    $canDeleteCompetion = auth()->user()->canDelete('classes');
+@endphp
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -57,7 +62,14 @@
                                 </div>
                                 <div style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <div class="m-4 flex justify-end">
-                                        <button onclick="addCompetitionModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                                        <button
+                                        @if ($canCreateCompetion)
+                                            onclick="addCompetitionModal()"
+                                        @endif
+                                        @if (!$canCreateCompetion)
+                                            hidden
+                                        @endif
+                                         class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Add Competition
                                         </button>
@@ -117,14 +129,26 @@
                                                                 <i class="fa-regular fa-eye"></i>
                                                             </button>
                                                             <!-- Edit button (pen icon) -->
-                                                            <button class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg edit-btn" 
-                                                                    data-competition-id="{{ $competitions->id }}">
+                                                            <button 
+                                                                @if ($canEditCompetion)
+                                                                    data-competition-id="{{ $competitions->id }}"
+                                                                @else
+                                                                    hidden
+                                                                @endif
+                                                                class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg edit-btn" 
+                                                                    >
                                                                 <i class="fa-regular fa-pen-to-square"></i>
                                                             </button>
                                                             <!-- Delete button -->
-                                                            <button class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-competition-btn" 
+                                                            <button 
+                                                                @if ($canDeleteCompetion)
                                                                     data-competition-id="{{ $competitions->id }}"
-                                                                    data-competition-name="{{ $competitions->name }}"> 
+                                                                    data-competition-name="{{ $competitions->name }}"
+                                                                @else
+                                                                    hidden
+                                                                @endif
+                                                                class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-competition-btn" 
+                                                                    > 
                                                                 <i class="fa-regular fa-trash-can text-white"></i>
                                                             </button>
                                                         </div>

@@ -22,6 +22,12 @@ class ClassController extends Controller
     public function index()
     {
         $belt_level = BeltLevel::orderBy('rank_order')->get();
+
+        $instructors = Instructor::join('users', 'instructors.user_id', '=', 'users.id')
+            ->select('instructors.*', 'users.branch_id')
+            ->where('instructors.status', 'active')
+            ->get();
+
         $classes = Classes::with(['branch', 'primaryInstructor', 'assistantInstructor', 'schedules'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -34,9 +40,7 @@ class ClassController extends Controller
         }
         
         $branches = Branch::where('status', 'active')->get();
-        $instructors = Instructor::where('status', 'active')->get();
         
-        // Fix: Use 'classes' instead of 'classes.index' since the file is directly in views folder
         return view('classes', compact('classes', 'branches', 'instructors', 'belt_level'));
     }
 

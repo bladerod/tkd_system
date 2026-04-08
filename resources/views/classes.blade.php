@@ -307,21 +307,25 @@
                     <!-- Primary Instructor -->
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Primary Instructor</label>
-                        <select name="primary_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
+                        <select name="primary_instructor_id" id="add_primary_instructor_id" class="instructor-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <option value="">Select Instructor</option>
                             @foreach($instructors as $instructor)
-                                <option value="{{ $instructor->id }}">{{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})</option>
+                                <option value="{{ $instructor->id }}" data-branch="{{ $instructor->branch_id }}">
+                                    {{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
                     
-                    <!-- Assistant Instructor -->
+                    {{-- Assistant Instructor --}}
                     <div class="form-group">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Assistant Instructor</label>
-                        <select name="assistant_instructor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent">
+                        <select name="assistant_instructor_id" id="add_assistant_instructor_id" class="instructor-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black-500">
                             <option value="">Select Instructor</option>
                             @foreach($instructors as $instructor)
-                                <option value="{{ $instructor->id }}">{{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})</option>
+                                <option value="{{ $instructor->id }}" data-branch="{{ $instructor->branch_id }}">
+                                    {{ $instructor->fname }} {{ $instructor->lname }} ({{ $instructor->rank_belt ?? 'No Belt' }})
+                                </option>
                             @endforeach
                         </select>
                     </div>

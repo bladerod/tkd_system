@@ -1,3 +1,9 @@
+@php
+    $canCreateBranch = auth()->user()->canCreate('classes');
+    $canEditBranch = auth()->user()->canEdit('classes');
+    $canDeleteBranch = auth()->user()->canDelete('classes');
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,7 +86,15 @@
                 </div>
                 
                 <!-- ADD BUTTON -->
-                <button @click="openAdd()" class="bg-[#1C1C1D] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                <button 
+                    @if ($canCreateBranch)
+                        @click="openAdd()"
+                    @endif
+                    class="bg-[#1C1C1D] text-white px-4 py-2 rounded-lg
+                    @if (!$canCreateBranch)
+                        hidden
+                    @endif
+                      hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                     <i class="fa fa-plus"></i> Add Branch
                 </button>
             </div>
@@ -136,6 +150,7 @@
                             <div class="flex items-center gap-3">
                                 <!-- EDIT -->
                                 <button 
+                                @if ($canEditBranch)
                                     @click.prevent="openEdit({
                                         id: '{{ $branch->id }}',
                                         name: '{{ addslashes($branch->name) }}',
@@ -147,6 +162,10 @@
                                         email: '{{ $branch->email }}',
                                         status: '{{ $branch->status }}'
                                     })"
+                                @endif
+                                @if (!$canEditBranch)
+                                    hidden
+                                @endif
                                     class="bg-green-500 hover:bg-green-600 p-2.5 rounded-lg text-white transition-colors">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </button>

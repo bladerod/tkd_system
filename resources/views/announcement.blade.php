@@ -1,3 +1,9 @@
+@php
+    $canCreateAnnouncement = auth()->user()->canCreate('classes');
+    $canEditAnnouncement = auth()->user()->canEdit('classes');
+    $canDeleteAnnouncement = auth()->user()->canDelete('classes');
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,7 +67,16 @@
                                 <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <!-- Create Button -->
                                     <div class="flex justify-end pt-6 pe-6">
-                                        <button onclick="openAddAnnouncementModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                                        <button 
+                                        @if ($canCreateAnnouncement)
+                                            onclick="openAddAnnouncementModal()" 
+                                        @else
+                                            hidden
+                                        @endif
+                                        
+                                        class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg 
+                                       
+                                        hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Create Announcement
                                         </button>
@@ -270,10 +285,17 @@
                                                                     </button>
                                                                     
                                                                     <!-- Edit Button -->
-                                                                    <button class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg transition-all duration-200 edit-announcement-btn"
+                                                                    <button 
+                                                                        @if ($canEditAnnouncement)
                                                                             onclick="openEditAnnouncementModal({{ $announcement->id }})"
                                                                             data-announcement-id="{{ $announcement->id }}"
-                                                                            title="Edit">
+                                                                        @endif
+                                                                        class="text-white bg-green-500 hover:bg-green-600 
+                                                                        @if (!$canEditAnnouncement)
+                                                                            hidden
+                                                                        @endif
+                                                                        p-2.5 rounded-lg transition-all duration-200 edit-announcement-btn"
+                                                                        title="Edit">
                                                                         <i class="fa-regular fa-pen-to-square text-white text-sm"></i>
                                                                     </button>
                                                                     

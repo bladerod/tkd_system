@@ -43,6 +43,171 @@ const ValidationRules = {
     }
 };
 
+function initializeInstructorFiltering() {
+    // For Add Class Modal
+    const addBranchSelect = document.querySelector('#addClassModal select[name="branch_id"]');
+    const addPrimaryInstructor = document.querySelector('#addClassModal select[name="primary_instructor_id"]');
+    const addAssistantInstructor = document.querySelector('#addClassModal select[name="assistant_instructor_id"]');
+    
+    if (addBranchSelect) {
+        // Remove existing listener to avoid duplicates
+        addBranchSelect.removeEventListener('change', handleBranchChange);
+        addBranchSelect.addEventListener('change', handleBranchChange);
+        
+        // Initial filter on page load
+        setTimeout(() => {
+            const selectedBranchId = addBranchSelect.value;
+            filterInstructorsByBranch(addPrimaryInstructor, selectedBranchId);
+            filterInstructorsByBranch(addAssistantInstructor, selectedBranchId);
+        }, 100);
+    }
+    
+    // For Edit Class Modal
+    const editBranchSelect = document.querySelector('#editClassModal select[name="branch_id"]');
+    const editPrimaryInstructor = document.querySelector('#editClassModal select[name="primary_instructor_id"]');
+    const editAssistantInstructor = document.querySelector('#editClassModal select[name="assistant_instructor_id"]');
+    
+    if (editBranchSelect) {
+        editBranchSelect.removeEventListener('change', handleBranchChange);
+        editBranchSelect.addEventListener('change', handleBranchChange);
+    }
+    
+    function handleBranchChange(event) {
+        const selectedBranchId = event.target.value;
+        const modal = event.target.closest('.fixed.inset-0');
+        
+        if (modal) {
+            const primarySelect = modal.querySelector('select[name="primary_instructor_id"]');
+            const assistantSelect = modal.querySelector('select[name="assistant_instructor_id"]');
+            
+            filterInstructorsByBranch(primarySelect, selectedBranchId);
+            filterInstructorsByBranch(assistantSelect, selectedBranchId);
+        }
+    }
+}
+
+function editClass(classId) {
+    fetch(`/classes/${classId}/edit`)
+        .then(response => response.json())
+        .then(data => {
+            const classData = data.class;
+            const schedules = data.schedules;
+            
+            document.getElementById('editClassForm').action = `/classes/${classId}`;
+            document.getElementById('edit_branch_id').value = classData.branch_id;
+            document.getElementById('edit_class_name').value = classData.class_name;
+            document.getElementById('edit_age_group').value = classData.age_group || '';
+            
+            // Set the belt level select dropdown value
+            const levelSelect = document.getElementById('edit_level');
+            if (classData.level) {
+                for (let i = 0; i < levelSelect.options.length; i++) {
+                    if (levelSelect.options[i].value === classData.level) {
+                        levelSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            } else {
+                levelSelect.value = '';
+            }
+            
+            document.getElementById('edit_max_students').value = classData.max_students;
+            document.getElementById('edit_status').value = classData.status;
+            document.getElementById('edit_primary_instructor_id').value = classData.primary_instructor_id || '';
+            document.getElementById('edit_assistant_instructor_id').value = classData.assistant_instructor_id || '';
+            
+            // Apply instructor filtering based on selected branch
+            const selectedBranchId = classData.branch_id;
+            const editPrimarySelect = document.getElementById('edit_primary_instructor_id');
+            const editAssistantSelect = document.getElementById('edit_assistant_instructor_id');
+            
+            filterInstructorsByBranch(editPrimarySelect, selectedBranchId);
+            filterInstructorsByBranch(editAssistantSelect, selectedBranchId);
+            
+            const container = document.getElementById('editSchedulesContainer');
+            container.innerHTML = '';
+            editScheduleCounter = 0;
+            
+            if (schedules && schedules.length > 0) {
+                schedules.forEach(schedule => {
+                    addEditScheduleRow(schedule.day_of_week, schedule.start_time, schedule.end_time);
+                });
+            } else {
+                addEditScheduleRow();
+            }
+            
+            openEditClassModal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Failed to load class data', 'error');
+        });
+}
+
+function filterInstructorsByBranch(selectElement, branchId) {
+    if (!selectElement) return;
+    
+    const options = selectElement.querySelectorAll('option');
+    let hasVisibleOptions = false;
+    
+    options.forEach(option => {
+        // Skip the default empty option
+        if (option.value === "") {
+            option.style.display = "";
+            option.disabled = false;
+            return;
+        }
+        
+        const instructorBranchId = option.getAttribute('data-branch');
+        
+        if (!branchId || instructorBranchId == branchId) {
+            option.style.display = "";
+            option.disabled = false;
+            hasVisibleOptions = true;
+        } else {
+            option.style.display = "none";
+            option.disabled = true;
+        }
+    });
+    
+    // Reset selection if current selection is hidden
+    if (selectElement.selectedOptions[0] && 
+        selectElement.selectedOptions[0].style.display === "none") {
+        selectElement.value = "";
+    }
+}
+
+// Call this when the page loads and when modals are opened
+document.addEventListener('DOMContentLoaded', function() {
+    initializeInstructorFiltering();
+    console.log('tang ina mo')
+    
+    // Re-initialize when modals are opened
+    const addModal = document.getElementById('addClassModal');
+    const editModal = document.getElementById('editClassModal');
+    
+    if (addModal) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class' && !addModal.classList.contains('hidden')) {
+                    setTimeout(initializeInstructorFiltering, 100);
+                }
+            });
+        });
+        observer.observe(addModal, { attributes: true });
+    }
+    
+    if (editModal) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class' && !editModal.classList.contains('hidden')) {
+                    setTimeout(initializeInstructorFiltering, 100);
+                }
+            });
+        });
+        observer.observe(editModal, { attributes: true });
+    }
+});
 
 function validateField(field) {
     const fieldName = field.name;

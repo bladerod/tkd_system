@@ -274,7 +274,7 @@
                                 <option value="">Select Branch</option>
                                 @foreach($branches ?? [] as $branch)
                                     <option value="{{ $branch->id }}">
-                                        {{ $branch->name }} - {{ $branch->code ?? 'No Code' }}
+                                        {{ $branch->code ?? 'No Code' }} - {{ $branch->name }} 
                                     </option>
                                 @endforeach
                             </select>

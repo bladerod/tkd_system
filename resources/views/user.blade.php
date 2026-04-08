@@ -1,3 +1,9 @@
+@php
+    $canCreateUser = auth()->user()->canCreate('classes');
+    $canEditUser = auth()->user()->canEdit('classes');
+    $canDeleteUser = auth()->user()->canDelete('classes');
+@endphp
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -60,7 +66,15 @@
                                 </div>
                                 <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <div class="m-4 flex justify-end">
-                                        <button onclick="openAddUserModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                                        <button  
+                                            @if ($canCreateUser)
+                                                disabled onclick="openAddUserModal()"
+                                            @endif
+                                            class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg 
+                                            @if (!$canCreateUser)
+                                                hidden
+                                            @endif
+                                            hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Add User
                                         </button>
@@ -120,14 +134,30 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="flex items-center gap-3">
-                                                            <button class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg edit-btn" 
-                                                                    data-user-id="{{ $user->id }}">
+                                                            <button 
+                                                                @if ($canEditUser)
+                                                                    data-user-id="{{ $user->id }}"
+                                                                @endif
+                                                                class="text-white bg-green-500 hover:bg-green-600 
+                                                                @if (!$canEditUser)
+                                                                    hidden
+                                                                @endif
+                                                                p-2.5 rounded-lg edit-btn">
                                                                 <i class="fa-regular fa-pen-to-square"></i>
                                                                 <span class="hidden debug-id">{{ $user->id }}</span>
                                                             </button>
-                                                            <button class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-user-btn" 
+                                                        
+                                                            <button 
+                                                                @if ($canDeleteUser)
                                                                     data-user-id="{{ $user->id }}"
-                                                                    data-user-name="{{ $user->fname }} {{ $user->lname }}"> 
+                                                                    data-user-name="{{ $user->fname }} {{ $user->lname }}"
+                                                                @endif
+                                                                class="bg-red-500 hover:bg-red-600
+                                                                @if (!$canDeleteUser)
+                                                                    hidden
+                                                                @endif
+                                                                 p-2.5 rounded-lg delete-user-btn" 
+                                                                    > 
                                                                 <i class="fa-regular fa-trash-can text-white"></i>
                                                             </button>
                                                         </div>

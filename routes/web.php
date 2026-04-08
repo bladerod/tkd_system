@@ -60,8 +60,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/attendance/manual-override', [AttendanceController::class, 'manualOverride'])->middleware('permission:attendance,edit')->name('attendance.manual-override');
     Route::get('/attendance/export', [AttendanceController::class, 'exportCsv'])->middleware('permission:attendance,view')->name('attendance.export');
     
-    // STUDENTS 
-    Route::post('/student', [StudentController::class,'store'])->middleware('permission:students,create')->name('student.store');
+    
+    // STUDENTS
+    Route::post('/student', [StudentController::class,'store'])->name('student.create');
+
+    Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
+    Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
+    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
+    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
+    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
+    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
+    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
     // Student Tabs
     Route::prefix('students/{student}')->middleware('permission:students,view')->group(function () {

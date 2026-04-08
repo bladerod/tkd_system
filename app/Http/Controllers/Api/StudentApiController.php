@@ -229,35 +229,62 @@ class StudentApiController extends Controller
 public function registerFace(Request $request)
 {
     $user = $request->user();
-    
-    $student = \DB::table('students')
-        ->where('user_id', $user->id)
-        ->first();
+    $student = \DB::table('students')->where('user_id', $user->id)->first();
 
     if (!$student) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Student profile not found'
-        ], 404);
+        return response()->json(['success' => false, 'message' => 'Student not found'], 404);
     }
 
     $request->validate([
         'face_photo' => 'required|image|mimes:jpeg,png,jpg|max:5120',
     ]);
 
-    // Save photo
-    $path = $request->file('face_photo')->store('face-photos', 'public');
+    $apiKey = '6854d593441f427794f106715b8e25e3';
+    $name = trim($student->first_name . ' ' . $student->last_name);
 
-    // Update student face_photo
-    \DB::table('students')
-        ->where('id', $student->id)
-        ->update(['face_photo' => $path]);
+    
+    if ($student->luxand_person_id) {
+        \Http::withHeaders(['token' => $apiKey])
+            ->delete("https://api.luxand.cloud/person/{$student->luxand_person_id}");
+    }
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Face registered successfully',
-        'face_photo' => $path,
+    //  create new person in luxand
+  $createResponse = \Http::withHeaders(['token' => $apiKey])
+    ->attach('photo', file_get_contents($request->file('face_photo')->path()), 'face.jpg')
+    ->post('https://api.luxand.cloud/person', [
+        'name' => $name,
     ]);
+
+\Log::info('Luxand create person response:', $createResponse->json());
+
+if (!$createResponse->successful()) {
+    return response()->json(['success' => false, 'message' => 'Failed to create person in Luxand'], 500);
+}
+
+$personId = $createResponse->json('uuid');
+
+$path = $request->file('face_photo')->store('face-photos', 'public');
+
+// Search agad para makuha yung integer id
+$searchResponse = \Http::withHeaders(['token' => $apiKey])
+    ->attach('photo', file_get_contents($request->file('face_photo')->path()), 'face.jpg')
+    ->post('https://api.luxand.cloud/photo/search');
+
+\Log::info('Luxand search after register:', $searchResponse->json());
+
+$intId = $searchResponse->json('0.id');
+
+\DB::table('students')
+    ->where('id', $student->id)
+    ->update([
+        'face_photo' => $path,
+        'luxand_person_id' => (string)$intId,
+    ]);
+
+return response()->json([
+    'success' => true,
+    'message' => 'Face registered successfully',
+]);
 }
 
 /**
@@ -269,75 +296,60 @@ public function faceLogin(Request $request)
         'face_photo' => 'required|image|mimes:jpeg,png,jpg|max:5120',
     ]);
 
-    // Get all students with registered faces
-    $students = \DB::table('students')
-        ->whereNotNull('face_photo')
-        ->get();
+    $apiKey = '6854d593441f427794f106715b8e25e3';
 
-    if ($students->isEmpty()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No registered faces found'
-        ], 404);
+    $response = \Http::withHeaders(['token' => $apiKey])
+        ->attach('photo', file_get_contents($request->file('face_photo')->path()), 'face.jpg')
+        ->post('https://api.luxand.cloud/photo/search');
+
+    \Log::info('Luxand search response:', $response->json());
+
+    if (!$response->successful()) {
+        return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
     }
 
-    // Save uploaded photo temporarily
-    $uploadedPath = $request->file('face_photo')->store('temp-faces', 'public');
-    $uploadedFullPath = storage_path('app/public/' . $uploadedPath);
+    $results = $response->json();
 
-    $matchedStudent = null;
-    $bestScore = 0;
-
-    foreach ($students as $student) {
-        $storedFullPath = storage_path('app/public/' . $student->face_photo);
-        
-        if (!file_exists($storedFullPath)) continue;
-
-        // Simple image comparison using GD
-        $score = $this->compareImages($uploadedFullPath, $storedFullPath);
-        
-        if ($score > $bestScore) {
-            $bestScore = $score;
-            $matchedStudent = $student;
-        }
+    if (empty($results) || !isset($results[0]['name'])) {
+        return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
     }
 
-    // Delete temp file
-    \Storage::disk('public')->delete($uploadedPath);
+    $probability = $results[0]['probability'] ?? 0;
 
-    // Threshold — dapat 70% match minimum
-    if ($bestScore < 70 || !$matchedStudent) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Face not recognized'
-        ], 401);
+    if ($probability < 0.80) {
+        return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
     }
 
-    // Get user linked to student
-    $user = \DB::table('users')->where('id', $matchedStudent->user_id)->first();
+   // Gamitin integer id mula sa Luxand
+$luxandIntId = (string)($results[0]['id'] ?? null);
 
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'User account not found'
-        ], 404);
-    }
+if (!$luxandIntId) {
+    return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
+}
 
-    // Get belt
-    $belt = \DB::table('belt_levels')->where('id', $matchedStudent->current_belt)->first();
+// Hanapin sa database gamit integer id
+$student = \DB::table('students')
+    ->where('luxand_person_id', $luxandIntId)
+    ->first();
 
-    // Return student info for confirmation card — hindi pa mag-login agad
+if (!$student) {
+    return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+}
+
+    $user = \DB::table('users')->where('id', $student->user_id)->first();
+    $belt = \DB::table('belt_levels')->where('id', $student->current_belt)->first();
+
     return response()->json([
         'success' => true,
         'student' => [
-            'id' => $matchedStudent->id,
+            'id' => $student->id,
             'user_id' => $user->id,
-            'name' => trim($matchedStudent->first_name . ' ' . $matchedStudent->last_name),
+            'name' => trim($student->first_name . ' ' . $student->last_name),
             'belt' => $belt->name ?? 'No Belt',
-            'age' => $matchedStudent->birthdate 
-                ? \Carbon\Carbon::parse($matchedStudent->birthdate)->age 
+            'age' => $student->birthdate
+                ? \Carbon\Carbon::parse($student->birthdate)->age
                 : 0,
-            'photo' => $matchedStudent->photo_url,
+            'photo' => $student->photo_url,
         ]
     ]);
 }

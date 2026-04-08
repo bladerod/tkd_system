@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova | Dashboard</title>
+    <title>TrainNova</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -29,16 +29,6 @@
                     @if(session('error'))
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                             {{ session('error') }}
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                            <ul class="list-disc list-inside">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
                         </div>
                     @endif
                     <!-- Action Buttons -->
@@ -90,7 +80,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Active Students</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $students->count() }}</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">186</p>
                                 </div>
                             </div>
                         </div>
@@ -103,7 +93,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Active Parents</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $parents->count() }}</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">321</p>
                                 </div>
                             </div>
 
@@ -117,7 +107,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Today Attendance</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $todayAttendance->count() }}</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">321</p>
                                 </div>
                             </div>
                         </div>
@@ -446,35 +436,41 @@
             </main>
         </div>
     </div>
-
     {{-- start of modals --}}
-    {{-- start of add student modal --}}
+    {{-- add student modal--}}
     <el-dialog>
-        <dialog id="dialog" aria-labelledby="dialog-title" class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
-            <el-dialog-backdrop class="fixed inset-0 bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
+        <dialog id="dialog" aria-labelledby="dialog-title"
+            class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
+            <el-dialog-backdrop
+                class="fixed inset-0 bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
 
-            <div tabindex="0" class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
-                <el-dialog-panel class="relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl outline -outline-offset-1 outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-4xl data-closed:sm:translate-y-0 data-closed:sm:scale-95">
-                    
+            <div tabindex="0"
+                class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
+                <el-dialog-panel
+                    class="relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl outline -outline-offset-1 outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-4xl data-closed:sm:translate-y-0 data-closed:sm:scale-95">
+
                     <!-- Header -->
                     <div class="bg-[#1c1c1d] p-4 text-white flex items-center gap-2">
                         <i class="fa fa-plus text-xl" aria-hidden="true"></i>
                         <h1 class="font-bold text-xl">Add Students</h1>
                     </div>
-                    
+
                     <!-- Form Body -->
                     <div class="px-6 pt-6 pb-4 bg-white">
-                        <form id="studentForm" action="{{ route('dashboard.student.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
-                            @csrf   
+                        <form action="{{ route('dashboard.student.store') }}" method="POST" enctype="multipart/form-data"
+                            class="space-y-5">
+                            @csrf
                             <!-- Branch - Moved to top as it's a primary identifier -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Branch <span
                                         class="text-red-500">*</span></label>
-                                <select name="branch_id" required
+                                <select name="branch_id"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                     <option value="" disabled selected>Select branch</option>
                                     @foreach ($branches as $branch)
-                                        <option value="{{ $branch->id }}">{{ $branch->code.' '.$branch->name.' '.$branch->city }}</option>
+                                        <option value="{{ $branch->id }}">
+                                            {{ $branch->code . ' ' . $branch->name . ' ' . $branch->city }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -482,118 +478,107 @@
                             <!-- Student Name - 2 columns -->
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Firstname <span class="text-red-500">*</span></label>
-                                    <input name="first_name" type="text" placeholder="Ex. Juan" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Firstname <span
+                                            class="text-red-500">*</span></label>
+                                    <input name="first_name" type="text" placeholder="Ex. Juan"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Lastname <span class="text-red-500">*</span></label>
-                                    <input name="last_name" type="text" placeholder="Ex. Dela Cruz" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Lastname <span
+                                            class="text-red-500">*</span></label>
+                                    <input name="last_name" type="text" placeholder="Ex. Dela Cruz"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
-                                    <select name="gender" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span
+                                            class="text-red-500">*</span></label>
+                                    <select name="gender"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select gender</option>
                                         <option value="male">Male</option>
                                         <option value="female">Female</option>
                                         <option value="other">other</option>
                                     </select>
                                 </div>
+
                             </div>
 
-                            {{-- email --}}
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
-                                <input name="email" type="email" placeholder="Ex. Dela Cruz" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
-                            </div>
 
                             <!-- Current Belt -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Belt <span class="text-red-500">*</span></label>
-                                    <select name="belt_level" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Belt <span
+                                            class="text-red-500">*</span></label>
+                                    <select name="belt_level"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select Belt</option>
                                         @foreach ($beltlevels as $beltlevel)
                                             <option value="{{ $beltlevel->id }}">{{ $beltlevel->name }}</option>
                                         @endforeach
-                                        
+
                                     </select>
-                                    
+
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Birthday <span class="text-red-500">*</span></label>
-                                    <input name="birthdate" type="date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Birthday <span
+                                            class="text-red-500">*</span></label>
+                                    <input name="birthdate" type="date"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                 </div>
                             </div>
-                            
+
                             <!-- Medical Information Section -->
                             <div class="">
                                 <!-- Medical Notes - Textarea with professional styling -->
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Medical Notes</label>
-                                    <textarea rows="4" 
-                                        name="medical_notes"
+                                    <textarea rows="4" name="medical_notes"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[100px] bg-white placeholder-gray-400"
                                         placeholder="Any medical conditions, injuries, or special needs..."></textarea>
-                                    <p class="text-xs text-gray-500 mt-1">Include any important medical information that instructors should know</p>
+                                    <p class="text-xs text-gray-500 mt-1">Include any important medical information that
+                                        instructors should know</p>
                                 </div>
 
                                 <!-- Allergies -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Allergies</label>
-                                    <input name="allergies" type="text" placeholder="e.g., Dust, Pollen, Food allergies" 
+                                    <input name="allergies" type="text" placeholder="e.g., Dust, Pollen, Food allergies"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                             </div>
 
                             <!-- Emergency Contact Section -->
                             <div class="">
-                                
-                                
+
+
                                 <div class="grid grid-cols-2 gap-4">
                                     <!-- Emergency Contact Person -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Person <span class="text-red-500">*</span></label>
-                                        <input name="contact_person" type="text" placeholder="Full name" required 
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Person <span
+                                                class="text-red-500">*</span></label>
+                                        <input name="contact_person" type="text" placeholder="Full name"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     </div>
                                     <!-- Emergency Phone Number -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span class="text-red-500">*</span></label>
-                                        <input name="contact_number" type="tel" placeholder="Ex. 09123456789" required 
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span
+                                                class="text-red-500">*</span></label>
+                                        <input name="contact_number" type="tel" placeholder="Ex. 09123456789"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Password Fields Section -->
-                            <div class="grid grid-cols-2 gap-4">
-                                <!-- Password Field with Eye Icon -->
-                                <div class="relative">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input type="password" id="student_password" name="password" required 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] pr-10"
-                                            placeholder="Enter password">
-                                        <button type="button" onclick="togglePasswordVisibility('student_password', 'eye_icon_1')" 
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700">
-                                            <i id="eye_icon_1" class="fa fa-eye-slash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Confirm Password Field with Eye Icon -->
-                                <div class="relative">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input type="password" id="student_confirm_password" required 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] pr-10"
-                                            placeholder="Confirm password">
-                                        <button type="button" onclick="togglePasswordVisibility('student_confirm_password', 'eye_icon_2')" 
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700">
-                                            <i id="eye_icon_2" class="fa fa-eye-slash"></i>
-                                        </button>
-                                    </div>
-                                    <p id="password_match_error" class="text-xs text-red-500 mt-1 hidden">Passwords do not match</p>
+                                    {{-- <!-- Relationship to Student -->
+                                    <div class="">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Relationship to
+                                            Student</label>
+                                        <select
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                            <option value="" disabled selected>Select relationship</option>
+                                            <option value="parent">Parent</option>
+                                            <option value="guardian">Legal Guardian</option>
+                                            <option value="sibling">Sibling</option>
+                                            <option value="relative">Other Relative</option>
+                                        </select>
+                                    </div> --}}
                                 </div>
                             </div>
 
@@ -601,11 +586,14 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <!-- Guardian Selection -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Primary Guardian <span class="text-red-500">*</span></label>
-                                    <select name="primary_parent_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Primary Guardian <span
+                                            class="text-red-500">*</span></label>
+                                    <select name="primary_parent_id"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select Guardian</option>
                                         @foreach ($parents as $parent)
-                                            <option value="{{ $parent->id }}">{{ $parent->fname.' '.$parent->lname }}</option>
+                                            <option value="{{ $parent->id }}">{{ $parent->fname . ' ' . $parent->lname }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">Primary guardian for communications</p>
@@ -613,7 +601,8 @@
                                 <div>
                                     <!-- Status-->
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                    <select name="status" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <select name="status"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select Status</option>
                                         <option value="active">Active</option>
                                         <option value="inactive">Inactive</option>
@@ -622,14 +611,35 @@
                                 </div>
                             </div>
 
-                            
+                            <!-- Login Credentials -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                                            class="text-red-500">*</span></label>
+                                    <input name="email" type="email" placeholder="example@gmail.com"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Password <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <input id="studentPassword" name="password" type="password"
+                                            placeholder="••••••••"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] pr-10">
+                                        <button type="button" onclick="toggleStudentPassword()"
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                                            <i id="studentPasswordIcon" class="fa fa-eye text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="pt-2">
-                                
+
                                 <!-- Profile Picture -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
-                                    <input type="file" name="photo_url" accept=".png,.jpeg,.jpg"
-                                        class="w-full text-sm text-gray-500 cursor-pointer 
+                                    <input type="file" accept=".png,.jpeg,.jpg" class="w-full text-sm text-gray-500 cursor-pointer 
                                             file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
                                             file:text-sm file:font-medium file:bg-[#1c1c1d] file:text-white
                                             hover:file:bg-[#2f2f2f] focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]
@@ -640,10 +650,12 @@
                             <hr class="m-0 border-t border-gray-200">
                             <!-- Footer Buttons -->
                             <div class=" px-6 py-3 flex justify-end gap-2">
-                                <button type="button"  command="close" commandfor="dialog" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                <button type="button" command="close" commandfor="dialog"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                                     Close
                                 </button>
-                                <button type="submit" id="submit_student_btn" class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
+                                <button type="submit" command="close" commandfor="dialog"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
                                     Add
                                 </button>
                             </div>
@@ -653,7 +665,7 @@
             </div>
         </dialog>
     </el-dialog>
-    {{-- end of add studnet modal --}}
+    {{-- end add student modal --}}
 
 
     {{-- start Parent modal --}}
@@ -676,7 +688,7 @@
 
                     <!-- Form Body -->
                     <div class="px-6 pt-6 pb-4 bg-white">
-                        <form id="parentForm" action="{{ route('parent.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('parent.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <!-- Parent Name - 2 columns -->
@@ -684,7 +696,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Firstname <span
                                             class="text-red-500">*</span></label>
-                                    <input name="fname" type="text" value="{{ old('fname') }}" placeholder="Ex. Maria" required
+                                    <input name="fname" type="text" value="{{ old('fname') }}" placeholder="Ex. Maria"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     @error('fname')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -693,7 +705,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Lastname <span
                                             class="text-red-500">*</span></label>
-                                    <input name="lname" type="text" value="{{ old('lname') }}" placeholder="Ex. Santos" required
+                                    <input name="lname" type="text" value="{{ old('lname') }}" placeholder="Ex. Santos"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     @error('lname')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -705,7 +717,7 @@
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Complete Address <span
                                         class="text-red-500">*</span></label>
-                                <textarea name="address" rows="3" required
+                                <textarea name="address" rows="3"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[80px] bg-white placeholder-gray-400"
                                     placeholder="House/Block/Lot, Street, Barangay, City, Province">{{ old('address') }}</textarea>
                                 @error('address')
@@ -722,22 +734,21 @@
                                 <p class="text-xs text-gray-500 mt-1">Specify relationship to the student(s)</p>
                             </div>
 
-                            <!-- Contact Information - NOW REQUIRED -->
+                            <!-- Contact Information -->
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                                     <input name="mobile" type="tel" value="{{ old('mobile') }}"
-                                        placeholder="Ex. 09123456789" required
+                                        placeholder="Ex. 09123456789"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
-                                    <p class="text-xs text-gray-500 mt-1">Format: 09XXXXXXXXX or +639XXXXXXXXX</p>
                                     @error('mobile')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                                     <input name="email" type="email" value="{{ old('email') }}"
-                                        placeholder="example@gmail.com" required
+                                        placeholder="example@gmail.com"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     @error('email')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -745,36 +756,20 @@
                                 </div>
                             </div>
 
-                            <!-- Credentials - NOW REQUIRED -->
+                            <!-- Credentials -->
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input name="password" type="password" id="parent_password" required
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] pr-10"
-                                            placeholder="Enter password">
-                                        <button type="button" onclick="togglePasswordVisibility('parent_password', 'parent_eye_icon')" 
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700">
-                                            <i id="parent_eye_icon" class="fa fa-eye-slash"></i>
-                                        </button>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Minimum 6 characters with at least one letter and one number</p>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                    <input name="password" type="password"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                     @error('password')
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input name="password_confirmation" type="password" id="parent_confirm_password" required
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] pr-10"
-                                            placeholder="Confirm password">
-                                        <button type="button" onclick="togglePasswordVisibility('parent_confirm_password', 'parent_confirm_eye_icon')" 
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700">
-                                            <i id="parent_confirm_eye_icon" class="fa fa-eye-slash"></i>
-                                        </button>
-                                    </div>
-                                    <p id="parent_password_match_error" class="text-xs text-red-500 mt-1 hidden">Passwords do not match</p>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                    <input name="password_confirmation" type="password"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
                                 </div>
                             </div>
 
@@ -782,7 +777,7 @@
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Status <span
                                         class="text-red-500">*</span></label>
-                                <select name="status" required
+                                <select name="status"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                     <option value="" disabled {{ old('status') ? '' : 'selected' }}>Select Status
                                     </option>

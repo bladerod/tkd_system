@@ -1,5 +1,5 @@
 <?php
-// app/Models/ChatMessage.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -14,10 +14,14 @@ class ChatMessage extends Model
         'sender_user_id',
         'message',
         'attachment_url',
-        'sent_at'
+        'sent_at',
+        'is_seen' // ✅ IMPORTANT
     ];
 
-    protected $dates = ['sent_at'];
+    protected $casts = [
+        'sent_at' => 'datetime',
+        'is_seen' => 'boolean'
+    ];
 
     public function sender()
     {

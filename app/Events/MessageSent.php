@@ -2,37 +2,49 @@
 
 namespace App\Events;
 
+use App\Models\ChatMessage;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSent implements ShouldBroadcast
+class MessageSent implements ShouldBroadcastNow
 {
-    use SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
+    public ChatMessage $message;
 
-    public function __construct($message)
+    public function __construct(ChatMessage $message)
     {
         $this->message = $message->load('sender');
     }
 
-    public function broadcastOn()
+    public function broadcastOn(): Channel
     {
         return new Channel('chat.' . $this->message->thread_id);
     }
 
-    public function broadcastWith()
+    public function broadcastAs(): string
+    {
+        return 'MessageSent';
+    }
+
+    public function broadcastWith(): array
     {
         return [
-            'id' => $this->message->id,
-            'message' => $this->message->message,
-            'sender' => [
-                'id' => $this->message->sender->id,
-                'fname' => $this->message->sender->fname,
-                'lname' => $this->message->sender->lname,
+            'message' => [
+                'id'             => $this->message->id,
+                'thread_id'      => $this->message->thread_id,
+                'sender_user_id' => $this->message->sender_user_id,
+                'message'        => $this->message->message,
+                'sent_at'        => $this->message->sent_at,
+                'sender'         => [
+                    'id'       => $this->message->sender->id,
+                    'username' => $this->message->sender->username,
+                    'name'     => $this->message->sender->name,
+                ],
             ],
-            'sent_at' => $this->message->sent_at,
         ];
     }
 }

@@ -16,9 +16,10 @@ class ChatThread extends Model
     ];
 
     public function messages()
-    {
-        return $this->hasMany(ChatMessage::class, 'thread_id');
-    }
+{
+    return $this->hasMany(ChatMessage::class, 'thread_id')
+                ->orderBy('sent_at', 'asc');
+}
 
     public function participants()
     {

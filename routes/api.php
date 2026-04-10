@@ -102,12 +102,9 @@ Route::get('/instructor/classes', [ClassApiController::class, 'myClasses']);
 
 Route::get('/classes/{id}/students', [ClassApiController::class, 'classStudents']);
 
-
-Route::get('/certificates/students', [CertificateController::class, 'getStudents']);
-Route::post('/certificates/generate', [CertificateController::class, 'generate']);
-Route::get('/certificates/{id}', [CertificateController::class, 'show']);
-Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
-Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
+Route::get('/certificates/students', [CertificateController::class,'getStudents']);
+Route::get('/certificate-templates', [CertificateController::class,'getTemplates']);
+Route::post('/certificates/generate', [CertificateController::class,'generate']);
 
 Route::get('/students/{id}', [StudentController::class, 'show']);
 Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);

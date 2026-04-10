@@ -81,7 +81,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
 
     Route::post('/chat/{id}/send', [ChatController::class, 'send'])->name('chat.send');
-
+Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.create');
 });
 
     // OTHER PAGES
@@ -218,10 +218,21 @@ Route::get('/student', function () {
 })->name('student');
 
 
-Route::get('/certificates', [CertificateController::class, 'index']);
-Route::get('/certificates/{id}/download', [CertificateController::class, 'download']);
-Route::get('/certificates/print', [CertificateController::class, 'print']);
+Route::get('/certificates', [CertificateController::class,'index']);
 
+Route::post('/certificates/preview', [CertificateController::class,'preview']);
+Route::get('/certificates/{id}', [CertificateController::class,'show']);
+Route::get('/certificates/{id}/download', [CertificateController::class,'download']);
+Route::get('/templates', [CertificateController::class,'templates']);
+Route::get('/templates/create', [CertificateController::class,'createTemplate']);
+Route::post('/templates/store', [CertificateController::class,'storeTemplate']);
+Route::get('/templates/{id}/editor', [CertificateController::class,'editor']);
+Route::post('/templates/{id}/save-layout', [CertificateController::class,'saveLayout']);
+Route::post('/templates/{id}/upload-image', [CertificateController::class,'uploadImage']);
+Route::post('/templates/{id}/upload-bg', [CertificateController::class,'uploadBackground']);
+
+
+Route::get('/verify/{code}', [CertificateController::class,'verify']);
     // USERNAME CHECK (for user management)
     Route::get('/check-username', function (Request $request) {
         $username = $request->query('username');

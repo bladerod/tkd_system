@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova Chat</title>
+
     @vite(['resources/js/app.js'])
+    <title>TrainNova | Chat</title>
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/chat.css'])

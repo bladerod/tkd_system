@@ -22,6 +22,12 @@ class ClassController extends Controller
     public function index()
     {
         $belt_level = BeltLevel::orderBy('rank_order')->get();
+
+        $instructors = Instructor::join('users', 'instructors.user_id', '=', 'users.id')
+            ->select('instructors.*', 'users.branch_id')
+            ->where('instructors.status', 'active')
+            ->get();
+
         $classes = Classes::with(['branch', 'primaryInstructor', 'assistantInstructor', 'schedules'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -34,9 +40,7 @@ class ClassController extends Controller
         }
         
         $branches = Branch::where('status', 'active')->get();
-        $instructors = Instructor::where('status', 'active')->get();
         
-        // Fix: Use 'classes' instead of 'classes.index' since the file is directly in views folder
         return view('classes', compact('classes', 'branches', 'instructors', 'belt_level'));
     }
 
@@ -120,7 +124,7 @@ class ClassController extends Controller
             'primaryInstructor', 
             'assistantInstructor', 
             'schedules',
-            'students.student',
+            'students.student.currentBelt',
             'sessions'
         ])->findOrFail($id);
         
@@ -316,10 +320,19 @@ class ClassController extends Controller
                 ->where('status', 'active')
                 ->pluck('student_id');
             
-            $availableStudents = Student::where('status', 'active')
+            $availableStudents = Student::with('currentBelt')
+                ->where('status', 'active')
                 ->where('branch_id', $class->branch_id)
                 ->whereNotIn('id', $enrolledStudentIds)
-                ->get(['id', 'student_name', 'current_belt']);
+                ->get(['id', 'first_name', 'last_name', 'current_belt'])
+                ->map(function ($student) {
+                    return [
+                        'id' => $student->id,
+                        'student_name' => $student->first_name . ' ' . $student->last_name,
+                        // Grab the name from the relationship, fallback to 'No Belt' if null
+                        'current_belt' => $student->currentBelt->name ?? 'No Belt'
+                    ];
+                });
             
             return response()->json($availableStudents);
             

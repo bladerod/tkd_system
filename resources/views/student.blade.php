@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Students</title>
+    <title>TrainNova | Students</title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/attendance.css'])
@@ -183,6 +183,7 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
 @vite('resources/js/student.js')
+@vite('resources/js/navbarDrop.js')
 <script>
 async function openModal(button) {
     const modal = document.getElementById("studentModal");

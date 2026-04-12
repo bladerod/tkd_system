@@ -1,3 +1,11 @@
 button{
     cursor: pointer;
 }
+thead{
+    background-color: #1c1c1d;
+    color: white;
+}
+
+.datatable-top{
+    display: none;
+}

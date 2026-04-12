@@ -218,7 +218,248 @@ class StudentApiController extends Controller
             'total_classes' => $totalClasses,
             'branch' => $student->branch_id,
             'age' => $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->age : 0,
+            'has_face' => !is_null($student->face_photo),
         ]
     ]);
 }
+
+/**
+ * Register face photo ng student
+ */
+public function registerFace(Request $request)
+{
+    $user = $request->user();
+    $student = \DB::table('students')->where('user_id', $user->id)->first();
+
+    if (!$student) {
+        return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+    }
+
+    $request->validate([
+        'face_photo' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+    ]);
+
+    $apiKey = '6854d593441f427794f106715b8e25e3';
+    $name = trim($student->first_name . ' ' . $student->last_name);
+
+    
+    if ($student->luxand_person_id) {
+        \Http::withHeaders(['token' => $apiKey])
+            ->delete("https://api.luxand.cloud/person/{$student->luxand_person_id}");
+    }
+
+    //  create new person in luxand
+  $createResponse = \Http::withHeaders(['token' => $apiKey])
+    ->attach('photo', file_get_contents($request->file('face_photo')->path()), 'face.jpg')
+    ->post('https://api.luxand.cloud/person', [
+        'name' => $name,
+    ]);
+
+\Log::info('Luxand create person response:', $createResponse->json());
+
+if (!$createResponse->successful()) {
+    return response()->json(['success' => false, 'message' => 'Failed to create person in Luxand'], 500);
+}
+
+$personId = $createResponse->json('uuid');
+
+$path = $request->file('face_photo')->store('face-photos', 'public');
+
+// Search agad para makuha yung integer id
+$searchResponse = \Http::withHeaders(['token' => $apiKey])
+    ->attach('photo', file_get_contents($request->file('face_photo')->path()), 'face.jpg')
+    ->post('https://api.luxand.cloud/photo/search');
+
+\Log::info('Luxand search after register:', $searchResponse->json());
+
+$intId = $searchResponse->json('0.id');
+
+\DB::table('students')
+    ->where('id', $student->id)
+    ->update([
+        'face_photo' => $path,
+        'luxand_person_id' => (string)$intId,
+    ]);
+
+return response()->json([
+    'success' => true,
+    'message' => 'Face registered successfully',
+]);
+}
+
+/**
+ * Face login — compare uploaded photo sa lahat ng registered faces
+ */
+public function faceLogin(Request $request)
+{
+    $request->validate([
+        'face_photo' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+    ]);
+
+    $apiKey = '6854d593441f427794f106715b8e25e3';
+
+    $response = \Http::withHeaders(['token' => $apiKey])
+        ->attach('photo', file_get_contents($request->file('face_photo')->path()), 'face.jpg')
+        ->post('https://api.luxand.cloud/photo/search');
+
+    \Log::info('Luxand search response:', $response->json());
+
+    if (!$response->successful()) {
+        return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
+    }
+
+    $results = $response->json();
+
+    if (empty($results) || !isset($results[0]['name'])) {
+        return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
+    }
+
+    $probability = $results[0]['probability'] ?? 0;
+
+    if ($probability < 0.80) {
+        return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
+    }
+
+   // Gamitin integer id mula sa Luxand
+$luxandIntId = (string)($results[0]['id'] ?? null);
+
+if (!$luxandIntId) {
+    return response()->json(['success' => false, 'message' => 'Face not recognized'], 401);
+}
+
+// Hanapin sa database gamit integer id
+$student = \DB::table('students')
+    ->where('luxand_person_id', $luxandIntId)
+    ->first();
+
+if (!$student) {
+    return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+}
+
+    $user = \DB::table('users')->where('id', $student->user_id)->first();
+    $belt = \DB::table('belt_levels')->where('id', $student->current_belt)->first();
+
+    return response()->json([
+        'success' => true,
+        'student' => [
+            'id' => $student->id,
+            'user_id' => $user->id,
+            'name' => trim($student->first_name . ' ' . $student->last_name),
+            'belt' => $belt->name ?? 'No Belt',
+            'age' => $student->birthdate
+                ? \Carbon\Carbon::parse($student->birthdate)->age
+                : 0,
+            'photo' => $student->photo_url,
+        ]
+    ]);
+}
+
+/**
+ * Confirm check-in — called pag pinindot ng student ang CHECK IN button
+ */
+public function faceCheckIn(Request $request)
+{
+    $request->validate([
+        'user_id' => 'required|integer',
+    ]);
+
+    $user = \DB::table('users')->where('id', $request->user_id)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found'
+        ], 404);
+    }
+
+    // Create sanctum token
+    $userModel = \App\Models\User::find($user->id);
+    $token = $userModel->createToken('face-login')->plainTextToken;
+
+    return response()->json([
+        'success' => true,
+        'token' => $token,
+        'user' => [
+            'id' => $user->id,
+            'name' => trim($user->fname . ' ' . $user->lname),
+            'email' => $user->email,
+            'role' => $user->role,
+        ]
+    ]);
+}
+
+/**
+ * Simple image comparison using GD
+ */
+private function compareImages(string $path1, string $path2): float
+{
+    try {
+        $img1 = $this->loadImage($path1);
+        $img2 = $this->loadImage($path2);
+
+        if (!$img1 || !$img2) return 0;
+
+        // Resize both to 16x16 for comparison
+        $small1 = imagecreatetruecolor(16, 16);
+        $small2 = imagecreatetruecolor(16, 16);
+        imagecopyresampled($small1, $img1, 0, 0, 0, 0, 16, 16, imagesx($img1), imagesy($img1));
+        imagecopyresampled($small2, $img2, 0, 0, 0, 0, 16, 16, imagesx($img2), imagesy($img2));
+
+        $diff = 0;
+        $total = 16 * 16 * 3; // RGB channels
+
+        for ($x = 0; $x < 16; $x++) {
+            for ($y = 0; $y < 16; $y++) {
+                $c1 = imagecolorat($small1, $x, $y);
+                $c2 = imagecolorat($small2, $x, $y);
+
+                $r1 = ($c1 >> 16) & 0xFF;
+                $g1 = ($c1 >> 8) & 0xFF;
+                $b1 = $c1 & 0xFF;
+
+                $r2 = ($c2 >> 16) & 0xFF;
+                $g2 = ($c2 >> 8) & 0xFF;
+                $b2 = $c2 & 0xFF;
+
+                $diff += abs($r1 - $r2) + abs($g1 - $g2) + abs($b1 - $b2);
+            }
+        }
+
+        imagedestroy($small1);
+        imagedestroy($small2);
+        imagedestroy($img1);
+        imagedestroy($img2);
+
+        $similarity = (1 - ($diff / ($total * 255))) * 100;
+        return $similarity;
+
+    } catch (\Exception $e) {
+        return 0;
+    }
+}
+
+private function loadImage(string $path)
+{
+    $type = exif_imagetype($path);
+    return match($type) {
+        IMAGETYPE_JPEG => imagecreatefromjpeg($path),
+        IMAGETYPE_PNG => imagecreatefrompng($path),
+        default => null,
+    };
+}
+
+public function resetFace(Request $request)
+{
+    $user = $request->user();
+    $student = \DB::table('students')->where('user_id', $user->id)->first();
+
+    if (!$student) {
+        return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+    }
+
+    \DB::table('students')->where('id', $student->id)->update(['face_photo' => null]);
+
+    return response()->json(['success' => true, 'message' => 'Face data reset successfully']);
+}
+
 }

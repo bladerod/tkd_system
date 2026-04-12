@@ -1,9 +1,15 @@
+@php
+    $canCreateUser = auth()->user()->canCreate('classes');
+    $canEditUser = auth()->user()->canEdit('classes');
+    $canDeleteUser = auth()->user()->canDelete('classes');
+@endphp
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova</title>
+    <title>TrainNova | User Management</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -60,7 +66,15 @@
                                 </div>
                                 <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <div class="m-4 flex justify-end">
-                                        <button onclick="openAddUserModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                                        <button  
+                                            @if ($canCreateUser)
+                                                disabled onclick="openAddUserModal()"
+                                            @endif
+                                            class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg 
+                                            @if (!$canCreateUser)
+                                                hidden
+                                            @endif
+                                            hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Add User
                                         </button>
@@ -120,14 +134,30 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="flex items-center gap-3">
-                                                            <button class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg edit-btn" 
-                                                                    data-user-id="{{ $user->id }}">
+                                                            <button 
+                                                                @if ($canEditUser)
+                                                                    data-user-id="{{ $user->id }}"
+                                                                @endif
+                                                                class="text-white bg-green-500 hover:bg-green-600 
+                                                                @if (!$canEditUser)
+                                                                    hidden
+                                                                @endif
+                                                                p-2.5 rounded-lg edit-btn">
                                                                 <i class="fa-regular fa-pen-to-square"></i>
                                                                 <span class="hidden debug-id">{{ $user->id }}</span>
                                                             </button>
-                                                            <button class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-user-btn" 
+                                                        
+                                                            <button 
+                                                                @if ($canDeleteUser)
                                                                     data-user-id="{{ $user->id }}"
-                                                                    data-user-name="{{ $user->fname }} {{ $user->lname }}"> 
+                                                                    data-user-name="{{ $user->fname }} {{ $user->lname }}"
+                                                                @endif
+                                                                class="bg-red-500 hover:bg-red-600
+                                                                @if (!$canDeleteUser)
+                                                                    hidden
+                                                                @endif
+                                                                 p-2.5 rounded-lg delete-user-btn" 
+                                                                    > 
                                                                 <i class="fa-regular fa-trash-can text-white"></i>
                                                             </button>
                                                         </div>
@@ -262,8 +292,7 @@
                                     value="{{ old('mobile') }}"
                                     required 
                                     placeholder="09XXXXXXXXX"
-                                    maxlength="13"
-                                    minlength="11"
+                                    maxlength="11"
                                     pattern="^(09|\+639)\d{9}$"
                                     title="Please enter a valid Philippine mobile number (11-13 digits starting with 09 or +639)"
                                     class="w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] @error('mobile') border-red-500 @enderror">
@@ -439,7 +468,7 @@
                         </div>
 
                         <!-- photo_url -->
-                        <div class=" form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">New Profile Photo</label>
                             <input type="file" 
                                 name="photo_url" 
@@ -451,7 +480,7 @@
                         </div>
 
                         <!-- status -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
                             <select name="status" id="edit_status" required 
                                 class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-[#1C1C1D]">

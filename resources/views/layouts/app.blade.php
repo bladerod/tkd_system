@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +33,7 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/js/navbarDrop.js'])
+    @vite(['resources/js/classes.js'])
     <script src="//unpkg.com/alpinejs" defer></script>
     @stack('scripts')
 </body>

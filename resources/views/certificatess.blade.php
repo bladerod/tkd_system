@@ -6,7 +6,7 @@
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/certificates.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    <title>Certificatess</title>
+    <title>TrainNova | Certificates</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>

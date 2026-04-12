@@ -83,19 +83,23 @@ class UserController extends Controller
      * Display a listing of users.
      */
     public function index()
-    {
-        // Get all users with their branches
-        $users = User::with('branch')->get();
-        $users = User::where('role','admin')->get();
-        // Get all branches for the dropdown
-        $branches = Branch::all();
-        
-        // Return the view with data
-        return view('user', [
-            'users' => $users,
-            'branches' => $branches
-        ]);
-    }
+{
+    // Fetch users who are either admin OR superadmin, ensure they are active, 
+    // and eager load their branch relationship all in one query.
+    $users = User::with('branch')
+                 ->whereIn('role', ['admin', 'staff'])
+                 ->where('status', 1)
+                 ->get();
+                 
+    // Get all branches for the dropdown
+    $branches = Branch::all();
+    
+    // Return the view with data
+    return view('user', [
+        'users' => $users,
+        'branches' => $branches
+    ]);
+}
 
     /**
      * Store a newly created user.

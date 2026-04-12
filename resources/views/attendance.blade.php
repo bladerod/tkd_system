@@ -2,11 +2,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova - Attendance</title>
+    <title>TrainNova | Attendance</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    @vite(['resources/css/dashboard.css'])
-    @vite(['resources/css/attendance.css'])
+    @vite(['resources/css/dashboard.css', 'resources/css/attendance.css'])
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
+    @if(session('success'))
+        <meta name="session-success" content="{{ session('success') }}">
+    @endif
+
+    @if(session('error'))
+        <meta name="session-error" content="{{ session('error') }}">
+    @endif
 </head>
 <body class="bg-gray-50">
     @include("includes.navbar")
@@ -21,7 +28,7 @@
                         <span>/</span>
                         <span class="text-[#1C1C1D] font-medium">Attendance</span>
                     </div>
-                    
+
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-4xl font-bold text-[#1C1C1D]">Attendance</h1>
                         <div class="flex gap-4">
@@ -55,7 +62,7 @@
                                     </div>
                                 </div>
                                 <div class="">
-                                    <div class="flex justify-end gap-3 mb-6 p-3">
+                                    <div class="flex justify-end gap-3 mb-1 p-3">
                                         <form action="{{ route('attendance.manual-override') }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="bg-[#f99b20] px-6 py-2.5 rounded-xl hover:bg-[#fcb85f] font-medium transition-colors">
@@ -63,12 +70,10 @@
                                             </button>
                                         </form>
                                         
-                                        <form action="{{ route('attendance.add-manual') }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit" class="bg-[#9ca5ad] px-6 py-2.5 rounded-xl hover:bg-[#BFC9D1] font-medium transition-colors">
-                                                Add Manual
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="openModal()" class="bg-[#9ca5ad] px-6 py-2.5 rounded-xl hover:bg-[#BFC9D1] font-medium transition-colors inline">
+                                            Add Manual
+                                        </button>
+                                        
                                         
                                         <a href="{{ route('attendance.export', request()->all()) }}" class="bg-[#A62809] px-6 py-2.5 rounded-xl hover:bg-[#bf2d0d] text-white font-medium transition-colors inline-block">
                                             Export as CSV
@@ -145,10 +150,11 @@
                                     
                                     <div class="bg-white shadow-sm border border-gray-100 overflow-hidden">
                                         <div class="overflow-x-auto">
-                                            <table class="w-full text-sm">
+                                            <table id="userTable" class="w-full text-sm">
                                                 <thead>
                                                     <tr class="border-b border-gray-200 bg-[#1C1C1D] ">
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Time</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Branch</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Student Name</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Class</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Instructor</th>
@@ -163,10 +169,20 @@
                                                     @forelse($attendanceLogs as $log)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {{ optional($log->checkin_time)->format('g:i A') ?? 'N/A' }}
+                                                            {{-- format(m=month,d=day, y=year, g=12 hours format, i=minute format, a=AM or PM) --}}
+                                                            {{ optional($log->checkin_time)->format('m-d-y g:i A') ?? 'N/A' }}
                                                             @if($log->checkout_time)
-                                                                <br><span class="text-xs text-gray-400">out: {{ $log->checkout_time->format('g:i A') }}</span>
+                                                                <br><span class="text-xs text-gray-400">out: {{ $log->checkout_time->format('m-d-y g:i A') }}</span>
                                                             @endif
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div class="ml-3">
+                                                                    <p class="text-sm font-medium text-gray-800">
+                                                                        {{ $log->branch ?? 'N/A' }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center">
@@ -181,12 +197,11 @@
                                                             </div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {{ $log->class_session_id ?? 'N/A' }}
+                                                            {{ $log->class_name ?? 'N/A' }}
                                                             <br>
-                                                            <span class="text-xs text-gray-500">{{ optional(optional($log->classSession)->class)->level ?? '' }}</span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {{ optional(optional($log->classSession)->instructor)->fname ?? 'N/A' }} {{ optional(optional($log->classSession)->instructor)->lname ?? '' }}
+                                                            {{ $log->instructor_name }}
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {{ optional($log->device)->device_name ?? 'N/A' }}
@@ -235,56 +250,120 @@
         </div>
     </div>
 
-    <div id="manualModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Add Manual Attendance</h3>
-                <form method="POST" action="{{ route('attendance.add-manual') }}">
+    <!-- Manual Attendance Modal -->
+    <div id="manualModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+        <div class="relative top-20 mx-auto border w-[600px] shadow-lg rounded-xl bg-white">
+            <!-- Modal Header -->
+            <div class="flex items-center p-3 border-b bg-[#1C1C1D] rounded-t-lg">
+                <i class="fa-solid fa-pen-to-square text-white text-xl pe-1"></i>
+                <h3 class="text-2xl font-bold text-[#ffffff]">Add Manual Attendance</h3>
+            </div>
+            
+            <div class="p-4">
+                <!-- Modal Body - Form -->
+                <form method="POST" action="{{ route('attendance.add-manual') }}" id="manualAttendanceForm">
                     @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
-                        <select name="student_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                            <option value="">Select Student</option>
+                    <div class="grid grid-cols-2 gap-4">
+                        {{-- branches --}}
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Branch <span class="text-[#FF0000]">*</span>
+                            </label>
+                            <select name="branch" id="branch" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]" required>
+                                <option value="">Select Branch</option>
+                                @foreach($branches ?? [] as $branch)
+                                    <option value="{{ $branch->id }}">
+                                        {{ $branch->code ?? 'No Code' }} - {{ $branch->name }} 
+                                    </option>
+                                @endforeach
                             </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Class Session</label>
-                        <select name="class_session_id" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                            <option value="">Select Class</option>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_student_id"></div>
+                        </div>
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Student <span class="text-[#FF0000]">*</span>
+                            </label>
+                            <select name="student_id" id="student_id" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]" required>
+                                <option value="">Select Student</option>
+                                @foreach($students ?? [] as $student)
+                                    <option value="{{ $student->id }}" data-branch="{{ $student->branch_id }}">
+                                        {{ $student->first_name }} {{ $student->last_name }} - {{ $student->student_code ?? 'No Code' }}
+                                    </option>
+                                @endforeach
                             </select>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_student_id"></div>
+                        </div>
+                        
+                        <!-- Class Session Selection -->
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Class Session <span class="text-[#FF0000]">*</span>
+                            </label>
+                            <select name="class_session_id" id="class_session_id" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]" required>
+                                <option value="">Select Class Session</option>
+                                @foreach($classSessions ?? [] as $session)
+                                    <option value="{{ $session->id }}">
+                                        {{ $session->class->class_name ?? 'Unknown Class' }} - 
+                                        {{ \Carbon\Carbon::parse($session->session_date)->format('M d, Y') }} 
+                                        ({{ \Carbon\Carbon::parse($session->start_time)->format('g:i A') }} - 
+                                        {{ \Carbon\Carbon::parse($session->end_time)->format('g:i A') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_class_session_id"></div>
+                        </div>
+                        
+                        <!-- Check-in Time -->
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Check-in Time <span class="text-[#FF0000]">*</span>
+                            </label>
+                            <input type="datetime-local" name="checkin_time" id="checkin_time" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]" 
+                                value="{{ now()->format('Y-m-d\TH:i') }}"
+                                required>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_checkin_time"></div>
+                        </div>
+                        
+                        <!-- Attendance Status -->
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Attendance Status <span class="text-[#FF0000]">*</span>
+                            </label>
+                            <select name="attendance_status" id="attendance_status" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]" required>
+                                <option value="present">Present</option>
+                                <option value="late">Late</option>
+                                <option value="absent">Absent</option>
+                                <option value="excused">Excused</option>
+                            </select>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_attendance_status"></div>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Time</label>
-                        <input type="datetime-local" name="checkin_time" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                    </div>
-                    <div class="flex justify-end gap-3">
-                        <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D]">Save</button>
+                    
+                    <!-- Modal Footer -->
+                    <div class="flex justify-end gap-3 mt-6 pt-3 border-t">
+                        <button type="button" onclick="closeModal()" 
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submitAttendanceBtn" 
+                            class="px-4 py-2 bg-[#1C1C1D] text-white rounded-lg hover:bg-[#2C2C2D] transition-colors">
+                            Save Attendance
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        function openModal() {
-            document.getElementById('manualModal').classList.remove('hidden');
-        }
-        
-        function closeModal() {
-            document.getElementById('manualModal').classList.add('hidden');
-        }
-
-        // Add event listener for manual add button
-        document.querySelector('button[onclick*="addManual"]')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            openModal();
-        });
-    </script>
-    @vite(['resources/js/app.js'])
-    @vite(['resources/js/dashboard.js'])
+    @vite(['resources/js/app.js', 'resources/js/attendance.js'])
 </body>
 </html>

@@ -1,22 +1,24 @@
+{{-- resources/views/settings/rolespermission.blade.php --}}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova - Roles & Permissions</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>TrainNova | Roles & Permissions</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    @vite(['resources/css/dashboard.css'])
-    @vite(['resources/css/attendance.css'])
+    @vite(['resources/css/dashboard.css', 'resources/css/rolepermission.css'])
+    <!-- Add SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
-    <!-- navbar -->
     @include("includes.navbar")
-    <!-- Sidebar -->
     @include('includes.sidebar')
-    <!-- Main Content -->
+
     <div class="container-fluid m-0">
         <div class="row">
-             <main class="ml-64 p-6"> 
+            <main class="ml-64 p-6">
                 <div class="container-fluid">
                     <!-- Breadcrumb -->
                     <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -26,283 +28,151 @@
                         <span>/</span>
                         <span class="text-[#1C1C1D] font-medium">Roles & Permissions</span>
                     </div>
-                    <h1 class="text-4xl font-bold text-[#1C1C1D]">Settings</h1>
-                    
+
+                    <div class="flex justify-between items-center mb-4">
+                        <h1 class="text-4xl font-bold text-[#1C1C1D]">Roles & Permissions</h1>
+                        <button onclick="resetPermissions('{{ route('settings.roles-permissions.reset') }}')" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                            <i class="fas fa-undo-alt"></i>
+                            Reset Staff Permissions
+                        </button>
+                    </div>
+
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
                     <div class="row mt-4">
                         <div class="col-lg-12">
                             <div class="card z-index-2 bg-white rounded-xl shadow-sm">
                                 <div class="card-header pb-0 bg-transparent">
                                     <div class="p-3 bg-[#1C1C1D] rounded-t-xl">
-                                        <h6 class="text-gray-800 font-semibold text-xl text-white text-center">Roles & Permissions</h6>
+                                        <h6 class="text-gray-800 font-semibold text-xl text-white text-center">Permissions Matrix</h6>
                                     </div>
                                 </div>
                                 <div class="p-8" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
-                                    <!-- Role Management -->
-                                    <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3"> Role Management</h2>
-                                    <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
-
-                                    <div class="grid grid-cols-3 gap-4 mb-6">
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Role Name <span class="text-red-500">*</span></label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="e.g., Admin">
+                                    <!-- Info Box -->
+                                    <div class="bg-gray-300 border border-[#1C1C1D] rounded-lg p-4 mb-6">
+                                        <div class="flex items-start gap-3">
+                                            <i class="fas fa-info-circle text-[#1C1C1D] mt-0.5"></i>
+                                            <div class="text-sm text-[#1C1C1D]">
+                                                <p class="font-medium mb-1">Permission Notes:</p>
+                                                <ul class="list-disc list-inside space-y-1 text-[#1C1C1D]">
+                                                    <li><strong>Admin</strong> has full access to all modules by default (cannot be changed)</li>
+                                                    <li><strong>Staff</strong> permissions can be customized below</li>
+                                                    <li>Changes take effect immediately after saving</li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">&nbsp;</label>
-                                            <button class="w-full px-4 py-2 bg-[#1C1C1D] text-white rounded-md hover:bg-[#2f2f2f] transition-colors">
-                                                <i class="fas fa-plus mr-2"></i>Add Role
+                                    </div>
+                                    <!-- Quick Select Actions -->
+                                        <div class="mt-4 mb-6 flex items-center gap-4 flex-wrap">
+                                            <span class="text-sm text-gray-600 font-medium">Quick Actions:</span>
+                                            {{-- <button type="button" onclick="selectAllStaff()" class="text-sm text-blue-600 hover:text-blue-800">
+                                                Select All Staff Permissions
+                                            </button> --}}
+                                            <span class="text-gray-300">|</span>
+                                            <button type="button" onclick="deselectAllStaff()" class="text-sm text-blue-600 hover:text-blue-800">
+                                                Deselect All Staff Permissions
+                                            </button>
+                                            <span class="text-gray-300">|</span>
+                                            <button type="button" onclick="setStaffReadOnly()" class="text-sm text-blue-600 hover:text-blue-800">
+                                                Set Staff to Read Only (View Only)
+                                            </button>
+                                            <span class="text-gray-300">|</span>
+                                            <button type="button" onclick="setStaffFullAccess()" class="text-sm text-orange-600 hover:text-orange-800">
+                                                Set Staff to Full Access (Not Recommended)
                                             </button>
                                         </div>
-                                    </div>
+                                    <form id="permissionsForm" method="POST" action="{{ route('settings.roles-permissions.update') }}">
+                                        @csrf
+                                        @method('PUT')
 
-                                    <!-- Existing Roles -->
-                                    <div class="flex flex-wrap gap-2 mb-6">
-                                        <span class="px-3 py-1 bg-[#1C1C1D] text-white rounded-full text-sm">Admin</span>
-                                        <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Instructor</span>
-                                        <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Cashier</span>
-                                        <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Parent</span>
-                                        <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">Viewer</span>
-                                    </div>
+                                        <div class="overflow-x-auto">
+                                            <table class="min-w-full bg-white border border-gray-200">
+                                                <thead>
+                                                    <tr class="bg-gray-100">
+                                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600 w-48">Module</th>
+                                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Staff</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($modules as $module)
+                                                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                                            <td class="px-4 py-3 font-medium capitalize">
+                                                                {{ ucfirst($module) }}
+                                                            </td>
+                                                            
+                                                            {{-- <!-- Admin Column - Full Access (Read-only) -->
+                                                            <td class="px-4 py-3">
+                                                                <div class="text-green-600">
+                                                                    <i class="fas fa-check-circle"></i> Full Access
+                                                                    <div class="text-xs text-gray-500 mt-1">View, Create, Edit, Delete</div>
+                                                                </div>
+                                                                <input type="hidden" name="permissions[admin][{{ $module }}][can_view]" value="1">
+                                                                <input type="hidden" name="permissions[admin][{{ $module }}][can_create]" value="1">
+                                                                <input type="hidden" name="permissions[admin][{{ $module }}][can_edit]" value="1">
+                                                                <input type="hidden" name="permissions[admin][{{ $module }}][can_delete]" value="1">
+                                                            </td> --}}
+                                                            
+                                                            <!-- Staff Column - Editable -->
+                                                            <td class="px-4 py-3">
+                                                                <div class="flex flex-wrap gap-4">
+                                                                    <label class="flex items-center gap-1 text-sm">
+                                                                        <input type="checkbox" 
+                                                                               name="permissions[staff][{{ $module }}][can_view]"
+                                                                               value="1"
+                                                                               class="rounded text-[#1C1C1D] focus:ring-[#1C1C1D]"
+                                                                               {{ isset($permissions['staff'][$module]['can_view']) && $permissions['staff'][$module]['can_view'] ? 'checked' : '' }}>
+                                                                        <span class="text-gray-700">View</span>
+                                                                    </label>
+                                                                    <label class="flex items-center gap-1 text-sm">
+                                                                        <input type="checkbox" 
+                                                                               name="permissions[staff][{{ $module }}][can_create]"
+                                                                               value="1"
+                                                                               class="rounded text-[#1C1C1D] focus:ring-[#1C1C1D]"
+                                                                               {{ isset($permissions['staff'][$module]['can_create']) && $permissions['staff'][$module]['can_create'] ? 'checked' : '' }}>
+                                                                        <span class="text-gray-700">Create</span>
+                                                                    </label>
+                                                                    <label class="flex items-center gap-1 text-sm">
+                                                                        <input type="checkbox" 
+                                                                               name="permissions[staff][{{ $module }}][can_edit]"
+                                                                               value="1"
+                                                                               class="rounded text-[#1C1C1D] focus:ring-[#1C1C1D]"
+                                                                               {{ isset($permissions['staff'][$module]['can_edit']) && $permissions['staff'][$module]['can_edit'] ? 'checked' : '' }}>
+                                                                        <span class="text-gray-700">Edit</span>
+                                                                    </label>
+                                                                    <label class="flex items-center gap-1 text-sm">
+                                                                        <input type="checkbox" 
+                                                                               name="permissions[staff][{{ $module }}][can_delete]"
+                                                                               value="1"
+                                                                               class="rounded text-[#1C1C1D] focus:ring-[#1C1C1D]"
+                                                                               {{ isset($permissions['staff'][$module]['can_delete']) && $permissions['staff'][$module]['can_delete'] ? 'checked' : '' }}>
+                                                                        <span class="text-gray-700">Delete</span>
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-                                    <!-- Permissions Matrix -->
-                                    <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3"> Permissions Matrix</h2>
-                                    <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
-
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full bg-white border border-gray-200">
-                                            <thead>
-                                                <tr class="bg-gray-100">
-                                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Module</th>
-                                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Admin</th>
-                                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Instructor</th>
-                                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Cashier</th>
-                                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Parent</th>
-                                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Viewer</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <!-- Dashboard -->
-                                                <tr class="border-b border-gray-200">
-                                                    <td class="px-4 py-3 font-medium">Dashboard</td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Edit</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <!-- Students -->
-                                                <tr class="border-b border-gray-200">
-                                                    <td class="px-4 py-3 font-medium">Students</td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> Add</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Edit</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Delete</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Add</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Edit</label>
-                                                            <label><input type="checkbox" class="mr-1"> Delete</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Add</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                            <label><input type="checkbox" class="mr-1"> Delete</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Add</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                            <label><input type="checkbox" class="mr-1"> Delete</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Add</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit</label>
-                                                            <label><input type="checkbox" class="mr-1"> Delete</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> View</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Attendance -->
-                                                <tr class="border-b border-gray-200">
-                                                    <td class="px-4 py-3 font-medium">Attendance</td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> Manual Override</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Add Manual Log</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Export CSV</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> Manual Override</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Add Manual Log</label>
-                                                            <label><input type="checkbox" class="mr-1"> Export CSV</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Manual Override</label>
-                                                            <label><input type="checkbox" class="mr-1"> Add Manual Log</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Export CSV</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Manual Override</label>
-                                                            <label><input type="checkbox" class="mr-1"> Add Manual Log</label>
-                                                            <label><input type="checkbox" class="mr-1"> Export CSV</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Manual Override</label>
-                                                            <label><input type="checkbox" class="mr-1"> Add Manual Log</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Export CSV</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Billing -->
-                                                <tr class="border-b border-gray-200">
-                                                    <td class="px-4 py-3 font-medium">Billing</td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> Generate Invoice</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Record Payment</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Apply Discount</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate Invoice</label>
-                                                            <label><input type="checkbox" class="mr-1"> Record Payment</label>
-                                                            <label><input type="checkbox" class="mr-1"> Apply Discount</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate Invoice</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Record Payment</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Apply Discount</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate Invoice</label>
-                                                            <label><input type="checkbox" class="mr-1"> Record Payment</label>
-                                                            <label><input type="checkbox" class="mr-1"> Apply Discount</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate Invoice</label>
-                                                            <label><input type="checkbox" class="mr-1"> Record Payment</label>
-                                                            <label><input type="checkbox" class="mr-1"> Apply Discount</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Certificates -->
-                                                <tr class="border-b border-gray-200">
-                                                    <td class="px-4 py-3 font-medium">Certificates</td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> Generate</label>
-                                                            <label><input type="checkbox" class="mr-1" checked> Edit Template</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1" checked> Generate</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit Template</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit Template</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit Template</label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="flex flex-col gap-1">
-                                                            <label><input type="checkbox" class="mr-1"> Generate</label>
-                                                            <label><input type="checkbox" class="mr-1"> Edit Template</label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Settings -->
-                                                <tr class="border-b border-gray-200">
-                                                    <td class="px-4 py-3 font-medium">Settings</td>
-                                                    <td class="px-4 py-3">
-                                                        <label><input type="checkbox" class="mr-1" checked> Full Access</label>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <label><input type="checkbox" class="mr-1"> Full Access</label>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <label><input type="checkbox" class="mr-1"> Full Access</label>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <label><input type="checkbox" class="mr-1"> Full Access</label>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <label><input type="checkbox" class="mr-1"> Full Access</label>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- Buttons -->
-                                    <div class="flex items-center justify-end gap-3 pt-6">
-                                        <button type="button" class="px-8 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">Cancel</button>
-                                        <button type="submit" class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] transition-colors">Save Permissions</button>
-                                    </div>
+                                        <!-- Buttons -->
+                                        <div class="flex items-center justify-end gap-3 pt-6 border-t">
+                                            <button type="submit" 
+                                                    class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] transition-colors">
+                                                Save Permissions
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -312,10 +182,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    @vite(['resources/js/app.js'])
-    @vite(['resources/js/navbarDrop.js'])
+    @vite(['resources/js/app.js', 'resources/js/navbarDrop.js', 'resources/js/rolepermission.js'])
 </body>
 </html>

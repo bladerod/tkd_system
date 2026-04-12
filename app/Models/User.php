@@ -7,6 +7,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+// ✅ ADD THESE (IMPORTANT - prevents class not found errors)
+use App\Models\Branch;
+use App\Models\ParentModel;
+use App\Models\Instructor;
+use App\Models\Notification;
+use App\Models\ChatThread;
+use App\Models\ChatMessage;
+use App\Models\Announcement;
 
 class User extends Authenticatable
 {
@@ -41,11 +52,10 @@ class User extends Authenticatable
     ];
 
     // Relationships
-    public function branch()
+    public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
-
 
     // public function instructor()
     // {
@@ -56,11 +66,31 @@ class User extends Authenticatable
     // {
     //     return $this->hasOne(Parents::class);
     // }
-    public function parent(): HasOne { return $this->hasOne(ParentModel::class); }
-    public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
-    public function notifications(): HasMany { return $this->hasMany(Notification::class); }
-    public function chatParticipants() { return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id'); }
-    public function sentMessages(): HasMany { return $this->hasMany(ChatMessage::class, 'sender_user_id'); }
+
+    public function parent(): HasOne
+    {
+        return $this->hasOne(ParentModel::class);
+    }
+
+    public function instructor(): HasOne
+    {
+        return $this->hasOne(Instructor::class);
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function chatParticipants(): BelongsToMany
+    {
+        return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
+    }
+
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(ChatMessage::class, 'sender_user_id');
+    }
 
     // public function notifications()
     // {
@@ -77,7 +107,7 @@ class User extends Authenticatable
     //     return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
     // }
 
-    public function announcements()
+    public function announcements(): HasMany
     {
         return $this->hasMany(Announcement::class, 'created_by_user_id');
     }
@@ -91,6 +121,7 @@ class User extends Authenticatable
     // {
     //     return $this->hasMany(Certificate::class, 'issued_by_user_id');
     // }
+
     /**
      * Check if user is an admin.
      */
@@ -123,8 +154,9 @@ class User extends Authenticatable
         return $this->role === 'parent';
     }
 
-    public function threads()
-{
-    return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
-}
+    // ⚠️ Duplicate of chatParticipants (kept but clarified)
+    // public function threads(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
+    // }
 }

@@ -1,9 +1,14 @@
+@php
+    $canCreateCompetion = auth()->user()->canCreate('classes');
+    $canEditCompetion = auth()->user()->canEdit('classes');
+    $canDeleteCompetion = auth()->user()->canDelete('classes');
+@endphp
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova</title>
+    <title>TrainNova | Competition</title>
     @vite(['resources/css/app.css', 'resources/css/competition.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -57,7 +62,14 @@
                                 </div>
                                 <div style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                                     <div class="m-4 flex justify-end">
-                                        <button onclick="addCompetitionModal()" class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                                        <button
+                                        @if ($canCreateCompetion)
+                                            onclick="addCompetitionModal()"
+                                        @endif
+                                        @if (!$canCreateCompetion)
+                                            hidden
+                                        @endif
+                                         class="bg-[#1c1c1d] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                                             <i class="fa-solid fa-plus"></i>
                                             Add Competition
                                         </button>
@@ -73,6 +85,7 @@
                                                     <th class="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Date</th>
                                                     <th class="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Organizer</th>
                                                     <th class="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Level</th>
+                                                    <th class="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Status</th>
                                                     <th class="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Actions</th>
                                                 </tr>
                                             </thead>
@@ -99,6 +112,16 @@
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                                        @if ($competitions->status == 'active')
+                                                            bg-green-100 text-green-800 text-green-500
+                                                        @else
+                                                            bg-red-100 rounded-lg text-red-500
+                                                        @endif">
+                                                            {{ ucfirst($competitions->status) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="flex items-center gap-3">
                                                             <!-- View button (eye icon) -->
                                                             <button class="text-white bg-blue-500 hover:bg-blue-600 p-2.5 rounded-lg view-btn" 
@@ -106,14 +129,26 @@
                                                                 <i class="fa-regular fa-eye"></i>
                                                             </button>
                                                             <!-- Edit button (pen icon) -->
-                                                            <button class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg edit-btn" 
-                                                                    data-competition-id="{{ $competitions->id }}">
+                                                            <button 
+                                                                @if ($canEditCompetion)
+                                                                    data-competition-id="{{ $competitions->id }}"
+                                                                @else
+                                                                    hidden
+                                                                @endif
+                                                                class="text-white bg-green-500 hover:bg-green-600 p-2.5 rounded-lg edit-btn" 
+                                                                    >
                                                                 <i class="fa-regular fa-pen-to-square"></i>
                                                             </button>
                                                             <!-- Delete button -->
-                                                            <button class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-competition-btn" 
+                                                            <button 
+                                                                @if ($canDeleteCompetion)
                                                                     data-competition-id="{{ $competitions->id }}"
-                                                                    data-competition-name="{{ $competitions->name }}"> 
+                                                                    data-competition-name="{{ $competitions->name }}"
+                                                                @else
+                                                                    hidden
+                                                                @endif
+                                                                class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg delete-competition-btn" 
+                                                                    > 
                                                                 <i class="fa-regular fa-trash-can text-white"></i>
                                                             </button>
                                                         </div>
@@ -297,7 +332,7 @@
                         </div>
 
                         <!-- Level -->
-                        <div class="col-span-2 form-group">
+                        <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Level <span class="text-[#FF0000]">*</span></label>
                             <select name="level" id="edit_level" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="" disabled>Select Level</option>
@@ -305,6 +340,16 @@
                                 <option value="national">National</option>
                                 <option value="regional">Regional</option>
                                 <option value="local">Local</option>
+                            </select>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_level"></div>
+                        </div>
+                        {{-- status --}}
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status <span class="text-[#FF0000]">*</span></label>
+                            <select name="status" id="edit_status" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="" disabled>Select status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
                             </select>
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_level"></div>
                         </div>

@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 use DB;
-use Illuminate\Http\Request;
-use App\Models\Student;
-use App\Models\Classes;
-use App\Models\Instructor;
 use App\Models\AttendanceLog;
 use App\Models\BeltLevel;
 use App\Models\Certificate;
+use App\Models\Classes;
 use App\Models\CompetitionEntry;
-use Illuminate\Support\Str;
+use App\Models\Instructor;
+use App\Models\Student;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 
 class StudentController extends Controller
@@ -49,36 +50,25 @@ class StudentController extends Controller
         return view('student', compact('students', 'beltlevels', 'classes', 'instructors'));
     }
 
-    // private function calculateBalance($student)
-    // {
-    //     // Based on your invoices and payments schema
-    //     $totalDue = Invoice::where('student_id', $student->id)
-    //         ->whereIn('status', ['pending', 'overdue'])
-    //         ->sum('total_due');
-
-    //     $totalPaid = Payment::whereHas('invoice', function($query) use ($student) {
-    //             $query->where('student_id', $student->id);
-    //         })->sum('amount');
-
-    //     return max(0, $totalDue - $totalPaid);
-    // }
-
     public function store(Request $request)
     {
-
-
         $validated = $request->validate([
-            'branch_id' => 'required',
+            'branch_id' => 'required|exists:branches,id',
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'gender' => 'required',
-            'email' => 'required',
-            'password' => 'required',
+            'middle_name' => 'nullable|string|max:100',
+            'gender' => 'required|in:male,female,other',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
             'current_belt' => 'required',
             'birthdate' => 'required|date',
-            'primary_parent_id' => 'required',
-            'status' => 'required',
+            'primary_parent_id' => 'required|exists:users,id',
+            'status' => 'required|in:active,inactive,suspended',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'medical_notes' => 'nullable|string',
+            'allergies' => 'nullable|string',
+            'contact_person' => 'nullable|string',
+            'contact_number' => 'nullable|string',
         ]);
 
         $studentCode = 'TKD-' . strtoupper(Str::random(5));
@@ -88,14 +78,28 @@ class StudentController extends Controller
             $photoPath = $request->file('photo')->store('student-photos', 'public');
         }
 
+        // First, create the user record for authentication
+        $user = User::create([
+            'branch_id' => $request->branch_id,
+            'role' => 'student',
+            'username' => strtolower($request->first_name . '.' . $request->last_name) . rand(100, 999),
+            'fname' => $request->first_name,
+            'lname' => $request->last_name,
+            'email' => $request->email,
+            'mobile' => $request->contact_number,
+            'password' => Hash::make($request->password),
+            'status' => $request->status === 'active' ? 1 : 0,
+        ]);
+
+        // Then create the student record
         Student::create([
+            'user_id' => $user->id,
             'branch_id' => $request->branch_id,
             'student_code' => $studentCode,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'middle_name' => $request->middle_name,
             'gender' => $request->gender,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
             'current_belt' => $request->current_belt,
             'birthdate' => $request->birthdate,
             'join_date' => now(),

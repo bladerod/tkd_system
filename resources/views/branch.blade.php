@@ -1,9 +1,15 @@
+@php
+    $canCreateBranch = auth()->user()->canCreate('classes');
+    $canEditBranch = auth()->user()->canEdit('classes');
+    $canDeleteBranch = auth()->user()->canDelete('classes');
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Branch</title>
-    @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css'])
+    <title>TrainNova | Branch</title>
+    @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css', 'resources/css/branch.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     <!-- Add Simple-Datatables CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
@@ -80,7 +86,15 @@
                 </div>
                 
                 <!-- ADD BUTTON -->
-                <button @click="openAdd()" class="bg-[#1C1C1D] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
+                <button 
+                    @if ($canCreateBranch)
+                        @click="openAdd()"
+                    @endif
+                    class="bg-[#1C1C1D] text-white px-4 py-2 rounded-lg
+                    @if (!$canCreateBranch)
+                        hidden
+                    @endif
+                      hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
                     <i class="fa fa-plus"></i> Add Branch
                 </button>
             </div>
@@ -136,6 +150,7 @@
                             <div class="flex items-center gap-3">
                                 <!-- EDIT -->
                                 <button 
+                                @if ($canEditBranch)
                                     @click.prevent="openEdit({
                                         id: '{{ $branch->id }}',
                                         name: '{{ addslashes($branch->name) }}',
@@ -147,15 +162,19 @@
                                         email: '{{ $branch->email }}',
                                         status: '{{ $branch->status }}'
                                     })"
+                                @endif
+                                @if (!$canEditBranch)
+                                    hidden
+                                @endif
                                     class="bg-green-500 hover:bg-green-600 p-2.5 rounded-lg text-white transition-colors">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </button>
 
-                                <!-- DELETE -->
+                                {{-- <!-- DELETE -->
                                 <button onclick="confirmDelete('{{ $branch->id }}', '{{ addslashes($branch->name) }}')" 
                                     class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg text-white transition-colors">
                                     <i class="fa-regular fa-trash-can"></i>
-                                </button>
+                                </button> --}}
                             </div>
                         </td>
                     </tr>
@@ -196,10 +215,11 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Branch Name <span class="text-red-500">*</span></label>
                             <input type="text" name="name" x-model="form.name"
-                                @input.debounce.500ms="checkField('name')"
+                                @input.debounce.300ms="handleFieldInput('name'); checkField('name')"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
-                                :class="{'border-red-500': errors.name}">
-                            <p x-show="errors.name" class="text-red-500 text-xs mt-1">
+                                :class="{'border-red-500': validationErrors.name || errors.name}">
+                            <p x-show="validationErrors.name" class="text-red-500 text-xs mt-1" x-text="validationErrors.name"></p>
+                            <p x-show="errors.name && !validationErrors.name" class="text-red-500 text-xs mt-1">
                                 Branch name already exists. Please choose a different name.
                             </p>
                         </div>
@@ -207,10 +227,11 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Code <span class="text-red-500">*</span></label>
                             <input type="text" name="code" x-model="form.code"
-                                @input.debounce.500ms="checkField('code')"
+                                @input.debounce.300ms="handleFieldInput('code'); checkField('code')"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
-                                :class="{'border-red-500': errors.code}">
-                            <p x-show="errors.code" class="text-red-500 text-xs mt-1">
+                                :class="{'border-red-500': validationErrors.code || errors.code}">
+                            <p x-show="validationErrors.code" class="text-red-500 text-xs mt-1" x-text="validationErrors.code"></p>
+                            <p x-show="errors.code && !validationErrors.code" class="text-red-500 text-xs mt-1">
                                 Code already used. Please choose a different code.
                             </p>
                         </div>
@@ -220,7 +241,10 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
                         <input type="text" name="address" x-model="form.address"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                            @input.debounce.300ms="handleFieldInput('address')"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
+                            :class="{'border-red-500': validationErrors.address}">
+                        <p x-show="validationErrors.address" class="text-red-500 text-xs mt-1" x-text="validationErrors.address"></p>
                     </div>
 
                     <!-- CITY + PROVINCE -->
@@ -228,13 +252,19 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
                             <input type="text" name="city" x-model="form.city"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                                @input.debounce.300ms="handleFieldInput('city')"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
+                                :class="{'border-red-500': validationErrors.city}">
+                            <p x-show="validationErrors.city" class="text-red-500 text-xs mt-1" x-text="validationErrors.city"></p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Province</label>
                             <input type="text" name="province" x-model="form.province"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                                @input.debounce.300ms="handleFieldInput('province')"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
+                                :class="{'border-red-500': validationErrors.province}">
+                            <p x-show="validationErrors.province" class="text-red-500 text-xs mt-1" x-text="validationErrors.province"></p>
                         </div>
                     </div>
 
@@ -242,11 +272,12 @@
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mobile</label>
-                            <input type="text" name="mobile" x-model="form.mobile"
-                                @input.debounce.500ms="checkField('mobile')"
+                            <input type="tel" name="mobile" x-model="form.mobile"
+                                @input.debounce.300ms="handleFieldInput('mobile'); checkField('mobile')"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
-                                :class="{'border-red-500': errors.mobile}">
-                            <p x-show="errors.mobile" class="text-red-500 text-xs mt-1">
+                                :class="{'border-red-500': validationErrors.mobile || errors.mobile}">
+                            <p x-show="validationErrors.mobile" class="text-red-500 text-xs mt-1" x-text="validationErrors.mobile"></p>
+                            <p x-show="errors.mobile && !validationErrors.mobile" class="text-red-500 text-xs mt-1">
                                 Mobile already used. Please enter a different mobile number.
                             </p>
                         </div>
@@ -254,10 +285,11 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input type="email" name="email" x-model="form.email"
-                                @input.debounce.500ms="checkField('email')"
+                                @input.debounce.300ms="handleFieldInput('email'); checkField('email')"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
-                                :class="{'border-red-500': errors.email}">
-                            <p x-show="errors.email" class="text-red-500 text-xs mt-1">
+                                :class="{'border-red-500': validationErrors.email || errors.email}">
+                            <p x-show="validationErrors.email" class="text-red-500 text-xs mt-1" x-text="validationErrors.email"></p>
+                            <p x-show="errors.email && !validationErrors.email" class="text-red-500 text-xs mt-1">
                                 Email already used. Please enter a different email address.
                             </p>
                         </div>
@@ -346,7 +378,7 @@ function initializeBranchDataTable() {
             branchDataTable = new simpleDatatables.DataTable(branchTable, {
                 perPage: 10,
                 perPageSelect: [5, 10, 25, 50, 100],
-                searchable: true,
+                searchable: false,
                 sortable: true,
                 labels: {
                     placeholder: "Search...",

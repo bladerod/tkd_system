@@ -43,16 +43,16 @@
                         </div>
                     </div>
                     <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
-                        <!-- ADD BUTTON -->
+                        {{-- <!-- ADD BUTTON -->
                         <div class="flex justify-end items-center m-3">
                             <button onclick="openAddModal()" class="btn-primary bg-green-800 p-3 rounded-xl text-white hover:bg-green-600 font-bold">
                                 <i class="fas fa-plus"></i> Add Parent
                             </button>
-                        </div>
+                        </div> --}}
 
                         <!-- Users Table -->
-                        <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
-                            <table id="parentTable" class="min-w-full divide-y divide-gray-200 p-3">
+                        <div class="overflow-x-auto bg-white rounded-b-lg border border-gray-200">
+                            <table id="parentTable" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -240,9 +240,10 @@
         </div>
     </div>
 </div>
-<script src="//unpkg.com/alpinejs" defer></script>
-@vite("resources/js/parents.js")
-@vite(['resources/js/navbarDrop.js'])
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    
+    @vite("resources/js/parents.js")
+    @vite(['resources/js/navbarDrop.js'])
 </body>
 </html>

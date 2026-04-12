@@ -1,8 +1,13 @@
+@php
+    $canCreateInstructor = auth()->user()->canCreate('classes');
+    $canEditInstructor = auth()->user()->canEdit('classes');
+    $canDeleteInstructor = auth()->user()->canDelete('classes');
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Instructor</title>
+    <title>TrainNova | Instructor</title>
     @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     @vite("resources/js/instructor.js")
@@ -39,7 +44,13 @@
                 <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
                     <!-- ADD BUTTON -->
                     <div class="m-3 flex justify-end ">
-                        <button @click="openAdd()" class="bg-green-700 text-white px-4 py-3 rounded-xl hover:bg-green-600">
+                        <button
+                            @if ($canCreateInstructor)
+                                @click="openAdd()"
+                            @else
+                                hidden
+                            @endif
+                            class="bg-green-700 text-white px-4 py-3 rounded-xl hover:bg-green-600">
                             <i class="fa fa-plus mr-2"></i>Add Instructor
                         </button>
                     </div>
@@ -84,22 +95,24 @@
                                             <div class="flex items-center gap-3">
                                                 <!-- EDIT -->
                                                 <button
-                                                    @click.prevent="openEdit({
-                                                        id: '{{ $inst->id }}',
-                                                        branch_id: '{{ (string) ($inst->user->branch_id ?? '') }}',
-                                                        fname: '{{ $inst->fname }}',
-                                                        lname: '{{ $inst->lname }}',
-                                                        email: '{{ $inst->email }}',
-                                                        username: '{{ $inst->username }}',
-                                                        rank_belt: '{{ $inst->rank_belt }}',
-                                                        certification_level: '{{ $inst->certification_level }}',
-                                                        contact: '{{ $inst->contact }}',
-                                                        status: '{{ $inst->status }}',
-                                                        specialization: '{{ $inst->specialization }}',
-                                                        bio: `{{ addslashes($inst->bio) }}`
-                                                    })"
-                                                    class="text-white bg-green-600 hover:bg-green-500 p-2.5 rounded-lg"
-                                                >
+                                                    @if ($canEditInstructor)
+                                                        @click.prevent="openEdit({
+                                                            id: '{{ $inst->id }}',
+                                                            fname: '{{ $inst->fname }}',
+                                                            lname: '{{ $inst->lname }}',
+                                                            email: '{{ $inst->email }}',
+                                                            username: '{{ $inst->username }}',
+                                                            rank_belt: '{{ $inst->rank_belt }}',
+                                                            certification_level: '{{ $inst->certification_level }}',
+                                                            contact: '{{ $inst->contact }}',
+                                                            status: '{{ $inst->status }}',
+                                                            specialization: '{{ $inst->specialization }}',
+                                                            bio: `{{ addslashes($inst->bio) }}`
+                                                        })"
+                                                    @else
+                                                        hidden
+                                                    @endif
+                                                    class="text-white bg-green-600 hover:bg-green-500 p-2.5 rounded-lg">
                                                    <i class="fa-regular fa-pen-to-square"></i>
                                                 </button>
 
@@ -107,7 +120,11 @@
                                                 <form action="{{ route('instructor.delete', $inst->id) }}" method="POST" class="delete-form" data-instructor-name="{{ $inst->fname }} {{ $inst->lname }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="bg-red-600 hover:bg-red-500 p-2.5 rounded-lg delete-instructor-btn" data-instructor-id="{{ $inst->id }}" data-instructor-name="{{ $inst->fname }} {{ $inst->lname }}">
+                                                    <button
+                                                        @if (!$canDeleteInstructor)
+                                                            hidden
+                                                        @endif
+                                                        type="button" class="bg-red-600 hover:bg-red-500 p-2.5 rounded-lg delete-instructor-btn" data-instructor-id="{{ $inst->id }}" data-instructor-name="{{ $inst->fname }} {{ $inst->lname }}">
                                                         <i class="fa-regular fa-trash-can text-white"></i>
                                                     </button>
                                                 </form>

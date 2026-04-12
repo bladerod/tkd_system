@@ -17,6 +17,8 @@ use App\Http\Controllers\CertificateController;
 
 // Public routes (no token needed)
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/auth/face-login', [StudentApiController::class, 'faceLogin']);
+Route::post('/auth/face-checkin', [StudentApiController::class, 'faceCheckIn']);
 
 // Test route to verify API is working
 Route::get('/test', function() {
@@ -43,6 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard/attendance-trends', [DashboardApiController::class, 'attendanceTrends']);
 
     Route::get('/student/profile', [StudentApiController::class, 'myProfile']);
+
+    Route::post('/student/register-face', [StudentApiController::class, 'registerFace']);
+
+    Route::post('/student/reset-face', [StudentApiController::class, 'resetFace']);
 
     // Instructor-specific na class stats
     Route::get('/instructor/attendance-stats', [ClassApiController::class, 'attendanceStats']);

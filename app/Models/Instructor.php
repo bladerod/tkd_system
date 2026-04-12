@@ -30,7 +30,13 @@ class Instructor extends Model
     ];
 
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Accessor to get branch_id
+    public function getBranchIdAttribute()
+    {
+        return $this->user ? $this->user->branch_id : null;
+    }
 }

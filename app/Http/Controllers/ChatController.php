@@ -14,8 +14,12 @@ class ChatController extends Controller
     $users = User::all();
 
     $threads = auth()->user()->threads()
-        ->with(['messages.sender'])
-        ->get();
+    ->with(['messages.sender'])
+    ->withCount(['messages as unread_count' => function ($q) {
+        $q->where('sender_user_id', '!=', auth()->id())
+          ->where('is_seen', false);
+    }])
+    ->get();
 
     return view('chat', [
         'threads' => $threads,
@@ -62,22 +66,22 @@ broadcast(new MessageSent($message));
         return redirect()->route('chat.show', $id);
     }
 
-    public function create(Request $request)
+public function create(Request $request)
 {
     $request->validate([
-        'participants' => 'required|array|min:1'
+        'participants' => 'required|array|min:1',
+        'type' => 'required|string'
     ]);
 
-    // include self
     $participants = $request->participants;
     $participants[] = auth()->id();
 
-    // create thread
+    // ✅ USE SELECTED TYPE
     $thread = ChatThread::create([
-        'type' => count($participants) > 2 ? 'group' : 'private'
+        'type' => $request->type,
+        'name' => $request->type !== 'private' ? ucfirst($request->type) . ' Chat' : null
     ]);
 
-    // attach users
     $thread->participants()->attach($participants);
 
     return redirect()->route('chat.show', $thread->id);

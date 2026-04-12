@@ -49,8 +49,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
+        'last_seen' => 'datetime',
     ];
-
+public function isOnline()
+{
+    return cache()->has('user-online-' . $this->id);
+}
     // Relationships
     public function branch(): BelongsTo
     {
@@ -154,9 +158,38 @@ class User extends Authenticatable
         return $this->role === 'parent';
     }
 
-    // ⚠️ Duplicate of chatParticipants (kept but clarified)
-    // public function threads(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
-    // }
+
+    public function threads(): BelongsToMany
+    {
+        return $this->belongsToMany(ChatThread::class, 'chat_participants', 'user_id', 'thread_id');
+    }
+
+    public function canView($permission)
+{
+    // If you want Admins to see everything
+    if ($this->role === 'admin') {
+        return true;
+    }
+
+    // Define permissions per role
+    $permissions = [
+        'dashboard' => ['admin', 'staff', 'instructor'],
+        'students'  => ['admin', 'staff', 'instructor'],
+        'chat'      => ['admin', 'staff', 'instructor', 'parent'],
+        // Add more mappings as needed
+    ];
+
+    if (!isset($permissions[$permission])) {
+        return false;
+    }
+
+    return in_array($this->role, $permissions[$permission]);
+
+
+}
+
+public function getNameAttribute()
+{
+    return trim($this->fname . ' ' . $this->lname);
+}
 }

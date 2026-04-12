@@ -196,7 +196,7 @@
 
 /* YOUR MESSAGE STYLE (BLUE LIKE MESSENGER) */
 .message.own .message-bubble {
-    background: #1877f2;
+    background: #1890f2;
     color: #fff;
     border-bottom-right-radius: 5px;
 }
@@ -265,13 +265,21 @@
 
 .create-btn {
     width: 100%;
+    margin-top: 10px;
     background: #1877f2;
     color: white;
-    padding: 8px;
+    padding: 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
+.create-btn:hover {
+    background: #166fe5;
+    transform: scale(1.02);
+}
 .close-btn {
     position: absolute;
     top: 10px;
@@ -279,4 +287,103 @@
     border: none;
     background: none;
     font-size: 16px;
+}
+
+/* USER LIST */
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.user-item:hover {
+    background: #f0f2f5;
+}
+
+/* AVATAR */
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+/* USER TEXT */
+.user-name {
+    font-weight: 500;
+}
+
+.user-username {
+    font-size: 12px;
+    color: #888;
+}
+
+/* SELECTED CHIPS */
+.selected-users {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.user-chip {
+    background: #1877f2;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.user-chip span {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.loader {
+    border: 3px solid #ffffff;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.avatar-wrapper {
+    position: relative;
+}
+
+.online-dot {
+    width: 10px;
+    height: 10px;
+    background: #31a24c;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: 2px solid white;
+}
+
+.online-text {
+    color: #31a24c;
+    font-weight: 500;
+}
+
+.message-status {
+    font-size: 10px;
+    color: gray;
+    margin-top: 2px;
 }

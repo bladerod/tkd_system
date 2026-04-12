@@ -12,6 +12,7 @@ class ChatThread extends Model
     protected $fillable = [
         'type',
         'class_id',
+        'name',
         'created_at'
     ];
 

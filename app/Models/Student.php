@@ -19,12 +19,12 @@ class Student extends Model
     public $timestamps = false;
     public $primaryKey = 'id';
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'branch_id',
-        'student_code', 
+        'student_code',
         'first_name',
         'last_name',
-        'middle_name',  
+        'middle_name',
         'birthdate',
         'gender',
         'photo_url',
@@ -32,7 +32,7 @@ class Student extends Model
         'password',
         'current_belt',
         'join_date',
-        'status',       
+        'status',
         'medical_notes',
         'allergies',
         'emergency_contact_name',
@@ -40,7 +40,7 @@ class Student extends Model
         'primary_parent_id',
     ];
 
-    
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);
@@ -78,9 +78,9 @@ class Student extends Model
     }
 
 
-    public function primaryParent(): HasOne 
-    { 
-        return $this->hasOne(ParentModel::class, 'user_id', 'id'); 
+    public function primaryParent(): HasOne
+    {
+        return $this->hasOne(ParentModel::class, 'user_id', 'id');
     }
     public function instructor(): HasOne { return $this->hasOne(Instructor::class); }
     public function notifications(): HasMany { return $this->hasMany(Notification::class); }

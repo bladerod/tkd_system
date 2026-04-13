@@ -2,30 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttendanceLog;
 use App\Models\BeltLevel;
 use App\Models\Branch;
-use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardPopulateController extends Controller
 {
     public function index()
     {   
-        $students = \DB::table('students')
-            ->select('id', \DB::raw("CONCAT(first_name, ' ', last_name) as student_name"), 'student_code')
+        $students = DB::table('students')
+            ->select('id', DB::raw("CONCAT(first_name, ' ', last_name) as student_name"), 'student_code')
             ->where('status', 'active')
             ->get();
+        $todayAttendance = AttendanceLog::with(['student', 'classSession.class', 'classSession.instructor'])
+        ->whereDate('checkin_time', today())
+        ->orderBy('checkin_time', 'desc')
+        ->get();
         $parents = User::where('role', 'parent')->get();
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
 
-        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students'));
+        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students', 'todayAttendance'));
     }
 
     public function store(Request $request)
     {
-        \Log::info('Store called', $request->all());
+        Log::info('Store called', $request->all());
 
         $validate = $request->validate([
             'branch_id' => 'required|exists:branches,id',
@@ -56,7 +62,7 @@ class DashboardPopulateController extends Controller
         ]);
 
         try {
-            \DB::table('students')->insert([
+            DB::table('students')->insert([
                 'user_id' => $user->id,
                 'branch_id' => $validate['branch_id'],
                 'student_code' => 'TKD-' . strtoupper(\Illuminate\Support\Str::random(5)),
@@ -75,7 +81,7 @@ class DashboardPopulateController extends Controller
                 'created_at' => now(),
             ]);
         } catch (\Exception $e) {
-            \Log::error('Student insert error: ' . $e->getMessage());
+            Log::error('Student insert error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Student created but profile failed: ' . $e->getMessage());
         }
 

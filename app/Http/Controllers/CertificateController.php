@@ -1,226 +1,179 @@
 <?php
-// app/Http/Controllers/CertificateController.php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Models\Certificate;
-use App\Models\Student;
-use App\Models\BeltExamResult;
-use App\Models\BeltExam;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Models\Certificate;
+use App\Models\CertificateTemplate;
+use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CertificateController extends Controller
 {
+    /* ================= PAGE ================= */
     public function index()
     {
-        $certificates = Certificate::with(['student', 'issuedBy'])
-            ->orderBy('issued_date', 'desc')
-            ->get()
-            ->map(function($cert) {
-                return [
-                    'id' => $cert->id,
-                    'student_name' => $cert->student->first_name . ' ' . $cert->student->last_name,
-                    'student_id' => $cert->student_id,
-                    'type' => $cert->certificate_type,
-                    'title' => $cert->title,
-                    'date' => $cert->issued_date,
-                    'qr_code' => $cert->qr_code_value,
-                    'has_qr' => !empty($cert->qr_code_value),
-                    'pdf_path' => $cert->pdf_path,
-                    'issued_by' => $cert->issuedBy?->name ?? 'System',
-                    'verification_url' => $cert->verification_url
-                ];
-            });
-
-        return view('certificates', compact('certificates'));
+        $certificates = Certificate::with('student','template')->latest()->get();
+        return view('certificates.index', compact('certificates'));
     }
+
+    /* ================= API ================= */
+
+    public function getStudents()
+    {
+        return Student::select('id', \DB::raw("CONCAT(fname,' ',lname) as name"))->get();
+    }
+
+    public function getTemplates()
+    {
+        return CertificateTemplate::select('id','name','type')->get();
+    }
+
+    /* ================= GENERATE ================= */
 
     public function generate(Request $request)
     {
-        $request->validate([
-            'student_id' => 'required|exists:students,id',
-            'type' => 'required|in:belt_promotion,competition,participation,achievement',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string'
-        ]);
+        $student = Student::find($request->student_id);
 
-        $student = Student::findOrFail($request->student_id);
-
-        // Generate unique QR code
-        $qrCode = 'TKD-' . strtoupper(Str::random(8));
-        $verificationUrl = route('certificates.verify', $qrCode);
-
-        // Create certificate
-        $certificate = Certificate::create([
-            'student_id' => $request->student_id,
-            'certificate_type' => $request->type,
-            'title' => $request->title,
-            'description' => $request->description,
+        $cert = Certificate::create([
+            'student_id' => $student->id,
+            'template_id' => $request->template_id,
+            'certificate_type' => 'promotion',
+            'title' => 'Belt Promotion',
             'issued_date' => now(),
-            'issued_by_user_id' => Auth::id(),
-            'qr_code_value' => $qrCode,
-            'verification_url' => $verificationUrl
+
+            'data' => json_encode([
+                'student_name' => $student->fname . ' ' . $student->lname,
+                'belt_level' => $request->belt_level ?? 'Yellow Belt',
+                'date_issued' => now()->format('F d, Y')
+            ]),
+
+            'qr_code_value' => 'CERT-' . uniqid()
         ]);
 
-        // Generate PDF
-        $pdf = $this->generatePDF($certificate);
-        $pdfPath = 'certificates/' . $qrCode . '.pdf';
-
-        // Store PDF
-        Storage::disk('public')->put($pdfPath, $pdf->output());
-        $certificate->update(['pdf_path' => $pdfPath]);
-
-        return response()->json([
-            'success' => true,
-            'certificate' => $certificate->load(['student', 'issuedBy']),
-            'download_url' => asset('storage/' . $pdfPath)
-        ]);
+        return response()->json(['success'=>true]);
     }
+
+    /* ================= PREVIEW ================= */
+
+    public function preview(Request $request)
+    {
+        $template = CertificateTemplate::find($request->template_id);
+
+        $layout = $template->layout;
+
+        $cert = (object)[
+            'template' => (object)['layout' => $layout],
+            'data' => [
+                'student_name' => 'Juan Dela Cruz',
+                'belt_level' => $request->belt_level ?? 'Yellow Belt'
+            ],
+            'qr_code_value' => 'PREVIEW'
+        ];
+
+        return view('certificates.preview', compact('cert'));
+    }
+
+    /* ================= VIEW ================= */
 
     public function show($id)
     {
-        $certificate = Certificate::with(['student', 'issuedBy'])->findOrFail($id);
-
-        return response()->json([
-            'id' => $certificate->id,
-            'student' => [
-                'name' => $certificate->student->first_name . ' ' . $certificate->student->last_name,
-                'belt' => $certificate->student->current_belt,
-                'photo' => $certificate->student->photo_url
-            ],
-            'type' => $certificate->certificate_type,
-            'title' => $certificate->title,
-            'description' => $certificate->description,
-            'issued_date' => $certificate->issued_date,
-            'issued_by' => $certificate->issuedBy?->name,
-            'qr_code' => $certificate->qr_code_value,
-            'verification_url' => $certificate->verification_url,
-            'pdf_url' => $certificate->pdf_path ? asset('storage/' . $certificate->pdf_path) : null
-        ]);
+        $cert = Certificate::with('template')->findOrFail($id);
+        return view('certificates.preview', compact('cert'));
     }
+
+    /* ================= PDF ================= */
 
     public function download($id)
     {
-        $certificate = Certificate::findOrFail($id);
+        $cert = Certificate::with('template')->findOrFail($id);
 
-        if (!$certificate->pdf_path || !Storage::disk('public')->exists($certificate->pdf_path)) {
-            // Regenerate if missing
-            $pdf = $this->generatePDF($certificate);
-            return $pdf->download($certificate->qr_code_value . '.pdf');
-        }
+        $pdf = Pdf::loadView('certificates.pdf', compact('cert'))
+            ->setPaper('a4','landscape');
 
-        return response()->file(
-            storage_path('app/public/' . $certificate->pdf_path),
-            ['Content-Disposition' => 'inline; filename="' . $certificate->qr_code_value . '.pdf"']
-        );
+        return $pdf->download('certificate.pdf');
     }
 
-    public function print($id)
+    /* ================= VERIFY ================= */
+
+    public function verify($code)
     {
-        $certificate = Certificate::with(['student', 'issuedBy'])->findOrFail($id);
-
-        return view('certificates.print', compact('certificate'));
+        $cert = Certificate::where('qr_code_value',$code)->firstOrFail();
+        return view('certificates.verify', compact('cert'));
     }
 
-    public function email($id)
-    {
-        $certificate = Certificate::with(['student.primaryParent.user'])->findOrFail($id);
+    /* ================= TEMPLATE LIST ================= */
+public function templates()
+{
+    $templates = CertificateTemplate::all();
+    return view('templates.index', compact('templates'));
+}
 
-        $parentEmail = $certificate->student->primaryParent?->user?->email;
+/* ================= CREATE PAGE ================= */
+public function createTemplate()
+{
+    return view('templates.create');
+}
 
-        if (!$parentEmail) {
-            return response()->json(['error' => 'No parent email found'], 400);
-        }
+/* ================= STORE ================= */
+public function storeTemplate(Request $request)
+{
+    CertificateTemplate::create([
+        'name' => $request->name,
+        'type' => $request->type,
 
-        // Send email with certificate attachment
-        Mail::to($parentEmail)->send(new \App\Mail\CertificateMail($certificate));
+        // IMPORTANT: TEXT field
+        'layout' => json_encode([
+            "student_name" => ["x"=>300,"y"=>250],
+            "belt_level" => ["x"=>300,"y"=>320]
+        ])
+    ]);
 
-        return response()->json(['success' => true, 'message' => 'Certificate emailed successfully']);
-    }
+    return redirect('/templates');
+}
 
-    public function verify($qrCode)
-    {
-        $certificate = Certificate::with('student')->where('qr_code_value', $qrCode)->first();
+/* ================= EDITOR ================= */
+public function editor($id)
+{
+    $template = CertificateTemplate::findOrFail($id);
+    return view('templates.editor', compact('template'));
+}
 
-        if (!$certificate) {
-            return view('certificates.verify-invalid');
-        }
+/* ================= SAVE LAYOUT ================= */
+public function saveLayout(Request $request, $id)
+{
+    $template = CertificateTemplate::findOrFail($id);
 
-        return view('certificates.verify', compact('certificate'));
-    }
+    $template->layout = json_encode($request->layout);
+    $template->save();
 
-    public function getStudentsForDropdown()
-    {
-        $students = Student::where('status', 'active')
-            ->select('id', 'first_name', 'last_name', 'current_belt', 'student_code')
-            ->get()
-            ->map(fn($s) => [
-                'id' => $s->id,
-                'name' => $s->first_name . ' ' . $s->last_name,
-                'belt' => $s->current_belt,
-                'code' => $s->student_code
-            ]);
+    return response()->json([
+        'success' => true
+    ]);
+}
 
-        return response()->json($students);
-    }
+/* ================= UPLOAD BACKGROUND ================= */
+public function uploadBackground(Request $request, $id)
+{
+    $template = CertificateTemplate::findOrFail($id);
 
-    public function bulkGenerate(Request $request)
-    {
-        $request->validate([
-            'exam_id' => 'required|exists:belt_exams,id'
-        ]);
+    $file = $request->file('background');
+    $path = $file->store('templates', 'public');
 
-        $exam = BeltExam::with(['results.student', 'results' => function($q) {
-            $q->where('result', 'pass');
-        }])->findOrFail($request->exam_id);
+    $template->background = $path;
+    $template->save();
 
-        $generated = [];
+    return response()->json(['path'=>$path]);
+}
 
-        foreach ($exam->results as $result) {
-            $qrCode = 'TKD-' . strtoupper(Str::random(8));
-            $verificationUrl = route('certificates.verify', $qrCode);
+public function uploadImage(Request $request)
+{
+    $file = $request->file('image');
+    $path = $file->store('templates', 'public');
 
-            $certificate = Certificate::create([
-                'student_id' => $result->student_id,
-                'certificate_type' => 'belt_promotion',
-                'title' => 'Belt Promotion - ' . ucfirst($exam->belt_level),
-                'description' => 'Successfully promoted to ' . ucfirst($exam->belt_level) . ' belt on ' . $exam->exam_date,
-                'issued_date' => now(),
-                'issued_by_user_id' => Auth::id(),
-                'qr_code_value' => $qrCode,
-                'verification_url' => $verificationUrl
-            ]);
-
-            $pdf = $this->generatePDF($certificate);
-            $pdfPath = 'certificates/' . $qrCode . '.pdf';
-            Storage::disk('public')->put($pdfPath, $pdf->output());
-            $certificate->update(['pdf_path' => $pdfPath]);
-
-            $generated[] = $certificate;
-        }
-
-        return response()->json([
-            'success' => true,
-            'count' => count($generated),
-            'certificates' => $generated
-        ]);
-    }
-
-    private function generatePDF($certificate)
-    {
-        $data = [
-            'certificate' => $certificate,
-            'student' => $certificate->student,
-            'qrCode' => base64_encode(QrCode::format('png')
-                ->size(200)
-                ->generate($certificate->verification_url))
-        ];
-
-        return Pdf::loadView('certificates.template', $data);
-    }
+    return response()->json([
+        'path' => $path
+    ]);
+}
 }

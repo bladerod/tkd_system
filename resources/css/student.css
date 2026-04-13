@@ -51,7 +51,7 @@ body {
 /* Table Styling */
 .table-card {
     background: white;
-    padding: 25px;
+
     border-radius: 14px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
@@ -161,7 +161,7 @@ body {
 .btn-view:hover {
     background: #333;
 }
-/* Modal Background */
+Modal Background
 .modal {
     display: none;
     position: fixed;

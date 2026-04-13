@@ -64,17 +64,15 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
-                                
+
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse ($parentList as $parent)
                                         <tr class="hover:bg-gray-50 transition-colors duration-150" data-parent-id="{{ $parent['id'] }}">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center gap-3">
-                                                    <div class="avatar-circle">
-                                                        {{ strtoupper(substr($parent['fname'], 0, 1)) }}
-                                                    </div>
+
                                                     <div>
-                                                        <div class="font-medium">{{ $parent['fname'] }}</div>
+                                                        <div class="font-medium">{{ $parent['name'] }}</div>
                                                         <div class="text-sm text-gray-500">{{ $parent['email'] }}</div>
                                                     </div>
                                                 </div>
@@ -93,14 +91,14 @@
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($parent['status'] == 'active')
+                                                @if($parent['status'] == '1')
                                                     <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
                                                 @else
                                                     <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Inactive</span>
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($parent['id_verified'])
+                                                @if($parent['id_verified_flag'])
                                                     <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full"><i class="fas fa-check"></i> Verified</span>
                                                 @else
                                                     <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full"><i class="fas fa-clock"></i> Pending</span>
@@ -242,7 +240,7 @@
 </div>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    
+
     @vite("resources/js/parents.js")
     @vite(['resources/js/navbarDrop.js'])
 </body>

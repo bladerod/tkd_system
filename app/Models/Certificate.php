@@ -1,12 +1,33 @@
 <?php
-// app/Models/Certificate.php
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Certificate extends Model {
-    protected $fillable = ['student_id', 'certificate_type', 'title', 'description', 'issued_date', 'issued_by_user_id', 'qr_code_value', 'verification_url', 'pdf_path'];
+class Certificate extends Model
+{
+    protected $table = 'certificates';
 
-    public function student(): BelongsTo { return $this->belongsTo(Student::class); }
-    public function issuedBy(): BelongsTo { return $this->belongsTo(User::class, 'issued_by_user_id'); }
+    protected $fillable = [
+        'student_id',
+        'template_id',
+        'certificate_type',
+        'title',
+        'issued_date',
+        'data',
+        'qr_code_value'
+    ];
+
+    protected $casts = [
+        'data' => 'array'
+    ];
+
+    public function template()
+    {
+        return $this->belongsTo(CertificateTemplate::class, 'template_id');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 }

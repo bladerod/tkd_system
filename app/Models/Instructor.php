@@ -33,7 +33,7 @@ class Instructor extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    
+
     // Accessor to get branch_id
     public function getBranchIdAttribute()
     {

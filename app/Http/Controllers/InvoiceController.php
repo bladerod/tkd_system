@@ -90,6 +90,31 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Get invoices as JSON for dashboard
+     */
+    public function getInvoicesJson()
+    {
+        $invoices = Invoice::with(['student'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($invoice) {
+                return [
+                    'id' => $invoice->id,
+                    'invoice_no' => $invoice->invoice_no,
+                    'student_name' => $invoice->student->first_name . ' ' . $invoice->student->last_name,
+                    'total_due' => $invoice->total_due,
+                    'status' => $invoice->status,
+                ];
+            });
+        
+        return response()->json([
+            'success' => true,
+            'invoices' => $invoices
+        ]);
+    }
+
+
+    /**
      * Auto-generate monthly invoices for all active students
      */
     public function generateMonthlyInvoices()

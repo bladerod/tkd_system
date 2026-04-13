@@ -38,6 +38,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->middleware('permission:dashboard,view')->name('dashboard.index');
     Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->middleware('permission:students,create')->name('dashboard.student.store');
     Route::post('/dashboard/parent',[ParentsController::class,'store'])->middleware('permission:parents,create')->name('parent.store');
+    
+
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -136,6 +138,9 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
 
     // BILLING
     Route::prefix('billing')->name('billing.')->group(function () {
+        Route::get('/invoices-json', [InvoiceController::class, 'getInvoicesJson'])
+            ->middleware('permission:billing,view')
+            ->name('invoices.json');
         Route::get('/', [InvoiceController::class, 'index'])->middleware('permission:billing,view')->name('index');
         Route::post('/generate-monthly', [InvoiceController::class, 'generateMonthlyInvoices'])->middleware('permission:billing,create')->name('generate-monthly');
         Route::post('/mark-overdue', [InvoiceController::class, 'markOverdueInvoices'])->middleware('permission:billing,edit')->name('mark-overdue');

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrainNova</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/dashboard.css'])
 </head>
 
@@ -80,7 +82,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Active Students</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">186</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $students->count() }}</p>
                                 </div>
                             </div>
                         </div>
@@ -93,10 +95,9 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Active Parents</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">321</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $parents->count() }}</p>
                                 </div>
                             </div>
-
                         </div>
 
                         <!-- Today Attendance -->
@@ -107,7 +108,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Today Attendance</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">321</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $todayAttendance->count() }}</p>
                                 </div>
                             </div>
                         </div>
@@ -852,6 +853,63 @@
         </dialog>
     </el-dialog>
     {{-- end parent modal --}}
+
+    {{-- Payment Modal --}}
+    <div id="paymentModal" class="fixed inset-0 bg-gray-500 bg-opacity-90 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-lg bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Record Payment</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="paymentForm">
+                <input type="hidden" id="invoiceId" name="invoice_id">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Invoice #</label>
+                    <p id="invoiceNoDisplay" class="text-gray-900 font-medium"></p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
+                    <p id="studentNameDisplay" class="text-gray-900"></p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Due</label>
+                    <p id="totalDueDisplay" class="text-xl font-bold text-gray-900"></p>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount to Pay</label>
+                    <input type="number" id="paymentAmount" name="amount" step="0.01" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                    <select id="paymentMethod" name="payment_method" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                        <option value="cash">Cash</option>
+                        <option value="gcash">GCash</option>
+                        <option value="card">Credit/Debit Card</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reference No. (Optional)</label>
+                    <input type="text" id="transactionReference" name="transaction_reference"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                </div>
+                <div class="flex gap-3 justify-end">
+                    <button type="button" onclick="closePaymentModal()"
+                        class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 text-sm text-white bg-[#63ad35] rounded-md hover:bg-[#71c93e] transition-colors">
+                        Process Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {{-- end of modals --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

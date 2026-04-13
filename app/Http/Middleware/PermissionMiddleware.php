@@ -26,7 +26,7 @@ class PermissionMiddleware
         // Check the requested action against the User model's helper methods
         switch ($action) {
             case 'view':
-                $hasPermission = $user->canView($module);
+                $hasPermission = $user->canViews1($module);
                 break;
             case 'create':
                 $hasPermission = $user->canCreate($module);

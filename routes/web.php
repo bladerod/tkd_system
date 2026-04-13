@@ -191,21 +191,64 @@ Route::get('/settings/integration', function () {
     })->name('student');
 
 
-Route::get('/certificates', [CertificateController::class,'index']);
+    Route::get('/certificates', [CertificateController::class,'index']);
 
-Route::post('/certificates/preview', [CertificateController::class,'preview']);
-Route::get('/certificates/{id}', [CertificateController::class,'show']);
-Route::get('/certificates/{id}/download', [CertificateController::class,'download']);
-Route::get('/templates', [CertificateController::class,'templates']);
-Route::get('/templates/create', [CertificateController::class,'createTemplate']);
-Route::post('/templates/store', [CertificateController::class,'storeTemplate']);
-Route::get('/templates/{id}/editor', [CertificateController::class,'editor']);
-Route::post('/templates/{id}/save-layout', [CertificateController::class,'saveLayout']);
-Route::post('/templates/{id}/upload-image', [CertificateController::class,'uploadImage']);
-Route::post('/templates/{id}/upload-bg', [CertificateController::class,'uploadBackground']);
+    Route::post('/certificates/preview', [CertificateController::class,'preview']);
+    Route::get('/certificates/{id}', [CertificateController::class,'show']);
+    Route::get('/certificates/{id}/download', [CertificateController::class,'download']);
+    Route::get('/templates', [CertificateController::class,'templates']);
+    Route::get('/templates/create', [CertificateController::class,'createTemplate']);
+    Route::post('/templates/store', [CertificateController::class,'storeTemplate']);
+    Route::get('/templates/{id}/editor', [CertificateController::class,'editor']);
+    Route::post('/templates/{id}/save-layout', [CertificateController::class,'saveLayout']);
+    Route::post('/templates/{id}/upload-image', [CertificateController::class,'uploadImage']);
+    Route::post('/templates/{id}/upload-bg', [CertificateController::class,'uploadBackground']);
+
+    Route::prefix('settings')->group(function () {
+
+        // User Management
+        Route::prefix('user')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->middleware('permission:users,view')->name('index');
+            Route::post('/', [UserController::class, 'store'])->middleware('permission:users,create')->name('store');
+            Route::get('/{id}', [UserController::class, 'show'])->middleware('permission:users,view')->name('show');
+            Route::get('/{id}/edit', [UserController::class, 'edit'])->middleware('permission:users,edit')->name('edit');
+            Route::put('/{id}', [UserController::class, 'update'])->middleware('permission:users,edit')->name('update');
+            Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users,delete')->name('destroy');
+        });
+
+    // Billing Rules
+        Route::get('/billing-rules', [BillingRulesController::class, 'index'])->middleware('permission:settings,view');
+        Route::post('/billing-rules', [BillingRulesController::class, 'update'])->middleware('permission:settings,edit');
+
+        // Club Profile
+        Route::get('/club-profile', [ClubProfileController::class, 'index'])->middleware('permission:settings,view')->name('settings.club-profile');
+        Route::post('/club-profile/update', [ClubProfileController::class, 'update'])->middleware('permission:settings,edit')->name('settings.club-profile.update');
+
+        // Branding
+        Route::get('/branding', [BrandingController::class, 'index'])->middleware('permission:settings,view')->name('settings.branding');
+        Route::post('/branding/update', [BrandingController::class, 'update'])->middleware('permission:settings,edit')->name('settings.branding.update');
+        Route::get('/branding-rules', function () { return view('brandingrules'); })->middleware('permission:settings,view');
+
+        // Discounts
+        Route::get('/discounts', [DiscountController::class, 'index'])->middleware('permission:settings,view')->name('discounts.index');
+        Route::post('/discounts',[DiscountController::class,'store'])->middleware('permission:settings,create')->name('discounts.store');
+        Route::get('/discounts/{id}', [DiscountController::class, 'show'])->middleware('permission:settings,view')->name('discounts.show');
+        Route::put('/discounts/{id}', [DiscountController::class, 'update'])->middleware('permission:settings,edit')->name('discounts.update');
+        Route::delete('/discounts/{id}', [DiscountController::class, 'destroy'])->middleware('permission:settings,delete')->name('discounts.destroy');
+
+        // Roles and Permissions
+        Route::prefix('roles-and-permissions')->name('settings.roles-permissions.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\RolePermissionController::class, 'index'])->middleware('permission:settings,view')->name('index');
+            Route::put('/', [\App\Http\Controllers\RolePermissionController::class, 'update'])->middleware('permission:settings,edit')->name('update');
+            Route::post('/reset', [\App\Http\Controllers\RolePermissionController::class, 'reset'])->middleware('permission:settings,edit')->name('reset');
+        });
+
+        Route::get('/device', function () { return view('device'); })->middleware('permission:settings,view');
+        Route::get('/integration', function () { return view('integration'); })->middleware('permission:settings,view');
+    });
 
 
-Route::get('/verify/{code}', [CertificateController::class,'verify']);
+    Route::get('/verify/{code}', [CertificateController::class,'verify']);
     // USERNAME CHECK (for user management)
     Route::get('/check-username', function (Request $request) {
         $username = $request->query('username');

@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
-// ✅ ADD THESE (IMPORTANT - prevents class not found errors)
 use App\Models\Branch;
 use App\Models\ParentModel;
 use App\Models\Instructor;
@@ -165,28 +163,69 @@ public function isOnline()
     }
 
     public function canView($permission)
-{
-    // If you want Admins to see everything
-    if ($this->role === 'admin') {
-        return true;
+    {
+        // If you want Admins to see everything
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        // Define permissions per role
+        $permissions = [
+            'dashboard' => ['admin', 'staff', 'instructor'],
+            'students'  => ['admin', 'staff', 'instructor'],
+            'chat'      => ['admin', 'staff', 'instructor', 'parent'],
+            // Add more mappings as needed
+        ];
+
+        if (!isset($permissions[$permission])) {
+            return false;
+        }
+
+        return in_array($this->role, $permissions[$permission]);
+
     }
 
-    // Define permissions per role
-    $permissions = [
-        'dashboard' => ['admin', 'staff', 'instructor'],
-        'students'  => ['admin', 'staff', 'instructor'],
-        'chat'      => ['admin', 'staff', 'instructor', 'parent'],
-        // Add more mappings as needed
-    ];
-
-    if (!isset($permissions[$permission])) {
-        return false;
+    public function getPermissionsAttribute()
+    {
+        return RolePermission::where('role', $this->role)->get();
     }
 
-    return in_array($this->role, $permissions[$permission]);
+    // Check specific permission
+    public function canViews1($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_view : false;
+    }
 
+    public function canCreate($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_create : false;
+    }
 
-}
+    public function canEdit($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_edit : false;
+    }
+
+    public function canDelete($module): bool
+    {
+        $permission = RolePermission::where('role', $this->role)
+            ->where('module', $module)
+            ->first();
+        
+        return $permission ? (bool) $permission->can_delete : false;
+    }
 
 public function getNameAttribute()
 {

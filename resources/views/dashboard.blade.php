@@ -82,7 +82,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Active Students</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">186</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $students->count() }}</p>
                                 </div>
                             </div>
                         </div>
@@ -95,10 +95,9 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Active Parents</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">321</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $parents->count() }}</p>
                                 </div>
                             </div>
-
                         </div>
 
                         <!-- Today Attendance -->
@@ -109,7 +108,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Today Attendance</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">321</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">{{ $todayAttendance->count() }}</p>
                                 </div>
                             </div>
                         </div>

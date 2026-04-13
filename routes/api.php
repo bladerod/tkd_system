@@ -106,7 +106,7 @@ Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'message
 
 Route::get('/instructor/classes', [ClassApiController::class, 'myClasses']);
 
-Route::get('/classes/{id}/students', [ClassApiController::class, 'classStudents']);
+Route::get('/classes/{id}/students', [StudentApiController::class, 'getClassStudentsWithLoginType']);
 
 Route::get('/certificates/students', [CertificateController::class,'getStudents']);
 Route::get('/certificate-templates', [CertificateController::class,'getTemplates']);

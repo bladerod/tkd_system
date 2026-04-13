@@ -11,14 +11,12 @@ class AttendanceApiController extends Controller
 {
     public function index(Request $request)
     {
-        // Get filter parameters
         $fromDate = $request->get('from_date', now()->format('Y-m-d'));
         $toDate = $request->get('to_date', now()->format('Y-m-d'));
         $classId = $request->get('class_id');
         $instructorId = $request->get('instructor_id');
         $deviceId = $request->get('device_id');
 
-        // Build query with relationships
         $query = AttendanceLog::with([
             'student', 
             'classSession.class', 
@@ -27,7 +25,6 @@ class AttendanceApiController extends Controller
             'recordedBy'
         ]);
 
-        // Apply date filters
         if ($fromDate && $toDate) {
             $query->whereBetween('checkin_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
         }
@@ -48,10 +45,8 @@ class AttendanceApiController extends Controller
             $query->where('device_id', $deviceId);
         }
 
-        // Get attendance logs with pagination
         $attendanceLogs = $query->orderBy('checkin_time', 'desc')->paginate(15);
 
-        // Get summary statistics
         $totalToday = AttendanceLog::whereDate('checkin_time', today())->count();
         $uniqueStudentsToday = AttendanceLog::whereDate('checkin_time', today())
             ->distinct('student_id')
@@ -60,7 +55,6 @@ class AttendanceApiController extends Controller
             ->where('session_status', 'scheduled')
             ->count();
 
-        // 3. Return JSON instead of a Blade view
         return response()->json([
             'success' => true,
             'data' => $attendanceLogs,
@@ -74,9 +68,6 @@ class AttendanceApiController extends Controller
 
     public function manualOverride(Request $request)
     {
-        // Add your manual override logic here...
-
-        // Return JSON instead of redirect()->back()
         return response()->json([
             'success' => true,
             'message' => 'Manual override applied successfully'
@@ -85,53 +76,67 @@ class AttendanceApiController extends Controller
 
     public function addManual(Request $request)
     {
-        // Add your logic to save the new attendance record here...
-        // Example: AttendanceLog::create($request->all());
-
-        // Return JSON instead of redirect()->back()
         return response()->json([
             'success' => true,
             'message' => 'Manual attendance added successfully'
         ], 201);
     }
 
-   public function store(Request $request)
-{
-    $request->validate([
-        'session_id' => 'required|integer',
-        'attendances' => 'required|array',
-        'attendances.*.student_id' => 'required|integer',
-        'attendances.*.status' => 'required|in:present,late,absent,excused',
+    public function store(Request $request)
+    {
+        $request->validate([
+            'session_id'                  => 'required|integer',
+            'attendances'                 => 'required|array',
+            'attendances.*.student_id'    => 'required|integer',
+            'attendances.*.status'        => 'required|in:present,late,absent,excused',
+        ]);
+
+        $user  = $request->user();
+        $saved = 0;
+        $now   = now();
+
+        foreach ($request->attendances as $attendance) {
+    $studentId = $attendance['student_id'];
+
+    $activeLogin = \DB::table('active_logins')
+        ->where('student_id', $studentId)
+        ->where('expires_at', '>', $now)
+        ->first();
+
+    $method = $activeLogin ? $activeLogin->login_type : 'manual';
+
+    \DB::table('attendance_logs')
+        ->where('class_session_id', $request->session_id)
+        ->where('student_id', $studentId)
+        ->delete();
+
+    $inserted = \DB::table('attendance_logs')->insert([
+        'class_session_id'    => $request->session_id,
+        'student_id'          => $studentId,
+        'attendance_status'   => $attendance['status'],
+        'checkin_time'        => $now,
+        'checkout_time'       => $now,
+        'method'              => $method,
+        'confidence_score'    => 100,
+        'recorded_by_user_id' => $user->id,
+        'device_id'           => 0,
+        'status'              => 1,
     ]);
 
-    $user = $request->user();
-    $saved = 0;
-
-    foreach ($request->attendances as $attendance) {
-        \DB::table('attendance_logs')->updateOrInsert(
-            [
-                'class_session_id' => $request->session_id,
-                'student_id' => $attendance['student_id'],
-            ],
-            [
-                'attendance_status' => $attendance['status'],
-                'checkin_time' => now(),
-                'checkout_time' => now(),
-                'method' => 'manual',
-                'confidence_score' => '100',
-                'recorded_by_user_id' => $user->id,
-                'device_id' => 0,
-                'status' => 1,
-            ]
-        );
-        $saved++;
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Attendance saved successfully',
-        'saved_count' => $saved,
+    // TEMP DEBUG
+    \Log::info('After insert', [
+        'student_id' => $studentId,
+        'inserted'   => $inserted,
+        'method'     => $method,
     ]);
+
+    $saved++;
 }
 
+        return response()->json([
+            'success'     => true,
+            'message'     => 'Attendance saved successfully',
+            'saved_count' => $saved,
+        ]);
+    }
 }

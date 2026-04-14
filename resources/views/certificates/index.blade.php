@@ -171,6 +171,8 @@
     </div>
 </div>
 
+<script src="//unpkg.com/alpinejs" defer></script>
+@vite(['resources/js/navbarDrop.js'])
 <!-- ================= JS ================= -->
 
 <script>

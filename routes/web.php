@@ -148,10 +148,6 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
         Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->middleware('permission:billing,view')->name('reminder');
         Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->middleware('permission:billing,view')->name('receipt');
     });
-Route::get('/settings/integration', function () {
-        return view('integration');
-    });
-
 
    // BRANCHES
     Route::post('/branch/check', [BranchController::class, 'checkField'])->middleware('permission:branches,view')->name('branch.check');
@@ -167,9 +163,6 @@ Route::get('/settings/integration', function () {
         Route::get('/billing', [ReportController::class, 'billing'])->name('reports.billing');
         Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
     });
-
-// Don't forget to import DB at the top of web.php if it's not there:
-// use Illuminate\Support\Facades\DB;
 
     Route::get('/student', function () {
         $beltlevels = BeltLevel::all();
@@ -216,7 +209,7 @@ Route::get('/settings/integration', function () {
             Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users,delete')->name('destroy');
         });
 
-    // Billing Rules
+        // Billing Rules
         Route::get('/billing-rules', [BillingRulesController::class, 'index'])->middleware('permission:settings,view');
         Route::post('/billing-rules', [BillingRulesController::class, 'update'])->middleware('permission:settings,edit');
 

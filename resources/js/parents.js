@@ -543,5 +543,3 @@ function initializeParentDataTable() {
         }
     }
 };
-
-console.log("tang ina mo");

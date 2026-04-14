@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CertificateController extends Controller
@@ -22,7 +23,7 @@ class CertificateController extends Controller
 
     public function getStudents()
     {
-        return Student::select('id', \DB::raw("CONCAT(fname,' ',lname) as name"))->get();
+        return Student::select('id', DB::raw("CONCAT(fname,' ',lname) as name"))->get();
     }
 
     public function getTemplates()

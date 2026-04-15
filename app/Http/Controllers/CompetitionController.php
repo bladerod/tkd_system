@@ -10,6 +10,18 @@ use Illuminate\Http\Request;
 
 class CompetitionController extends Controller
 {
+    // for sanitation
+    public function sanitizeInput($value)
+    {
+        if(is_string($value))
+        {
+            $value = trim($value);
+            $value = strip_tags($value);
+            $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $value;
+    }
+
     /**
      * Display a listing of the competition.
      */
@@ -39,17 +51,29 @@ class CompetitionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:150',
-            'location' => 'required|string|max:150',
+            'name' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+            'location' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
             'date' => 'required|date',
-            'organizer' => 'required|string|max:150',
+            'organizer' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
             'level' => 'required|in:local,regional,national,international',
         ]);
+
+        $data = [
+            'name' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->name)),
+            'location' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->location)),
+            'organizer' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->organizer))
+        ];
 
         // Set status to 'active' by default when creating
         $validated['status'] = 'active';
         
-        Competition::create($validated);
+        Competition::create([
+            'name' => $data['name'],
+            'location' => $data['location'],
+            'date' => $request->date,
+            'organizer' => $data['organizer'],
+            'level' => $request->level,
+        ]);
 
         return redirect()->route('competition.index')
             ->with('success', 'Competition created successfully.');
@@ -104,15 +128,28 @@ class CompetitionController extends Controller
         $competition = Competition::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:150',
-            'location' => 'required|string|max:150',
+            'name' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+            'location' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
             'date' => 'required|date',
-            'organizer' => 'nullable|string|max:150',
+            'organizer' => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
             'level' => 'required|in:local,regional,national,international',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $competition->update($validated);
+        $data = [
+            'name' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->name)),
+            'location' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->location)),
+            'organizer' => $request->organizer ? preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->organizer)) : null
+        ];
+
+        $competition->update([
+            'name' => $data['name'],
+            'location' => $data['location'],
+            'date' => $request->date,
+            'organizer' => $data['organizer'],
+            'level' => $request->level,
+            'status' => $request->status, 
+        ]);
 
         // Check if it's an AJAX request
         if (request()->ajax() || request()->wantsJson()) {
@@ -223,16 +260,25 @@ class CompetitionController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'instructor_id' => 'required|exists:instructors,id',
-            'category' => 'required|string|max:100',
-            'division' => 'required|string|max:100',
+            'category' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-.,]+$/'],
+            'division' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-.,]+$/'],
             'result' => 'required|in:win,loss,draw,pending',
             'medal' => 'required|in:gold,silver,bronze,none',
-            'remarks' => 'nullable|string',
+            'remarks' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
         ]);
 
-        $validated['competition_id'] = $competitionId;
+        $data = [
+            'student_id' => $request->student_id,
+            'instructor_id' => $request->instructor_id,
+            'category' => preg_replace('/[^a-zA-Z0-9\s\-.,]/', '', $this->sanitizeInput($request->category)),
+            'division' => preg_replace('/[^a-zA-Z0-9\s\-.,]/', '', $this->sanitizeInput($request->division)),
+            'result' => $request->result,
+            'medal' => $request->medal,
+            'remarks' => $this->sanitizeInput($request->remarks),
+            'competition_id' => $competitionId
+        ];
         
-        CompetitionEntry::create($validated);
+        CompetitionEntry::create($data); 
 
         return redirect()->route('competition.show', $competitionId)
             ->with('success', 'Entry added successfully.');
@@ -262,14 +308,24 @@ class CompetitionController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'instructor_id' => 'required|exists:instructors,id',
-            'category' => 'required|string|max:100',
-            'division' => 'required|string|max:100',
+            'category' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-.,]+$/'],
+            'division' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9\s\-.,]+$/'],
             'result' => 'required|in:win,loss,draw,pending',
             'medal' => 'required|in:gold,silver,bronze,none',
-            'remarks' => 'nullable|string',
+            'remarks' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
         ]);
 
-        $entry->update($validated);
+        $data = [
+            'student_id' => $request->student_id,
+            'instructor_id' => $request->instructor_id,
+            'category' => preg_replace('/[^a-zA-Z0-9\s\-.,]/', '', $this->sanitizeInput($request->category)),
+            'division' => preg_replace('/[^a-zA-Z0-9\s\-.,]/', '', $this->sanitizeInput($request->division)),
+            'result' => $request->result,
+            'medal' => $request->medal,
+            'remarks' => $this->sanitizeInput($request->remarks),
+        ];
+
+        $entry->update($data);
 
         return redirect()->route('competition.show', $competitionId)
             ->with('success', 'Entry updated successfully.');

@@ -170,8 +170,11 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
         $classes = Classes::all();
 
         // CHANGE THIS: Use the DB facade to pull from the view
-        $vwstudents = DB::table('student_overview')->select(
+        $vwstudents = DB::table('student_overview')
+        ->orderByDesc('id')
+        ->select(
             'id',
+            'student_code',
             'student_name',
             'current_belt',
             'status',

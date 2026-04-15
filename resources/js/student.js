@@ -87,11 +87,11 @@ async function loadAttendanceData(studentId) {
 function initializeStudentDataTable() {
     const studentTable = document.getElementById('studentTable');
     if (!studentTable) return;
-    
+
     const tbody = studentTable.querySelector('tbody');
     const rows = tbody ? tbody.querySelectorAll('tr') : [];
     const hasData = rows.length > 0 && !rows[0].querySelector('td[colspan]');
-    
+
     if (hasData && typeof simpleDatatables !== 'undefined') {
         try {
             studentDataTable = new simpleDatatables.DataTable(studentTable, {
@@ -107,7 +107,7 @@ function initializeStudentDataTable() {
                     noResults: "No results match your search query"
                 }
             });
-            
+
             console.log('Student DataTable initialized successfully');
         } catch (error) {
             console.error('Student DataTable initialization failed:', error);

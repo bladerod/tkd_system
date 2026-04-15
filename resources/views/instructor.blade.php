@@ -167,7 +167,7 @@
                         <select
     name="branch_id"
     x-model="form.branch_id"
-    class="rounded-md mb-3 py-2"
+    class="rounded-md  py-2 mb-1"
     style="border: solid 1px black; width: 100%;"
 >
     <option value="" disabled>-- Select a Branch --</option>
@@ -179,7 +179,7 @@
     @endforeach
 </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div class="grid grid-cols-2 gap-4 mb-1">
                         <div>
                             <label class="block text-sm">First Name</label>
                             <input type="text" name="fname" x-model="form.fname" class="w-full border rounded p-2">
@@ -190,23 +190,23 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="block text-sm">Profile</label>
                         <input type="file" name="photo" class="w-full border rounded p-2 text-sm">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="block text-sm">Username</label>
                         <input type="text" name="username" x-model="form.username" class="w-full border rounded p-2">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="block text-sm">Email</label>
                         <input type="email" name="email" x-model="form.email" class="w-full border rounded p-2">
                     </div>
 
                     <!-- PASSWORD -->
-                    <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div class="grid grid-cols-2 gap-4 mb-1">
                         <!-- Password -->
                         <div x-data="{ show: false }" class="relative">
                             <label class="block text-sm">Password</label>
@@ -242,7 +242,7 @@
                                 class="w-full border rounded p-2 pr-10"
                             >
                             <button type="button" @click="show = !show"
-                                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 mt-2">
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 mt-1">
                                 <template x-if="!show">
                                     <!-- Eye Closed Icon -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -260,12 +260,12 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="block text-sm">Contact</label>
                         <input type="text" name="contact" x-model="form.contact" class="w-full border rounded p-2">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div class="grid grid-cols-2 gap-4 mb-1">
                         <div>
                             <label class="block text-sm">Rank</label>
                             <select name="rank_belt" x-model="form.rank_belt" class="w-full border rounded p-2">
@@ -283,12 +283,12 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="block text-sm">Specialization</label>
                         <input type="text" name="specialization" x-model="form.specialization" class="w-full border rounded p-2">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="block text-sm">Bio</label>
                         <textarea name="bio" x-model="form.bio" class="w-full border rounded p-2 text-sm" rows="3"></textarea>
                     </div>

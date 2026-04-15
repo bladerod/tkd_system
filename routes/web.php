@@ -38,7 +38,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->middleware('permission:dashboard,view')->name('dashboard.index');
     Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->middleware('permission:students,create')->name('dashboard.student.store');
     Route::post('/dashboard/parent',[ParentsController::class,'store'])->middleware('permission:parents,create')->name('parent.store');
-    
+
 
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -51,6 +51,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->middleware('permission:announcements,delete')->name('announcements.destroy');
 
     // PARENTS
+    Route::get('/parents/{id}', [ParentsController::class, 'show']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
@@ -65,7 +66,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // STUDENTS
     Route::post('/student', [StudentController::class,'store'])->name('student.create');
-
+Route::get('/students/{id}', [StudentController::class, 'show']);
+Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{student}/billing', [StudentController::class, 'billing']);

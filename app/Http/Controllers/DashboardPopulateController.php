@@ -28,14 +28,141 @@ class DashboardPopulateController extends Controller
             ->where('status', 'active')
             ->get();
         $todayAttendance = AttendanceLog::with(['student', 'classSession.class', 'classSession.instructor'])
-        ->whereDate('checkin_time', today())
-        ->orderBy('checkin_time', 'desc')
-        ->get();
+            ->whereDate('checkin_time', today())
+            ->orderBy('checkin_time', 'desc')
+            ->get();    
         $parents = User::where('role', 'parent')->get();
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
 
-        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students', 'todayAttendance'));
+        $outstandingBalance = DB::table('invoices')
+            ->whereIn('status', ['pending', 'overdue'])
+            ->sum('total_due');
+
+
+        // for revenue chart
+        $revenueDailyLabels = [];
+        $revenueDailyValues = [];
+        for($i=6 ;$i >=0 ;$i-- ){
+            $date = now()->subDay($i);
+            $revenueDailyLabels[] = $date->format('M d');
+
+            $dailyTotal = DB::table('payments')
+                            ->whereDate('paid_at', $date->toDateString())
+                            ->sum('amount');
+            $revenueDailyValues[] = (float) $dailyTotal;
+        }
+        $revenueMonthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $revenueMonthlyValues = [];
+        $currentYear = date('Y');
+        
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlyTotal = DB::table('payments')
+                            ->whereYear('paid_at', $currentYear)
+                            ->whereMonth('paid_at', $month)
+                            ->sum('amount');
+                            
+            $revenueMonthlyValues[] = (float) $monthlyTotal;
+        }
+
+        $revenueChartData = [
+            'daily' => [
+                'labels' => $revenueDailyLabels,
+                'values' => $revenueDailyValues
+            ],
+            'monthly' => [
+                'labels' => $revenueMonthlyLabels,
+                'values' => $revenueMonthlyValues
+            ]
+        ];
+        // for revenue chart
+
+        // for enrollee's chart
+        $dailyLabels = [];
+        $dailyValues = [];
+        for ($i = 6; $i >= 0; $i--){
+            $date = now()->subDays($i);
+            $dailyLabels[] = $date->format('M d');
+            $dailyValues[] = DB::table('students')
+                                ->whereDate('created_at', $date->toDateString())
+                                ->count();
+        }
+
+        $monthlyLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        $monthlyValues = [];
+        $currentYear = date('Y');
+
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlyValues[] = DB::table('students')
+                                ->whereYear('created_at', $currentYear)
+                                ->whereMonth('created_at', $month)
+                                ->count();
+        }
+        $enrolleesChartData = [
+            'daily' => [
+                'labels' => $dailyLabels,
+                'values' => $dailyValues
+            ],
+            'monthly' => [
+                'labels' => $monthlyLabels,
+                'values' => $monthlyValues
+            ]   
+        ];
+        // for enrollee's chart
+
+
+        // for attendance Heatmap chart
+        $attendances = AttendanceLog::where('status', 1)
+            ->where('checkin_time', '>=', now()->subDays(30))
+            ->get(['checkin_time']);
+
+        $timeBuckets = [8, 10, 12, 14, 16, 18, 20, 22];
+        $daysOfWeek = [1, 2, 3, 4, 5, 6, 7];
+
+        $heatmapData = [];
+        foreach($timeBuckets as $time){
+            foreach($daysOfWeek as $day){
+                $heatmapData[$time][$day] = 0;                
+            }
+        }
+
+        $maxHeatmapCount = 0;
+
+        foreach ($attendances as $attendance) {
+            $date = \Carbon\Carbon::parse($attendance->checkin_time);
+            $day = $date->dayOfWeekIso; // 1 (Mon) through 7 (Sun)
+            $hour = $date->hour;
+
+            $bucket = null;
+            if ($hour >= 7 && $hour < 9) $bucket = 8;
+            elseif ($hour >= 9 && $hour < 11) $bucket = 10;
+            elseif ($hour >= 11 && $hour < 13) $bucket = 12;
+            elseif ($hour >= 13 && $hour < 15) $bucket = 14;
+            elseif ($hour >= 15 && $hour < 17) $bucket = 16;
+            elseif ($hour >= 17 && $hour < 19) $bucket = 18;
+            elseif ($hour >= 19 && $hour < 21) $bucket = 20;
+            elseif ($hour >= 21 || $hour < 7) $bucket = 22; // Groups late night classes
+
+            if ($bucket !== null && isset($heatmapData[$bucket][$day])) {
+                $heatmapData[$bucket][$day]++;
+                if ($heatmapData[$bucket][$day] > $maxHeatmapCount) {
+                    $maxHeatmapCount = $heatmapData[$bucket][$day];
+                }
+            }
+        }
+
+        if ($maxHeatmapCount == 0) $maxHeatmapCount = 1;
+
+        $timeLabels = [
+            8 => '8 AM', 10 => '10 AM', 12 => '12 PM', 14 => '2 PM',
+            16 => '4 PM', 18 => '6 PM', 20 => '8 PM', 22 => '10 PM'
+        ];
+        // for attendance Heatmap chart
+
+        return view('dashboard', compact(
+            'branches', 'beltlevels', 'parents', 'students', 'todayAttendance', 
+            'enrolleesChartData', 'heatmapData', 'timeLabels', 'maxHeatmapCount', 'revenueChartData', 'outstandingBalance'
+        ));
     }
 
     public function store(Request $request)

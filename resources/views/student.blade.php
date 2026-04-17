@@ -27,6 +27,7 @@
             <span class="text-[#1C1C1D] font-medium">Student</span>
         </div>
 
+<<<<<<< HEAD
         <h1 class="text-4xl font-bold text-[#1C1C1D] mb-4">Student</h1>
 
         <div class="content-card mb-6">
@@ -34,6 +35,8 @@
                 Student List
             </div>
 
+=======
+>>>>>>> 76c4836685be8bde9766cbf2c3a6c67256873320
         {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
             <div class="dropdown">
                 <label for="belt">Belt</label>
@@ -45,6 +48,7 @@
                 </select>
             </div>
 
+<<<<<<< HEAD
                 <div class="dropdown">
                     <label for="status">Status</label>
                     <select name="status" id="status">
@@ -53,6 +57,12 @@
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
+=======
+        <div class="content-card mb-6">
+            <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
+                Student List
+            </div>
+>>>>>>> 76c4836685be8bde9766cbf2c3a6c67256873320
 
             <div class="dropdown">
                 <label for="class">Class</label>
@@ -64,14 +74,15 @@
                 </select>
             </div>
 
-            <div class="dropdown">
-                <label for="instructor">Instructor</label>
-                <select name="instructor" id="instructor">
-                    <option value="" disabled selected>-- Select instructor --</option>
-                    @foreach ($users->where('role', 'instructor') as $user)
-                        <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
-                    @endforeach
-                </select>
+                <div class="dropdown">
+                    <label for="instructor">Instructor</label>
+                    <select name="instructor" id="instructor">
+                        <option value="" disabled selected>-- Select instructor --</option>
+                        @foreach ($users->where('role', 'instructor') as $user)
+                            <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div> --}}
 
@@ -190,6 +201,7 @@
                     <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
             </div>
+<<<<<<< HEAD
             <div id="noAttendanceData" class="text-gray-500 text-center py-4 hidden">No attendance records found.</div>
         </div>
 
@@ -202,8 +214,11 @@
             <div id="certificatesTab" class="tab-content hidden">
                 <p>Loading certificates...</p>
             </div>
+=======
+>>>>>>> 76c4836685be8bde9766cbf2c3a6c67256873320
         </div>
     </div>
+</div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
@@ -227,8 +242,8 @@ async function openModal(button) {
     modal.classList.remove("hidden");
     modal.style.display = "flex";
 
-            const studentId = button.getAttribute("data-id");
-            modal.dataset.studentId = studentId;
+    const studentId = button.getAttribute("data-id");
+    modal.dataset.studentId = studentId;
 
     // Loading UI
     document.getElementById("profileTab").innerHTML = `

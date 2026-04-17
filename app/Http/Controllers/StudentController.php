@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-use DB;
 use App\Models\AttendanceLog;
 use App\Models\BeltLevel;
 use App\Models\Certificate;
@@ -11,6 +10,7 @@ use App\Models\Instructor;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -28,6 +28,7 @@ class StudentController extends Controller
             ->withCount(['attendanceLogs as present_count' => function($q) {
                 $q->whereIn('status', ['present', 'late']);
             }])
+            ->orderByDesc('id')
             ->get()
             ->map(function ($student) {
                 return [

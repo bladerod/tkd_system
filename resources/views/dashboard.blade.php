@@ -120,7 +120,7 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Outstanding Balance</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">₱245,300</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">₱{{ number_format($outstandingBalance, 2) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -137,21 +137,16 @@
                                             <h6 class="text-gray-800 font-semibold ms-[47%] text-2xl">Revenue</h6>
 
                                             <!-- Alpine.js Dropdown -->
-                                            <div class="relative" x-data="{ open: false, selected: 'Monthly' }">
-                                                <!-- Dropdown Button -->
+                                            <div class="relative" x-data="{ open: false, selected: 'Weekly' }">
                                                 <button @click="open = !open"
                                                     class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#1C1C1D] border border-[#1C1C1D] rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] focus:ring-offset-2 transition-all duration-200"
                                                     type="button">
                                                     <span x-text="selected"></span>
-                                                    <svg class="w-4 h-4 transition-transform duration-200"
-                                                        :class="{ 'rotate-180': open }" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                     </svg>
                                                 </button>
 
-                                                <!-- Dropdown Menu -->
                                                 <ul x-show="open" @click.away="open = false"
                                                     x-transition:enter="transition ease-out duration-100"
                                                     x-transition:enter-start="transform opacity-0 scale-95"
@@ -161,19 +156,15 @@
                                                     x-transition:leave-end="transform opacity-0 scale-95"
                                                     class="absolute right-0 z-10 min-w-[160px] mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
                                                     <li>
-                                                        <a href="#"
-                                                            @click.prevent="selected = 'Monthly'; open = false; window.updateChartPeriod('monthly')"
-                                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#1C1C1D] transition-colors duration-150 rounded-t-lg"
-                                                            :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Monthly' }">
-                                                            Monthly
+                                                        <a href="#" @click.prevent="selected = 'Weekly'; open = false; window.updateRevenueChartPeriod('weekly')"
+                                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 rounded-t-lg">
+                                                            Weekly (Last 7 Days)
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#"
-                                                            @click.prevent="selected = 'Annual'; open = false; window.updateChartPeriod('annual')"
-                                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#1C1C1D] transition-colors duration-150 rounded-b-lg"
-                                                            :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Annual' }">
-                                                            Annual
+                                                        <a href="#" @click.prevent="selected = 'Monthly'; open = false; window.updateRevenueChartPeriod('monthly')"
+                                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 rounded-b-lg">
+                                                            Monthly (This Year)
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -227,7 +218,7 @@
                                                             @click.prevent="selected = 'Monthly'; open = false; window.updateEnrolleesChartPeriod ('monthly')"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#1C1C1D] transition-colors duration-150 rounded-t-lg"
                                                             :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Monthly' }">
-                                                            Monthly
+                                                            Weekly (Last 7 Days)
                                                         </a>
                                                     </li>
                                                     <li>
@@ -235,7 +226,7 @@
                                                             @click.prevent="selected = 'Annual'; open = false; window.updateEnrolleesChartPeriod('annual')"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#1C1C1D] transition-colors duration-150 rounded-b-lg"
                                                             :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Annual' }">
-                                                            Annual
+                                                            Monthly (This Year)
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -254,7 +245,7 @@
 
                         <!-- Attendance Heatmap -->
                         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                            <h3 class="text-gray-800 font-semibold mb-6">Attendance Heatmap</h3>
+                            <h3 class="text-gray-800 font-semibold mb-6 text-center text-2xl">Attendance Heatmap</h3>
 
                             <!-- Days Header -->
                             <div class="grid grid-cols-8 gap-2 mb-4">
@@ -270,154 +261,46 @@
 
                             <!-- Heatmap Rows with 3 Orange Colors -->
                             <div class="space-y-2">
-                                <!-- 8 AM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">8 AM</div>
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                </div>
-                                <!-- 10 AM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">10 AM</div>
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                </div>
-                                <!-- 12 PM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">12 PM</div>
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                </div>
-                                <!-- 2 PM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">2 PM</div>
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                </div>
-                                <!-- 4 PM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">4 PM</div>
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                </div>
-                                <!-- 6 PM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">6 PM</div>
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                </div>
-                                <!-- 8 PM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">8 PM</div>
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                </div>
-                                <!-- 10 PM -->
-                                <div class="grid grid-cols-8 gap-2 items-center">
-                                    <div class="text-xs text-gray-500 font-medium">10 PM</div>
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                    <div class="heatmap-cell" style="background-color: #CC5500; width: 100%;"></div>
-                                    <!-- orange-900 -->
-                                    <div class="heatmap-cell" style="background-color: #FFE5CC; width: 100%;"></div>
-                                    <!-- orange-100 -->
-                                    <div class="heatmap-cell" style="background-color: #FFB366; width: 100%;"></div>
-                                    <!-- orange-400 -->
-                                </div>
+                                @foreach($timeLabels as $bucket => $label)
+                                    <div class="grid grid-cols-8 gap-2 items-center">
+                                        <div class="text-xs text-gray-500 font-medium">{{ $label }}</div>
+                                        
+                                        @for($day = 1; $day <= 7; $day++)
+                                            @php
+                                                $count = $heatmapData[$bucket][$day];
+                                                
+                                                // Default Color for Zero Attendances
+                                                $color = '#f3f4f6'; // Tailwind gray-100
+                                                
+                                                // Dynamic Orange Scaling
+                                                if ($count > 0) {
+                                                    $percentage = $count / $maxHeatmapCount;
+                                                    
+                                                    if ($percentage <= 0.33) {
+                                                        $color = '#FFE5CC'; // Low
+                                                    } elseif ($percentage <= 0.66) {
+                                                        $color = '#FFB366'; // Medium
+                                                    } else {
+                                                        $color = '#CC5500'; // High
+                                                    }
+                                                }
+                                            @endphp
+                                            
+                                            <div class="heatmap-cell rounded transition-all duration-300 hover:scale-105 cursor-pointer" 
+                                                 style="background-color: {{ $color }}; width: 100%; height: 24px;"
+                                                 title="{{ $count }} Attendances ({{ $label }})">
+                                            </div>
+                                        @endfor
+                                    </div>
+                                @endforeach
                             </div>
 
                             <!-- Legend -->
                             <div class="flex items-center justify-end gap-4 mt-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded" style="background-color: #f3f4f6 border: 1px solid #e5e7eb;"></div>
+                                    <span class="text-xs text-gray-500">None (0)</span>
+                                </div>
                                 <div class="flex items-center gap-2">
                                     <div class="w-4 h-4 rounded" style="background-color: #FFE5CC"></div>
                                     <span class="text-xs text-gray-500">Low</span>
@@ -916,9 +799,11 @@
         src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
-    {{--
-    <script>Chart.register(ChartDataLabels);</script> --}}
-    @vite(['resources/js/app.js'])
+    <script>
+        window.dynamicEnrolleesData = @json($enrolleesChartData);
+        window.dynamicRevenueData = @json($revenueChartData);
+    </script>
+    {{-- @vite(['resources/js/app.js']) --}}
     @vite(['resources/js/dashboard.js'])
     @vite(['resources/js/navbarDrop.js'])
 

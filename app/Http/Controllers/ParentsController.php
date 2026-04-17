@@ -13,6 +13,17 @@ use Illuminate\Support\Facades\Log;
 
 class ParentsController extends Controller
 {
+
+    public function sanitizeInput($value)
+    {
+        if(is_string($value))
+        {
+            $value = trim($value);
+            $value = strip_tags($value);
+            $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $value;
+    }
     /**
      * Display a listing of parents.
      */
@@ -44,14 +55,16 @@ class ParentsController extends Controller
     public function store(Request $request)
     {
         try {
+            DB::beginTransaction();
 
             // Validate the request
             $request->validate([
-                'fname' => 'required|string|max:170',
-                'lname' => 'required|string|max:170',
+                // Added strict regex to prevent bad characters from slipping through
+                'fname' => ['required', 'string', 'max:170', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'lname' => ['required', 'string', 'max:170', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'address' => 'required|string|max:255',
-                'relationship_note' => 'nullable|string',
-                'mobile' => 'nullable|string|max:13',
+                'relationship_note' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
+                'mobile' => ['nullable', 'string', 'max:13', 'regex:/^[\d\s\-\+\(\)]+$/'],
                 'status' => 'required|in:1,0',
                 'email' => 'nullable|email|unique:users,email',
                 'password' => 'nullable|string|min:6|confirmed',
@@ -59,6 +72,15 @@ class ParentsController extends Controller
                 'students.*' => 'exists:students,id',
                 'photo_url' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             ]);
+
+            $data = [
+                'fname' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->fname)),
+                'lname' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->lname)),
+                'address' => $this->sanitizeInput($request->address),
+                'relationship_note' => $this->sanitizeInput($request->relationship_note),
+                'mobile' => preg_replace('/[^\d+]/', '', $this->sanitizeInput($request->mobile)),
+                'email' => filter_var($this->sanitizeInput($request->email), FILTER_SANITIZE_EMAIL)
+            ];
 
             // Check if email exists
             $existingUser = null;
@@ -90,10 +112,10 @@ class ParentsController extends Controller
                 $user = User::create([
                     'branch_id' => 1, // Default branch
                     'role' => 'parent',
-                    'fname' => $request->fname,
-                    'lname' => $request->lname,
-                    'email' => $request->email,
-                    'mobile' => $request->mobile,
+                    'fname' => $data['fname'],
+                    'lname' => $data['lname'],
+                    'email' => $data['email'],
+                    'mobile' => $data['mobile'],
                     'password' => Hash::make($request->password ?? 'default123'),
                     'status' => $request->status,
                     'created_at' => now(),
@@ -111,7 +133,7 @@ class ParentsController extends Controller
             if ($request->hasFile('photo_url')) {
                 $photoUrl = $request->file('photo_url')->store('parent-ids', 'public');
             }
-
+            
             // Create parent record
             $parent = Parents::create([
                 'user_id' => $user->id,
@@ -129,7 +151,7 @@ class ParentsController extends Controller
                     DB::table('parent_students')->insert([
                         'parent_id' => $parent->id,
                         'student_id' => $studentId,
-                        'relationship' => $request->relationship_note ?? 'guardian',
+                        'relationship' => $data['relationship_note'] ?? 'guardian',
                         'is_primary' => 0,
                         'created_at' => now(),
                     ]);

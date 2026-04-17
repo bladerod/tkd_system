@@ -190,7 +190,7 @@
                                             <h6 class="text-gray-800 font-semibold ms-[47%] text-2xl">Enrollees</h6>
 
                                             <!-- Alpine.js Dropdown -->
-                                            <div class="relative" x-data="{ open: false, selected: 'Monthly' }">
+                                            <div class="relative" x-data="{ open: false, selected: 'Weekly' }">
                                                 <!-- Dropdown Button -->
                                                 <button @click="open = !open"
                                                     class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#1C1C1D] border border-[#1C1C1D] rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] focus:ring-offset-2 transition-all duration-200"
@@ -215,17 +215,17 @@
                                                     class="absolute right-0 z-10 min-w-[160px] mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
                                                     <li>
                                                         <a href="#"
-                                                            @click.prevent="selected = 'Monthly'; open = false; window.updateEnrolleesChartPeriod ('monthly')"
+                                                            @click.prevent="selected = 'Weekly'; open = false; window.updateEnrolleesChartPeriod ('monthly')"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#1C1C1D] transition-colors duration-150 rounded-t-lg"
-                                                            :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Monthly' }">
+                                                            :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Weekly' }">
                                                             Weekly (Last 7 Days)
                                                         </a>
                                                     </li>
                                                     <li>
                                                         <a href="#"
-                                                            @click.prevent="selected = 'Annual'; open = false; window.updateEnrolleesChartPeriod('annual')"
+                                                            @click.prevent="selected = 'Monthly'; open = false; window.updateEnrolleesChartPeriod('annual')"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#1C1C1D] transition-colors duration-150 rounded-b-lg"
-                                                            :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Annual' }">
+                                                            :class="{ 'bg-gray-100 text-[#1C1C1D]': selected === 'Monthly' }">
                                                             Monthly (This Year)
                                                         </a>
                                                     </li>

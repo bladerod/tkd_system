@@ -159,6 +159,7 @@
 
                         <div class="chat-header">
                             <h3>{{ ucfirst($thread->type) }} Chat</h3>
+                            <p style="font-size:12px; color:gray;">{{ $thread->participants()->count() }} participants</p>
                         </div>
 
                         <div class="chat-messages">

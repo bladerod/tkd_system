@@ -103,7 +103,7 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <button class="text-white bg-blue-500 hover:bg-blue-600 p-2.5 rounded-lg" onclick="openModal({{ $parent['id'] }})">
+                                                <button class="text-white bg-blue-500 hover:bg-blue-600 p-2.5 rounded-lg" onclick="openModal({{ $parent['user_id'] }})">
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
                                             </td>
@@ -171,14 +171,14 @@
                 <!-- Children Tab -->
                 <div id="children" class="tab-pane active">
                     <div class="loading-spinner" id="childrenLoading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading children data...
+                        {{-- <i class="fas fa-spinner fa-spin"></i> Loading children data... --}}
                     </div>
                     <div id="childrenContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
                 </div>
 
-                <!-- Family Billing Tab -->
+                {{-- <!-- Family Billing Tab -->
                 <div id="billing" class="tab-pane">
                     <div class="loading-spinner" id="billingLoading">
                         <i class="fas fa-spinner fa-spin"></i> Loading billing data...
@@ -231,7 +231,7 @@
                     <div id="notificationsContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -239,6 +239,226 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
 
+  <script>
+let currentParentId = null;
+
+// =========================
+// OPEN MODAL
+// =========================
+window.openModal = async function(parentId) {
+
+    currentParentId = parentId;
+
+    const modal = document.getElementById("parentModal");
+    modal.style.display = "flex";
+
+    // RESET HEADER
+    document.getElementById("modalParentName").innerText = "Loading...";
+    document.getElementById("modalParentContact").innerText = "";
+
+    // ✅ RESET TABS PROPERLY
+    document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+
+    document.querySelector('[data-tab="children"]').classList.add("active");
+    document.getElementById("children").classList.add("active");
+
+    // RESET CHILDREN UI
+    document.getElementById("childrenLoading").style.display = "block";
+    document.getElementById("childrenContent").classList.add("hidden");
+
+    try {
+        const res = await fetch(`/parents/${parentId}`);
+        const data = await res.json();
+
+        if (data.error) {
+            alert("Parent not found");
+            closeModal();
+            return;
+        }
+
+        // HEADER DATA
+        document.getElementById("modalParentName").innerText =
+            data.full_name || "No Name";
+
+        document.getElementById("modalParentContact").innerText =
+            (data.email ?? "No email") + " • " +
+            (data.mobile ?? "No contact");
+
+        document.getElementById("modalAvatar").innerText =
+            (data.full_name || "P").charAt(0).toUpperCase();
+
+        // LOAD CHILDREN DEFAULT
+        loadChildren(data.students);
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load parent data");
+    }
+};
+
+// =========================
+// CLOSE MODAL
+// =========================
+window.closeModal = function() {
+    document.getElementById("parentModal").style.display = "none";
+};
+
+// =========================
+// TAB SWITCHING (FIXED)
+// =========================
+window.switchTab = function(tabName) {
+
+    // Update buttons
+    document.querySelectorAll(".tab").forEach(tab => {
+        tab.classList.remove("active");
+        if (tab.dataset.tab === tabName) {
+            tab.classList.add("active");
+        }
+    });
+
+    // Update content
+    document.querySelectorAll(".tab-pane").forEach(pane => {
+        pane.classList.remove("active");
+    });
+
+    const tabPane = document.getElementById(tabName);
+
+    // ❗ IMPORTANT FIX: if tab content doesn't exist, stop
+    if (!tabPane) {
+        console.warn("Tab not found:", tabName);
+        return;
+    }
+
+    tabPane.classList.add("active");
+
+    if (!currentParentId) return;
+
+    // LOAD DATA BASED ON TAB
+    switch(tabName) {
+        case 'children':
+            loadChildrenData(currentParentId);
+            break;
+        case 'billing':
+            safeLoad(loadBillingData, currentParentId);
+            break;
+        case 'payments':
+            safeLoad(loadPaymentsData, currentParentId);
+            break;
+        case 'activity':
+            safeLoad(loadActivityData, currentParentId);
+            break;
+        case 'notifications':
+            safeLoad(loadNotificationsData, currentParentId);
+            break;
+    }
+};
+
+// =========================
+// SAFE FUNCTION CALL
+// =========================
+function safeLoad(fn, id) {
+    if (typeof fn === "function") {
+        fn(id);
+    } else {
+        console.warn("Function not implemented");
+    }
+}
+
+// =========================
+// CHILDREN DISPLAY
+// =========================
+function loadChildren(students) {
+    const container = document.getElementById("childrenContent");
+
+    document.getElementById("childrenLoading").style.display = "none";
+    container.classList.remove("hidden");
+
+    if (!students || students.length === 0) {
+        container.innerHTML = "<p>No children found</p>";
+        return;
+    }
+
+    let html = "";
+
+    students.forEach((child, index) => {
+        html += `
+            <div class="p-3 border rounded-lg mb-2 flex justify-between items-center">
+                <div>
+                    <div class="font-semibold">
+                        ${child.first_name ?? ''} ${child.last_name ?? ''}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Student ID: ${child.student_code ?? 'N/A'}
+                    </div>
+                </div>
+
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                    Child ${index + 1}
+                </span>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// =========================
+// CHILDREN API
+// =========================
+async function loadChildrenData(parentId) {
+    document.getElementById("childrenLoading").style.display = "block";
+
+    try {
+        const res = await fetch(`/parents/${parentId}/children`);
+        const data = await res.json();
+
+        loadChildren(data.students);
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+// =========================
+// OPTIONAL TABS (SAFE)
+// =========================
+async function loadBillingData(parentId) {
+    const el = document.getElementById("billingContent");
+    if (!el) return;
+
+    el.innerHTML = "Billing data loading...";
+}
+
+async function loadPaymentsData(parentId) {
+    const el = document.getElementById("paymentsContent");
+    if (!el) return;
+
+    el.innerHTML = "Payments data loading...";
+}
+
+async function loadActivityData(parentId) {
+    const el = document.getElementById("activityContent");
+    if (!el) return;
+
+    el.innerHTML = "Activity loading...";
+}
+
+async function loadNotificationsData(parentId) {
+    const el = document.getElementById("notificationsContent");
+    if (!el) return;
+
+    el.innerHTML = "Notifications loading...";
+}
+
+// =========================
+// CLICK OUTSIDE CLOSE
+// =========================
+window.onclick = function(e) {
+    const modal = document.getElementById("parentModal");
+    if (e.target === modal) closeModal();
+};
+</script>
     @vite("resources/js/parents.js")
     @vite(['resources/js/navbarDrop.js'])
 </body>

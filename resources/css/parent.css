@@ -32,7 +32,7 @@ table th, table td {
 
 table th {
   background: #1C1C1D;
-  
+
   color: #fff;
 }
 /* Zebra rows like the screenshot */
@@ -68,24 +68,19 @@ table th {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     justify-content: center;
     align-items: center;
-    z-index: 2000;
-    animation: fadeIn 0.3s ease;
+    z-index: 9999;
 }
 
 .modal-content {
-    background: #fff;
+    background: white;
     width: 90%;
     max-width: 900px;
-    max-height: 85vh;
-    overflow-y: auto;
-    border-radius: 14px;
-    padding: 25px;
-    animation: slideUp 0.3s ease;
+    border-radius: 12px;
+    padding: 20px;
 }
-
 /* Modal Header */
 .modal-header {
     display: flex;
@@ -141,6 +136,14 @@ table th {
     font-size: 14px;
 }
 
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
 /* ===== Animations ===== */
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -174,7 +177,7 @@ table th {
 
 .dataTable-wrapper {
     border: none !important;
-    overflow: visible !important; 
+    overflow: visible !important;
 }
 
 .dataTable-table thead th {

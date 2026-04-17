@@ -41,4 +41,5 @@ class Parents extends Model
     {
         return $this->belongsToMany(Student::class,'parent_students');
     }
+
 }

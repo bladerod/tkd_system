@@ -163,14 +163,17 @@ body {
 }
 Modal Background
 .modal {
-    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.6);
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 2000;
-    animation: fadeIn 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* Modal Box */

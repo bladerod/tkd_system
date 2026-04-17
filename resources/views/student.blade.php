@@ -27,6 +27,13 @@
             <span class="text-[#1C1C1D] font-medium">Student</span>
         </div>
 
+        <h1 class="text-4xl font-bold text-[#1C1C1D] mb-4">Student</h1>
+
+        <div class="content-card mb-6">
+            <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
+                Student List
+            </div>
+
         {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
             <div class="dropdown">
                 <label for="belt">Belt</label>
@@ -38,10 +45,14 @@
                 </select>
             </div>
 
-        <div class="content-card mb-6">
-            <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
-                Student List
-            </div>
+                <div class="dropdown">
+                    <label for="status">Status</label>
+                    <select name="status" id="status">
+                        <option value="" disabled selected>-- Select status --</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
 
             <div class="dropdown">
                 <label for="class">Class</label>
@@ -53,15 +64,14 @@
                 </select>
             </div>
 
-                <div class="dropdown">
-                    <label for="instructor">Instructor</label>
-                    <select name="instructor" id="instructor">
-                        <option value="" disabled selected>-- Select instructor --</option>
-                        @foreach ($users->where('role', 'instructor') as $user)
-                            <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="dropdown">
+                <label for="instructor">Instructor</label>
+                <select name="instructor" id="instructor">
+                    <option value="" disabled selected>-- Select instructor --</option>
+                    @foreach ($users->where('role', 'instructor') as $user)
+                        <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
+                    @endforeach
+                </select>
             </div>
         </div> --}}
 
@@ -113,6 +123,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <div id="studentModal" class="modal hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div class="modal-content bg-white rounded-lg p-6 w-3/4 max-w-3xl relative">
@@ -142,36 +153,15 @@
                 <p class="text-gray-500">Loading profile...</p>
             </div>
 
-            <div id="attendanceTab" class="tab-content hidden">
-                <div class="attendance-summary grid grid-cols-3 gap-4 mb-4">
-                    <div class="stat-card p-3 bg-gray-100 rounded text-center">
-                        <span class="block text-sm text-gray-500">Total Sessions</span>
-                        <span id="totalSessions" class="text-xl font-bold">0</span>
-                    </div>
-                    <div class="stat-card p-3 bg-green-50 rounded text-center text-green-700">
-                        <span class="block text-sm">Present</span>
-                        <span id="presentCount" class="text-xl font-bold">0</span>
-                    </div>
-                    <div class="stat-card p-3 bg-red-50 rounded text-center text-red-700">
-                        <span class="block text-sm">Absent</span>
-                        <span id="absentCount" class="text-xl font-bold">0</span>
-                    </div>
+        <div id="attendanceTab" class="tab-content hidden">
+            <div class="attendance-summary grid grid-cols-3 gap-4 mb-4">
+                <div class="stat-card p-3 bg-gray-100 rounded text-center">
+                    <span class="block text-sm text-gray-500">Total Sessions</span>
+                    <span id="totalSessions" class="text-xl font-bold">0</span>
                 </div>
-                <div class="attendance-table-container overflow-x-auto">
-                    <table class="attendance-table min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Check In
-                                </th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Check Out
-                                </th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200"></tbody>
-                    </table>
+                <div class="stat-card p-3 bg-green-50 rounded text-center text-green-700">
+                    <span class="block text-sm">Present</span>
+                    <span id="presentCount" class="text-xl font-bold">0</span>
                 </div>
                 <div class="stat-card p-3 bg-yellow-50 rounded text-center text-yellow-700">
                     <span class="block text-sm">Late</span>
@@ -200,9 +190,20 @@
                     <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
             </div>
+            <div id="noAttendanceData" class="text-gray-500 text-center py-4 hidden">No attendance records found.</div>
+        </div>
+
+            <div id="billingTab" class="tab-content hidden">
+                <p>Loading billing details...</p>
+            </div>
+            <div id="competitionTab" class="tab-content hidden">
+                <p>Loading competition history...</p>
+            </div>
+            <div id="certificatesTab" class="tab-content hidden">
+                <p>Loading certificates...</p>
+            </div>
         </div>
     </div>
-</div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
@@ -226,8 +227,8 @@ async function openModal(button) {
     modal.classList.remove("hidden");
     modal.style.display = "flex";
 
-    const studentId = button.getAttribute("data-id");
-    modal.dataset.studentId = studentId;
+            const studentId = button.getAttribute("data-id");
+            modal.dataset.studentId = studentId;
 
     // Loading UI
     document.getElementById("profileTab").innerHTML = `

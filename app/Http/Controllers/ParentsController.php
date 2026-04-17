@@ -133,7 +133,7 @@ class ParentsController extends Controller
             if ($request->hasFile('photo_url')) {
                 $photoUrl = $request->file('photo_url')->store('parent-ids', 'public');
             }
-            
+
             // Create parent record
             $parent = Parents::create([
                 'user_id' => $user->id,

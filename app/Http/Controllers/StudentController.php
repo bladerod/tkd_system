@@ -28,7 +28,7 @@ class StudentController extends Controller
             ->withCount(['attendanceLogs as present_count' => function($q) {
                 $q->whereIn('status', ['present', 'late']);
             }])
-            ->orderByDesc('id')
+            ->orderBy('first_name', 'asc')
             ->get()
             ->map(function ($student) {
                 return [

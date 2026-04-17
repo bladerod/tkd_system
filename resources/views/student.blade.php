@@ -33,7 +33,6 @@
             <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
                 Student List
             </div>
-
         {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
             <div class="dropdown">
                 <label for="belt">Belt</label>

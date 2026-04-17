@@ -136,6 +136,14 @@ table th {
     font-size: 14px;
 }
 
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
 /* ===== Animations ===== */
 @keyframes fadeIn {
     from { opacity: 0; }

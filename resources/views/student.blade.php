@@ -202,6 +202,18 @@
 @vite('resources/js/student.js')
 @vite('resources/js/navbarDrop.js')
 <script>
+
+    function getStatusColor(status) {
+    const s = status ? status.toLowerCase() : '';
+    switch (s) {
+        case 'present': return 'text-green-600 ';
+        case 'late':    return 'text-yellow-500 ';
+        case 'absent':  return 'text-red-600 ';
+        case 'excused': return 'text-amber-700 '; // Brownish/Orange
+        default:        return 'text-gray-500';
+    }
+}
+
 async function openModal(button) {
     const modal = document.getElementById("studentModal");
     modal.classList.remove("hidden");
@@ -279,32 +291,26 @@ function closeModal() {
 }
 
 function switchTab(button) {
-    // ❌ remove active from all tabs
-    document.querySelectorAll(".tab").forEach(t => {
-        t.classList.remove("active");
-    });
-
-    // ✅ add active to clicked tab
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     button.classList.add("active");
 
-    // ❌ hide all content
     document.querySelectorAll(".tab-content").forEach(c => {
         c.classList.add("hidden");
         c.classList.remove("block");
     });
 
-    // ✅ show selected tab
     const tabName = button.dataset.tab + "Tab";
     const tab = document.getElementById(tabName);
 
     tab.classList.remove("hidden");
     tab.classList.add("block");
 
-    // ✅ load attendance
-    if (button.dataset.tab === "attendance") {
-        const studentId = document.getElementById("studentModal").dataset.studentId;
-        loadAttendanceData(studentId);
-    }
+    const studentId = document.getElementById("studentModal").dataset.studentId;
+
+    if (button.dataset.tab === "attendance") loadAttendanceData(studentId);
+    if (button.dataset.tab === "billing") loadBillingData(studentId);
+    if (button.dataset.tab === "competition") loadCompetitionData(studentId);
+    if (button.dataset.tab === "certificates") loadCertificatesData(studentId);
 }
 
 async function loadAttendanceData(studentId) {
@@ -336,7 +342,7 @@ async function loadAttendanceData(studentId) {
                         <td>${log.checkin_time ? new Date(log.checkin_time).toLocaleDateString() : '-'}</td>
                         <td>${log.checkin_time ? new Date(log.checkin_time).toLocaleTimeString() : '-'}</td>
                         <td>${log.checkout_time ? new Date(log.checkout_time).toLocaleTimeString() : '-'}</td>
-                        <td>${log.status ?? '-'}</td>
+                        <td class="${getStatusColor(log.attendance_status)}">${log.attendance_status ?? '-'}</td>
                         <td>${log.method ?? 'Manual'}</td>
                     </tr>
                 `;
@@ -365,6 +371,112 @@ async function loadAttendanceData(studentId) {
                 </td>
             </tr>
         `;
+    }
+}
+
+async function loadBillingData(studentId) {
+    const tab = document.getElementById("billingTab");
+    tab.innerHTML = "Loading billing...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/billing`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No billing records</p>";
+            return;
+        }
+
+        let html = `
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        data.forEach(b => {
+            html += `
+                <tr>
+                    <td>${new Date(b.created_at).toLocaleDateString()}</td>
+                    <td>₱${b.amount}</td>
+                    <td>${b.status}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        tab.innerHTML = html;
+
+    } catch (err) {
+        tab.innerHTML = "Failed to load billing";
+    }
+}
+
+async function loadCompetitionData(studentId) {
+    const tab = document.getElementById("competitionTab");
+    tab.innerHTML = "Loading competition...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/competition`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No competition history</p>";
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(c => {
+            html += `
+                <div class="p-3 border-b">
+                    <strong>${c.name}</strong><br>
+                    Date: ${new Date(c.date).toLocaleDateString()}<br>
+                    Result: ${c.result ?? 'N/A'}
+                </div>
+            `;
+        });
+
+        tab.innerHTML = html;
+
+    } catch (err) {
+        tab.innerHTML = "Failed to load competition";
+    }
+}
+
+async function loadCertificatesData(studentId) {
+    const tab = document.getElementById("certificatesTab");
+    tab.innerHTML = "Loading certificates...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/certificates`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No certificates</p>";
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(cert => {
+            html += `
+                <div class="p-3 border-b">
+                    <strong>${cert.title}</strong><br>
+                    Issued: ${new Date(cert.created_at).toLocaleDateString()}
+                </div>
+            `;
+        });
+
+        tab.innerHTML = html;
+
+    } catch (err) {
+        tab.innerHTML = "Failed to load certificates";
     }
 }
 

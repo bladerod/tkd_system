@@ -41,18 +41,5 @@ class Parents extends Model
     {
         return $this->belongsToMany(Student::class,'parent_students');
     }
-    public function children()
-{
-    return $this->hasMany(Student::class, 'primary_parent_id');
-}
 
-// public function billing()
-// {
-//     return $this->hasMany(Billing::class, 'parent_id');
-// }
-
-// public function payments()
-// {
-//     return $this->hasMany(Payment::class, 'parent_id');
-// }
 }

@@ -174,6 +174,7 @@ public function show($id)
             'mobile' => $parent->mobile,
             'students' => $parent->students,
             'children_count' => $parent->students->count(),
+            'profile' => $parent->photo_url
         ]);
 
     } catch (\Exception $e) {

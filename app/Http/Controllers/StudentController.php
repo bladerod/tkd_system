@@ -196,6 +196,33 @@ class StudentController extends Controller
             'logs' => $logs,
         ]);
     }
+public function billing($id)
+{
+    $billings = DB::table('invoices') // change if needed
+        ->where('student_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($billings);
+}
+public function competition($id)
+{
+    $competitions = DB::table('competitions') // change table name
+        ->where('id', $id)
+        ->orderBy('date', 'desc')
+        ->get();
+
+    return response()->json($competitions);
+}
+public function certificates($id)
+{
+    $certificates = DB::table('certificates') // change if needed
+        ->where('student_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($certificates);
+}
 
     // public function billing($studentId)
     // {

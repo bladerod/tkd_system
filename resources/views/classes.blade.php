@@ -508,6 +508,10 @@
                 <i class="fas fa-eye text-white text-xl"></i>
                 <h3 class="text-xl font-bold text-white">Class Details</h3>
             </div>
+            <button onclick="closeViewClassModal()" 
+                    class="text-white hover:text-gray-200 transition-colors duration-200 cursor-pointer">
+                <i class="fas fa-times text-xl"></i>
+            </button>
             
         </div>
         <div class="p-6 max-h-[calc(100vh-200px)] overflow-y-auto" id="viewClassContent">
@@ -515,6 +519,11 @@
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-black-600"></div>
                 <p class="text-gray-500 mt-2">Loading class details...</p>
             </div>
+        </div>
+        <div>
+            <button>
+                close
+            </button>
         </div>
     </div>
 </div>

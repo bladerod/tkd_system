@@ -43,9 +43,9 @@ class ClassApiController extends Controller
             'primaryInstructor.user',
             'assistantInstructor.user',
             'schedules',
-            'students' => function($q) {
+            'students' => function ($q) {
                 $q->wherePivot('status', 'active')
-                  ->with('primaryParent.user');
+                    ->with('primaryParent.user');
             }
         ])->find($id);
 
@@ -68,7 +68,7 @@ class ClassApiController extends Controller
     public function sessions($id, Request $request)
     {
         $class = Classes::find($id);
-        
+
         if (!$class) {
             return response()->json([
                 'success' => false,
@@ -78,10 +78,10 @@ class ClassApiController extends Controller
 
         $sessions = ClassSession::where('class_id', $id)
             ->with('instructor.user')
-            ->when($request->from_date, function($q, $from) {
+            ->when($request->from_date, function ($q, $from) {
                 $q->whereDate('session_date', '>=', $from);
             })
-            ->when($request->to_date, function($q, $to) {
+            ->when($request->to_date, function ($q, $to) {
                 $q->whereDate('session_date', '<=', $to);
             })
             ->orderBy('session_date', 'desc')
@@ -110,174 +110,175 @@ class ClassApiController extends Controller
     }
 
     /**
- * Get classes of the authenticated instructor
- */
+     * Get classes of the authenticated instructor
+     */
 
     public function myClasses(Request $request)
-{
-    $user = $request->user();
-    $instructor = $user->instructor;
+    {
+        $user = $request->user();
+        $instructor = $user->instructor;
 
-    if (!$instructor) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Instructor profile not found'
-        ], 404);
-    }
-
-    $today = strtolower(now()->format('l')); // monday to sunday
-
-    $classes = Classes::with([
-        'branch',
-        'schedules' => function($q) use ($today) {
-            $q->where('day_of_week', $today); // today's schedule lang
-        },
-        'students' => function($q) {
-            $q->where('status', 'active');
+        if (!$instructor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Instructor profile not found'
+            ], 404);
         }
-    ])
-    ->where(function($q) use ($instructor) {
-        $q->where('primary_instructor_id', $instructor->id)
-          ->orWhere('assistant_instructor_id', $instructor->id);
-    })
-    ->where('status', 'active')
-    ->whereHas('schedules', function($q) use ($today) {
-        $q->where('day_of_week', $today); // classes na may sched ngaun
-    })
-    ->get();
 
-    return response()->json([
-        'success' => true,
-        'today' => $today,
-        'data' => $classes
-    ]);
-}
+        $today = strtolower(now()->format('l')); // monday to sunday
+
+        $classes = Classes::with([
+            'branch',
+            'schedules' => function ($q) use ($today) {
+                $q->where('day_of_week', $today); // today's schedule lang
+            },
+            'students' => function ($q) {
+                $q->where('status', 'active');
+            }
+        ])
+            ->where(function ($q) use ($instructor) {
+                $q->where('primary_instructor_id', $instructor->id)
+                    ->orWhere('assistant_instructor_id', $instructor->id);
+            })
+            ->where('status', 'active')
+            ->whereHas('schedules', function ($q) use ($today) {
+                $q->where('day_of_week', $today); // classes na may sched ngaun
+            })
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'today' => $today,
+            'data' => $classes
+        ]);
+    }
 
     public function classStudents($id)
-{
-    $class = Classes::find($id);
+    {
+        $class = Classes::find($id);
 
-    if (!$class) {
+        if (!$class) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Class not found'
+            ], 404);
+        }
+
+        $classStudents = \App\Models\ClassStudent::where('class_id', $id)
+            ->where('status', 'active')
+            ->get();
+
+        $students = $classStudents->map(function ($cs) {
+            $student = \App\Models\Student::find($cs->student_id);
+
+            if (!$student)
+                return null;
+
+            return [
+                'id' => $student->id,
+                'name' => trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) ?: 'Unknown',
+                'belt' => $student->current_belt ?? 'No Belt',
+                'status' => $cs->status,
+            ];
+        })->filter()->values();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Class not found'
-        ], 404);
+            'success' => true,
+            'data' => [
+                'class' => [
+                    'id' => $class->id,
+                    'name' => $class->class_name,
+                    'level' => $class->level,
+                ],
+                'students' => $students,
+            ]
+        ]);
     }
 
-    $classStudents = \App\Models\ClassStudent::where('class_id', $id)
-        ->where('status', 'active')
-        ->get();
+    public function startSession(Request $request, $id)
+    {
+        $user = $request->user();
+        $instructor = $user->instructor;
 
-    $students = $classStudents->map(function($cs) {
-    $student = \App\Models\Student::find($cs->student_id);
+        if (!$instructor) {
+            return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+        }
 
-    if (!$student) return null;
-
-    return [
-        'id' => $student->id,
-        'name' => $student->student_name ?? 'Unknown',
-        'belt' => $student->current_belt ?? 'No Belt',
-        'status' => $cs->status,
-    ];
-    })->filter()->values();
-
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'class' => [
-                'id' => $class->id,
-                'name' => $class->class_name,
-                'level' => $class->level,
+        // Find or create today's session
+        $session = ClassSession::firstOrCreate(
+            [
+                'class_id' => $id,
+                'session_date' => today()->toDateString(),
             ],
-            'students' => $students,
-        ]
-    ]);
-  }
+            [
+                'instructor_id' => $instructor->id,
+                'start_time' => now()->format('H:i:s'),
+                'end_time' => now()->addHours(1)->format('H:i:s'),
+                'session_status' => 'ongoing',
+            ]
+        );
 
-  public function startSession(Request $request, $id)
-{
-    $user = $request->user();
-    $instructor = $user->instructor;
+        // Update to ongoing if existing
+        if (!$session->wasRecentlyCreated) {
+            $session->update(['session_status' => 'ongoing']);
+        }
 
-    if (!$instructor) {
-        return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+        return response()->json([
+            'success' => true,
+            'session_id' => $session->id,
+        ]);
     }
 
-    // Find or create today's session
-    $session = ClassSession::firstOrCreate(
-        [
-            'class_id' => $id,
-            'session_date' => today()->toDateString(),
-        ],
-        [
-            'instructor_id' => $instructor->id,
-            'start_time' => now()->format('H:i:s'),
-            'end_time' => now()->addHours(1)->format('H:i:s'),
-            'session_status' => 'ongoing',
-        ]
-    );
+    public function attendanceStats(Request $request)
+    {
+        $user = $request->user();
+        $instructor = $user->instructor;
 
-    // Update to ongoing if existing
-    if (!$session->wasRecentlyCreated) {
-        $session->update(['session_status' => 'ongoing']);
+        if (!$instructor) {
+            return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+        }
+
+        // Get today's class IDs ng instructor
+        $classIds = Classes::where(function ($q) use ($instructor) {
+            $q->where('primary_instructor_id', $instructor->id)
+                ->orWhere('assistant_instructor_id', $instructor->id);
+        })->pluck('id');
+
+        // Get today's session IDs
+        $sessionIds = \DB::table('class_sessions')
+            ->whereIn('class_id', $classIds)
+            ->whereDate('session_date', today())
+            ->pluck('id');
+
+        // Count per status
+        $present = \DB::table('attendance_logs')
+            ->whereIn('class_session_id', $sessionIds)
+            ->where('attendance_status', 'present')
+            ->count();
+
+        $absent = \DB::table('attendance_logs')
+            ->whereIn('class_session_id', $sessionIds)
+            ->where('attendance_status', 'absent')
+            ->count();
+
+        $late = \DB::table('attendance_logs')
+            ->whereIn('class_session_id', $sessionIds)
+            ->where('attendance_status', 'late')
+            ->count();
+
+        $excused = \DB::table('attendance_logs')
+            ->whereIn('class_session_id', $sessionIds)
+            ->where('attendance_status', 'excused')
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'present' => $present,
+                'absent' => $absent,
+                'late' => $late,
+                'excused' => $excused,
+            ]
+        ]);
     }
-
-    return response()->json([
-        'success' => true,
-        'session_id' => $session->id,
-    ]);
-}
-
-public function attendanceStats(Request $request)
-{
-    $user = $request->user();
-    $instructor = $user->instructor;
-
-    if (!$instructor) {
-        return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
-    }
-
-    // Get today's class IDs ng instructor
-    $classIds = Classes::where(function($q) use ($instructor) {
-        $q->where('primary_instructor_id', $instructor->id)
-          ->orWhere('assistant_instructor_id', $instructor->id);
-    })->pluck('id');
-
-    // Get today's session IDs
-    $sessionIds = \DB::table('class_sessions')
-        ->whereIn('class_id', $classIds)
-        ->whereDate('session_date', today())
-        ->pluck('id');
-
-    // Count per status
-    $present = \DB::table('attendance_logs')
-        ->whereIn('class_session_id', $sessionIds)
-        ->where('attendance_status', 'present')
-        ->count();
-
-    $absent = \DB::table('attendance_logs')
-        ->whereIn('class_session_id', $sessionIds)
-        ->where('attendance_status', 'absent')
-        ->count();
-
-    $late = \DB::table('attendance_logs')
-        ->whereIn('class_session_id', $sessionIds)
-        ->where('attendance_status', 'late')
-        ->count();
-
-    $excused = \DB::table('attendance_logs')
-        ->whereIn('class_session_id', $sessionIds)
-        ->where('attendance_status', 'excused')
-        ->count();
-
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'present' => $present,
-            'absent' => $absent,
-            'late' => $late,
-            'excused' => $excused,
-        ]
-    ]);
-}
 }

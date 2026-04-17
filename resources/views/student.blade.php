@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>TrainNova | Students</title>
@@ -13,24 +14,25 @@
     <!-- Add SweetAlert2 for better alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="bg-gray-50">
 
-@include("includes.navbar")
-@include("includes.sidebar")
+    @include("includes.navbar")
+    @include("includes.sidebar")
 
-<div class="main-content px-6 py-6 mt-7">
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
-        <span>/</span>
-        <span class="text-[#1C1C1D] font-medium">Student</span>
-    </div>
-
-    <h1 class="text-4xl font-bold text-[#1C1C1D] mb-4">Student</h1>
-
-    <div class="content-card mb-6">
-        <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
-            Student List
+    <div class="main-content px-6 py-6 mt-7">
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
+            <span>/</span>
+            <span class="text-[#1C1C1D] font-medium">Student</span>
         </div>
+
+        <h1 class="text-4xl font-bold text-[#1C1C1D] mb-4">Student</h1>
+
+        <div class="content-card mb-6">
+            <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
+                Student List
+            </div>
 
         {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
             <div class="dropdown">
@@ -43,14 +45,14 @@
                 </select>
             </div>
 
-            <div class="dropdown">
-                <label for="status">Status</label>
-                <select name="status" id="status">
-                    <option value="" disabled selected>-- Select status --</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
+                <div class="dropdown">
+                    <label for="status">Status</label>
+                    <select name="status" id="status">
+                        <option value="" disabled selected>-- Select status --</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
 
             <div class="dropdown">
                 <label for="class">Class</label>
@@ -123,12 +125,12 @@
     </div>
 </div>
 
-<div id="studentModal" class="modal hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="modal-content bg-white rounded-lg p-6 w-3/4 max-w-3xl relative">
-        <div class="modal-header flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold">Student Profile</h2>
-            <span class="cursor-pointer text-xl font-bold" onclick="closeModal()">&times;</span>
-        </div>
+    <div id="studentModal" class="modal hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-lg p-6 w-3/4 max-w-3xl relative">
+            <div class="modal-header flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Student Profile</h2>
+                <span class="cursor-pointer text-xl font-bold" onclick="closeModal()">&times;</span>
+            </div>
 
         <div class="tabs flex gap-2 mb-4 border-b">
     <button class="tab active px-4 py-2 bg-blue-600 text-gray-500 rounded-t font-medium"
@@ -147,9 +149,9 @@
         data-tab="certificates" onclick="switchTab(this)">Certificates</button>
 </div>
 
-        <div id="profileTab" class="tab-content block">
-            <p class="text-gray-500">Loading profile...</p>
-        </div>
+            <div id="profileTab" class="tab-content block">
+                <p class="text-gray-500">Loading profile...</p>
+            </div>
 
         <div id="attendanceTab" class="tab-content hidden">
             <div class="attendance-summary grid grid-cols-3 gap-4 mb-4">
@@ -191,11 +193,17 @@
             <div id="noAttendanceData" class="text-gray-500 text-center py-4 hidden">No attendance records found.</div>
         </div>
 
-        <div id="billingTab" class="tab-content hidden"><p>Loading billing details...</p></div>
-        <div id="competitionTab" class="tab-content hidden"><p>Loading competition history...</p></div>
-        <div id="certificatesTab" class="tab-content hidden"><p>Loading certificates...</p></div>
+            <div id="billingTab" class="tab-content hidden">
+                <p>Loading billing details...</p>
+            </div>
+            <div id="competitionTab" class="tab-content hidden">
+                <p>Loading competition history...</p>
+            </div>
+            <div id="certificatesTab" class="tab-content hidden">
+                <p>Loading certificates...</p>
+            </div>
+        </div>
     </div>
-</div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
@@ -219,8 +227,8 @@ async function openModal(button) {
     modal.classList.remove("hidden");
     modal.style.display = "flex";
 
-    const studentId = button.getAttribute("data-id");
-    modal.dataset.studentId = studentId;
+            const studentId = button.getAttribute("data-id");
+            modal.dataset.studentId = studentId;
 
     // Loading UI
     document.getElementById("profileTab").innerHTML = `
@@ -487,4 +495,5 @@ window.onclick = function(e) {
 };
 </script>
 </body>
+
 </html>

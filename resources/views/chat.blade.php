@@ -192,8 +192,9 @@
                         </form>
 
                     @else
-                        <div class="flex h-screen items-center justify-center">
-                            <p class="text-white font-bold">Select a chat</p>
+                        <div class="flex flex-col h-screen items-center justify-center">
+                            <img src="{{ asset('storage/assets/no-message.png') }}" style="width: 200px; height: 200px;" alt="">
+                            <p class="text-white font-bold">No chats selected</p>
                         </div>
                     @endif
 

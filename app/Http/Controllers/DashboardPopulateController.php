@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardPopulateController extends Controller
 {
+    public function sanitizeInput($value)
+    {
+        if(is_string($value)){
+            $value = trim($value);
+            $value = strip_tags($value);
+            $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $value;
+    }
     public function index()
     {   
         $students = DB::table('students')
@@ -19,14 +28,141 @@ class DashboardPopulateController extends Controller
             ->where('status', 'active')
             ->get();
         $todayAttendance = AttendanceLog::with(['student', 'classSession.class', 'classSession.instructor'])
-        ->whereDate('checkin_time', today())
-        ->orderBy('checkin_time', 'desc')
-        ->get();
+            ->whereDate('checkin_time', today())
+            ->orderBy('checkin_time', 'desc')
+            ->get();    
         $parents = User::where('role', 'parent')->get();
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
 
-        return view('dashboard', compact('branches', 'beltlevels', 'parents', 'students', 'todayAttendance'));
+        $outstandingBalance = DB::table('invoices')
+            ->whereIn('status', ['pending', 'overdue'])
+            ->sum('total_due');
+
+
+        // for revenue chart
+        $revenueDailyLabels = [];
+        $revenueDailyValues = [];
+        for($i=6 ;$i >=0 ;$i-- ){
+            $date = now()->subDay($i);
+            $revenueDailyLabels[] = $date->format('M d');
+
+            $dailyTotal = DB::table('payments')
+                            ->whereDate('paid_at', $date->toDateString())
+                            ->sum('amount');
+            $revenueDailyValues[] = (float) $dailyTotal;
+        }
+        $revenueMonthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $revenueMonthlyValues = [];
+        $currentYear = date('Y');
+        
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlyTotal = DB::table('payments')
+                            ->whereYear('paid_at', $currentYear)
+                            ->whereMonth('paid_at', $month)
+                            ->sum('amount');
+                            
+            $revenueMonthlyValues[] = (float) $monthlyTotal;
+        }
+
+        $revenueChartData = [
+            'daily' => [
+                'labels' => $revenueDailyLabels,
+                'values' => $revenueDailyValues
+            ],
+            'monthly' => [
+                'labels' => $revenueMonthlyLabels,
+                'values' => $revenueMonthlyValues
+            ]
+        ];
+        // for revenue chart
+
+        // for enrollee's chart
+        $dailyLabels = [];
+        $dailyValues = [];
+        for ($i = 6; $i >= 0; $i--){
+            $date = now()->subDays($i);
+            $dailyLabels[] = $date->format('M d');
+            $dailyValues[] = DB::table('students')
+                                ->whereDate('created_at', $date->toDateString())
+                                ->count();
+        }
+
+        $monthlyLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        $monthlyValues = [];
+        $currentYear = date('Y');
+
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlyValues[] = DB::table('students')
+                                ->whereYear('created_at', $currentYear)
+                                ->whereMonth('created_at', $month)
+                                ->count();
+        }
+        $enrolleesChartData = [
+            'daily' => [
+                'labels' => $dailyLabels,
+                'values' => $dailyValues
+            ],
+            'monthly' => [
+                'labels' => $monthlyLabels,
+                'values' => $monthlyValues
+            ]   
+        ];
+        // for enrollee's chart
+
+
+        // for attendance Heatmap chart
+        $attendances = AttendanceLog::where('status', 1)
+            ->where('checkin_time', '>=', now()->subDays(30))
+            ->get(['checkin_time']);
+
+        $timeBuckets = [8, 10, 12, 14, 16, 18, 20, 22];
+        $daysOfWeek = [1, 2, 3, 4, 5, 6, 7];
+
+        $heatmapData = [];
+        foreach($timeBuckets as $time){
+            foreach($daysOfWeek as $day){
+                $heatmapData[$time][$day] = 0;                
+            }
+        }
+
+        $maxHeatmapCount = 0;
+
+        foreach ($attendances as $attendance) {
+            $date = \Carbon\Carbon::parse($attendance->checkin_time);
+            $day = $date->dayOfWeekIso; // 1 (Mon) through 7 (Sun)
+            $hour = $date->hour;
+
+            $bucket = null;
+            if ($hour >= 7 && $hour < 9) $bucket = 8;
+            elseif ($hour >= 9 && $hour < 11) $bucket = 10;
+            elseif ($hour >= 11 && $hour < 13) $bucket = 12;
+            elseif ($hour >= 13 && $hour < 15) $bucket = 14;
+            elseif ($hour >= 15 && $hour < 17) $bucket = 16;
+            elseif ($hour >= 17 && $hour < 19) $bucket = 18;
+            elseif ($hour >= 19 && $hour < 21) $bucket = 20;
+            elseif ($hour >= 21 || $hour < 7) $bucket = 22; // Groups late night classes
+
+            if ($bucket !== null && isset($heatmapData[$bucket][$day])) {
+                $heatmapData[$bucket][$day]++;
+                if ($heatmapData[$bucket][$day] > $maxHeatmapCount) {
+                    $maxHeatmapCount = $heatmapData[$bucket][$day];
+                }
+            }
+        }
+
+        if ($maxHeatmapCount == 0) $maxHeatmapCount = 1;
+
+        $timeLabels = [
+            8 => '8 AM', 10 => '10 AM', 12 => '12 PM', 14 => '2 PM',
+            16 => '4 PM', 18 => '6 PM', 20 => '8 PM', 22 => '10 PM'
+        ];
+        // for attendance Heatmap chart
+
+        return view('dashboard', compact(
+            'branches', 'beltlevels', 'parents', 'students', 'todayAttendance', 
+            'enrolleesChartData', 'heatmapData', 'timeLabels', 'maxHeatmapCount', 'revenueChartData', 'outstandingBalance'
+        ));
     }
 
     public function store(Request $request)
@@ -35,46 +171,72 @@ class DashboardPopulateController extends Controller
 
         $validate = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
+            'first_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\'-]+$/'], 
+            'last_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'birthdate' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'belt_level' => 'required',
             'status' => 'required',
-            'medical_notes' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'contact_person' => 'required|string',
-            'contact_number' => 'required|string',
+            'medical_notes' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
+            'allergies' => ['nullable', 'string', 'regex:/^[^<>]+$/'], 
+            'contact_person' => ['required', 'string', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+            'contact_number' => ['required', 'string', 'regex:/^[\d\s\-\+\(\)]+$/'],
             'primary_parent_id' => 'nullable',
-            'email' => 'required|email|unique:users,email',
+            'email' => ['required', 'email', 'unique:users,email'], 
             'password' => 'required|min:6',
         ]);
+
+        $data = [
+            'first_name' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->first_name)),
+            'last_name' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->last_name)),
+            'contact_person' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->contact_person)),
+            'medical_notes' => $this->sanitizeInput($request->medical_notes),
+            'allergies' => $this->sanitizeInput($request->allergies),
+            'contact_number' => preg_replace('/[^\d+]/', '', $this->sanitizeInput($request->contact_number)),
+            'email' => filter_var($this->sanitizeInput($request->email), FILTER_SANITIZE_EMAIL)
+        ];
 
         $user = User::create([
             'branch_id' => $validate['branch_id'],
             'role' => 'student',
-            'fname' => $validate['first_name'],
-            'lname' => $validate['last_name'],
-            'email' => $validate['email'],
-            'username' => strtolower($validate['first_name']) . '.' . strtolower($validate['last_name']) . rand(100, 999),
+            'fname' => $data['first_name'],
+            'lname' => $data['last_name'],
+            'email' => $data['email'],
+            'username' => strtolower(str_replace(' ', '', $data['first_name'])) . '.' . strtolower(str_replace(' ', '', $data['last_name'])) . rand(100, 999),
             'password' => \Illuminate\Support\Facades\Hash::make($validate['password']),
             'status' => $validate['status'] === 'active' ? 'active' : 'inactive',
         ]);
+
+        $currentYear = date('y'); 
+        
+        $latestStudent = DB::table('students')
+            ->where('student_code', 'LIKE', $currentYear . '-%')
+            ->orderBy('student_code', 'desc')
+            ->first();
+            
+        if ($latestStudent) {
+            $lastSequence = (int) substr($latestStudent->student_code, 3);
+            $nextSequence = $lastSequence + 1;
+        } else {
+            $nextSequence = 1;
+        }
+        
+        $newStudentCode = sprintf("%s-%05d", $currentYear, $nextSequence);
 
         try {
             DB::table('students')->insert([
                 'user_id' => $user->id,
                 'branch_id' => $validate['branch_id'],
-                'student_code' => 'TKD-' . strtoupper(\Illuminate\Support\Str::random(5)),
-                'first_name' => $validate['first_name'],
-                'last_name' => $validate['last_name'],
-                'birthdate' => $validate['birthdate'],
+                'student_code' => $newStudentCode,
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'birthdate' => $validate['birthdate'], // Use validated date
                 'gender' => $validate['gender'],
                 'current_belt' => $validate['belt_level'],
-                'medical_notes' => $validate['medical_notes'] ?? null,
-                'allergies' => $validate['allergies'] ?? null,
-                'emergency_contact_name' => $validate['contact_person'],
-                'emergency_contact_mobile' => $validate['contact_number'],
+                'medical_notes' => $data['medical_notes'] ?? null,
+                'allergies' => $data['allergies'] ?? null,
+                'emergency_contact_name' => $data['contact_person'],
+                'emergency_contact_mobile' => $data['contact_number'],
                 'primary_parent_id' => $validate['primary_parent_id'] ?? null,
                 'join_date' => now(),
                 'status' => $validate['status'],

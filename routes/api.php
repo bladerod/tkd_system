@@ -50,8 +50,26 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/student/reset-face', [StudentApiController::class, 'resetFace']);
 
-    // Instructor-specific na class stats
+    // Instructor-specific classes and stats
     Route::get('/instructor/attendance-stats', [ClassApiController::class, 'attendanceStats']);
+
+    Route::get('/student/attendance', [StudentApiController::class, 'myAttendance']);
+
+    Route::get('/parent/profile', [ParentApiController::class, 'myProfile']);
+
+    Route::get('/parent/child/{childId}', [ParentApiController::class, 'childProfile']);
+
+    Route::get('/instructor/students-list', [StudentApiController::class, 'studentsList']);
+
+    Route::get('/instructor/parents-list', [StudentApiController::class, 'parentsList']);
+
+    Route::get('/announcements/unread-count', [AnnouncementApiController::class, 'unreadCount']);
+
+    Route::post('/announcements/mark-read', [AnnouncementApiController::class, 'markAllRead']);
+
+    Route::post('/announcements/{id}/mark-read', [AnnouncementApiController::class, 'markOneRead']);
+
+    Route::post('/announcements/{id}/dismiss', [AnnouncementApiController::class, 'dismiss']);
 
     // Students
     // Route::prefix('students')->group(function () {
@@ -60,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
     //     Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
     // });
+
+    // Announcements
+    Route::get('/announcements', [AnnouncementApiController::class, 'index']);
+    Route::get('/announcements/{id}', [AnnouncementApiController::class, 'show']);
+    Route::post('/announcements', [AnnouncementApiController::class, 'store']);
 
     // Attendance
     Route::get('/attendance', [AttendanceApiController::class, 'index']);

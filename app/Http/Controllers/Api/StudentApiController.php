@@ -354,6 +354,57 @@ class StudentApiController extends Controller
         ]);
     }
 
+    public function myAttendance(Request $request)
+{
+    $user = $request->user();
+    $student = \DB::table('students')->where('user_id', $user->id)->first();
+
+    if (!$student) {
+        return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+    }
+
+    $records = \DB::table('attendance_logs')
+        ->where('student_id', $student->id)
+        ->orderBy('checkin_time', 'desc')
+        ->get()
+        ->map(function ($log) {
+            $checkinTime = $log->checkin_time;
+            $method = match($log->method) {
+                'face_scan' => 'Face Scan',
+                'manual'    => 'Manual',
+                'face'      => 'Face Scan',
+                'qr'        => 'QR Code',
+                default     => 'Manual',
+            };
+
+            return [
+                'day'    => \Carbon\Carbon::parse($checkinTime)->format('j'),
+                'month'  => strtoupper(\Carbon\Carbon::parse($checkinTime)->format('M')),
+                'status' => ucfirst($log->attendance_status),
+                'method' => $method,
+                'time'   => $log->attendance_status === 'absent'
+                    ? '-'
+                    : \Carbon\Carbon::parse($checkinTime)->format('g:i A'),
+            ];
+        });
+
+    $present = $records->where('status', 'Present')->count();
+    $absent  = $records->where('status', 'Absent')->count();
+    $late    = $records->where('status', 'Late')->count();
+
+    return response()->json([
+        'success' => true,
+        'data'    => [
+            'summary' => [
+                'present' => $present,
+                'absent'  => $absent,
+                'late'    => $late,
+            ],
+            'records' => $records->values(),
+        ]
+    ]);
+}
+
     /**
      * Confirm check-in — called pag pinindot ng student ang CHECK IN button
      */
@@ -459,5 +510,83 @@ public function getClassStudentsWithLoginType(Request $request, $classId)
 
         return response()->json(['success' => true, 'message' => 'Face data reset successfully']);
     }
+
+    public function studentsList(Request $request)
+{
+    $user = $request->user();
+
+    // Kunin yung instructor record
+    $instructor = \DB::table('instructors')->where('user_id', $user->id)->first();
+
+    if (!$instructor) {
+        return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+    }
+
+    // Kunin lahat ng students sa classes ng instructor
+    $students = \DB::table('students')
+        ->join('class_students', 'students.id', '=', 'class_students.student_id')
+        ->join('classes', 'class_students.class_id', '=', 'classes.id')
+        ->join('users', 'students.user_id', '=', 'users.id')
+        ->where('classes.primary_instructor_id', $instructor->id)
+        ->where('class_students.status', 'active')
+        ->select(
+            'students.id',
+            'students.first_name',
+            'students.last_name',
+            'users.id as user_id',
+            'classes.class_name as class_name'
+        )
+        ->distinct()
+        ->get()
+        ->map(function ($s) {
+            return [
+                'id'       => $s->user_id,
+                'name'     => trim($s->first_name . ' ' . $s->last_name),
+                'subtitle' => $s->class_name,
+            ];
+        });
+
+    return response()->json(['success' => true, 'data' => $students]);
+}
+
+public function parentsList(Request $request)
+{
+    $user = $request->user();
+
+    $instructor = \DB::table('instructors')->where('user_id', $user->id)->first();
+
+    if (!$instructor) {
+        return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+    }
+
+    // Kunin lahat ng parents ng students sa classes ng instructor
+    $parents = \DB::table('parents')
+        ->join('parent_students', 'parents.id', '=', 'parent_students.parent_id')
+        ->join('students', 'parent_students.student_id', '=', 'students.id')
+        ->join('class_students', 'students.id', '=', 'class_students.student_id')
+        ->join('classes', 'class_students.class_id', '=', 'classes.id')
+        ->join('users', 'parents.user_id', '=', 'users.id')
+        ->where('classes.primary_instructor_id', $instructor->id)
+        ->where('class_students.status', 'active')
+        ->select(
+            'parents.id',
+            'users.id as user_id',
+            'users.fname',
+            'users.lname',
+            'students.first_name as student_fname',
+            'students.last_name as student_lname'
+        )
+        ->distinct()
+        ->get()
+        ->map(function ($p) {
+            return [
+                'id'       => $p->user_id,
+                'name'     => trim($p->fname . ' ' . $p->lname),
+                'subtitle' => 'Parent of ' . trim($p->student_fname . ' ' . $p->student_lname),
+            ];
+        });
+
+    return response()->json(['success' => true, 'data' => $parents]);
+}
 
 }

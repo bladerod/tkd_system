@@ -29,13 +29,139 @@ CREATE TABLE `active_logins` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_student` (`student_id`),
   CONSTRAINT `fk_active_logins_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `active_logins` */
 
 insert  into `active_logins`(`id`,`student_id`,`login_type`,`logged_in_at`,`expires_at`) values 
-(6,20,'face_scan','2026-04-13 13:27:19','2026-04-13 23:59:59'),
-(7,15,'face_scan','2026-04-13 13:30:31','2026-04-13 23:59:59');
+(6,20,'manual','2026-04-20 17:15:26','2026-04-20 23:59:59'),
+(7,15,'manual','2026-04-20 17:33:08','2026-04-20 23:59:59'),
+(8,22,'face_scan','2026-04-13 22:15:22','2026-04-13 23:59:59'),
+(9,23,'manual','2026-04-17 23:32:31','2026-04-17 23:59:59'),
+(10,24,'manual','2026-04-20 11:55:23','2026-04-20 23:59:59');
+
+/*Table structure for table `announcement_reads` */
+
+DROP TABLE IF EXISTS `announcement_reads`;
+
+CREATE TABLE `announcement_reads` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `announcement_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `read_at` datetime NOT NULL,
+  `is_dismissed` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_read` (`announcement_id`,`user_id`),
+  KEY `fk_ann_reads_user` (`user_id`),
+  CONSTRAINT `fk_ann_reads_announcement` FOREIGN KEY (`announcement_id`) REFERENCES `announcements` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ann_reads_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `announcement_reads` */
+
+insert  into `announcement_reads`(`id`,`announcement_id`,`user_id`,`read_at`,`is_dismissed`) values 
+(1,9,33,'2026-04-20 17:12:04',1),
+(2,10,33,'2026-04-20 17:12:10',1),
+(3,11,33,'2026-04-20 17:12:13',1),
+(4,12,33,'2026-04-20 17:12:17',1),
+(5,13,33,'2026-04-20 17:12:18',1),
+(6,24,33,'2026-04-20 17:12:02',1),
+(7,25,33,'2026-04-20 14:21:00',0),
+(8,26,33,'2026-04-20 14:21:00',0),
+(9,27,33,'2026-04-20 14:21:00',0),
+(10,28,33,'2026-04-20 14:21:00',0),
+(11,29,33,'2026-04-20 14:21:00',0),
+(12,30,33,'2026-04-20 14:21:00',0),
+(13,31,33,'2026-04-20 14:21:00',0),
+(14,32,33,'2026-04-20 14:21:00',0),
+(15,33,33,'2026-04-20 14:21:00',0),
+(16,34,33,'2026-04-20 17:11:59',1),
+(17,35,33,'2026-04-20 17:11:55',1),
+(18,36,33,'2026-04-20 17:11:49',1),
+(19,9,44,'2026-04-20 14:25:15',0),
+(20,10,44,'2026-04-20 14:25:15',0),
+(21,11,44,'2026-04-20 14:25:15',0),
+(22,12,44,'2026-04-20 14:25:15',0),
+(23,13,44,'2026-04-20 14:25:15',0),
+(24,24,44,'2026-04-20 14:25:15',0),
+(25,25,44,'2026-04-20 14:25:15',0),
+(26,26,44,'2026-04-20 14:25:15',0),
+(27,27,44,'2026-04-20 14:25:15',0),
+(28,28,44,'2026-04-20 14:25:15',0),
+(29,29,44,'2026-04-20 14:25:15',0),
+(30,30,44,'2026-04-20 14:25:15',0),
+(31,31,44,'2026-04-20 14:25:15',0),
+(32,32,44,'2026-04-20 14:25:15',0),
+(33,33,44,'2026-04-20 14:25:15',0),
+(34,34,44,'2026-04-20 14:25:15',0),
+(35,35,44,'2026-04-20 14:25:15',0),
+(36,36,44,'2026-04-20 14:25:15',0),
+(37,37,33,'2026-04-20 17:11:46',1),
+(38,38,33,'2026-04-20 17:11:41',1),
+(39,39,33,'2026-04-20 17:11:36',1),
+(47,37,44,'2026-04-20 16:40:26',0),
+(48,38,44,'2026-04-20 16:40:26',0),
+(49,39,44,'2026-04-20 16:40:26',0),
+(50,40,44,'2026-04-20 16:40:26',0),
+(52,40,33,'2026-04-20 16:44:14',0),
+(53,41,33,'2026-04-20 17:14:45',0),
+(55,9,40,'2026-04-20 17:16:27',1),
+(56,10,40,'2026-04-20 17:16:29',1),
+(57,11,40,'2026-04-20 17:16:31',1),
+(58,12,40,'2026-04-20 17:15:28',0),
+(59,13,40,'2026-04-20 17:15:28',0),
+(60,24,40,'2026-04-20 17:15:28',0),
+(61,25,40,'2026-04-20 17:15:28',0),
+(62,26,40,'2026-04-20 17:15:28',0),
+(63,27,40,'2026-04-20 17:15:28',0),
+(64,28,40,'2026-04-20 17:15:28',0),
+(65,29,40,'2026-04-20 17:15:28',0),
+(66,30,40,'2026-04-20 17:15:28',0),
+(67,31,40,'2026-04-20 17:15:28',0),
+(68,32,40,'2026-04-20 17:15:28',0),
+(69,33,40,'2026-04-20 17:15:28',0),
+(70,34,40,'2026-04-20 17:15:28',0),
+(71,35,40,'2026-04-20 17:15:28',0),
+(72,36,40,'2026-04-20 17:15:28',0),
+(73,37,40,'2026-04-20 17:15:28',0),
+(74,38,40,'2026-04-20 17:15:28',0),
+(75,39,40,'2026-04-20 17:15:28',0),
+(76,40,40,'2026-04-20 17:15:28',0),
+(77,41,40,'2026-04-20 17:15:28',0),
+(85,42,33,'2026-04-20 17:40:00',1);
+
+/*Table structure for table `announcement_recipients` */
+
+DROP TABLE IF EXISTS `announcement_recipients`;
+
+CREATE TABLE `announcement_recipients` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `announcement_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_ann_recipients_announcement` (`announcement_id`),
+  KEY `fk_ann_recipients_user` (`user_id`),
+  CONSTRAINT `fk_ann_recipients_announcement` FOREIGN KEY (`announcement_id`) REFERENCES `announcements` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ann_recipients_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `announcement_recipients` */
+
+insert  into `announcement_recipients`(`id`,`announcement_id`,`user_id`) values 
+(6,24,33),
+(7,25,43),
+(8,29,46),
+(9,30,46),
+(10,31,46),
+(11,32,13),
+(12,33,44),
+(13,34,33),
+(14,37,33),
+(15,38,33),
+(16,39,33),
+(17,40,44),
+(18,41,33),
+(19,42,33);
 
 /*Table structure for table `announcements` */
 
@@ -44,27 +170,53 @@ DROP TABLE IF EXISTS `announcements`;
 CREATE TABLE `announcements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_by_user_id` int(11) NOT NULL,
-  `target_type` enum('all','class','belt','branch') NOT NULL,
+  `target_type` enum('all','belt','branch','class','parents','students','specific_students','specific_parents') DEFAULT NULL,
   `class_id` int(11) DEFAULT NULL,
   `belt_level` varchar(150) DEFAULT NULL,
   `branch_id` int(10) DEFAULT NULL,
   `channel` varchar(150) DEFAULT NULL,
   `title` varchar(150) NOT NULL,
   `message` text NOT NULL,
-  `publish_date` date NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `event_date` varchar(50) DEFAULT NULL,
+  `event_time` varchar(50) DEFAULT NULL,
+  `fee` varchar(50) DEFAULT NULL,
+  `publish_date` datetime DEFAULT NULL,
   `expire_date` date DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_by` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `created_by_user_id` (`created_by_user_id`),
   KEY `class_id` (`class_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `announcements` */
 
-insert  into `announcements`(`id`,`created_by_user_id`,`target_type`,`class_id`,`belt_level`,`branch_id`,`channel`,`title`,`message`,`publish_date`,`expire_date`) values 
-(1,7,'class',1,'',0,'','testing','this message is a testing','2026-03-10','2026-03-11'),
-(6,7,'all',NULL,NULL,NULL,'SMS','testing','testiing','2026-03-19','2026-03-20'),
-(7,7,'all',NULL,NULL,NULL,'SMS','testing','testiing','2026-03-19','2026-03-20'),
-(8,7,'belt',NULL,'Blue Belt',NULL,'App,SMS,Email','tesingdawdwadwa','tokidawida','2026-03-19','2026-03-20');
+insert  into `announcements`(`id`,`created_by_user_id`,`target_type`,`class_id`,`belt_level`,`branch_id`,`channel`,`title`,`message`,`location`,`event_date`,`event_time`,`fee`,`publish_date`,`expire_date`,`status`,`created_by`) values 
+(9,0,'all',NULL,NULL,NULL,'App','Belt Exam Scheduled','Green to Blue Belt examination scheduled for September 20, 2025.',NULL,NULL,NULL,NULL,'2026-04-14 00:00:00','2026-05-14','active',NULL),
+(10,0,'all',NULL,NULL,NULL,'App','No Classes - Holiday','The TKD main will be closed on September 16-17 in observance of the national holiday.',NULL,NULL,NULL,NULL,'2026-04-14 00:00:00','2026-05-14','active',NULL),
+(11,0,'all',NULL,NULL,NULL,'App','Competition Open','Registration is now open for the Regional Championship in October.',NULL,NULL,NULL,NULL,'2026-04-14 00:00:00','2026-05-14','active',NULL),
+(12,0,'all',NULL,NULL,NULL,'App','Test Announcement','This is a test message from instructor.',NULL,NULL,NULL,NULL,'2026-04-14 00:00:00','2026-05-14','active',24),
+(13,0,'all',NULL,NULL,NULL,'App','Announcement','Don\'t late tommorow',NULL,NULL,NULL,NULL,'2026-04-14 00:00:00','2026-05-14','active',24),
+(24,0,'specific_students',NULL,NULL,NULL,'App','Mobility','10km run tommorow',NULL,NULL,NULL,NULL,'2026-04-17 00:00:00','2026-05-17','active',24),
+(25,0,'specific_students',NULL,NULL,NULL,'App','Belt Exam','Goodluck!','Caloocan Sport Complex',NULL,'9:00am to 12:00pm','200','2026-04-17 00:00:00','2026-05-17','active',24),
+(26,0,'class',NULL,NULL,NULL,'App','Conditioning','Drink more water',NULL,NULL,NULL,NULL,'2026-04-20 00:00:00','2026-05-20','active',24),
+(27,0,'class',NULL,NULL,NULL,'App','Conditioning','Drink more water',NULL,NULL,NULL,NULL,'2026-04-20 00:00:00','2026-05-20','active',24),
+(28,0,'class',NULL,NULL,NULL,'App','Conditioning','Drink more water',NULL,NULL,NULL,NULL,'2026-04-20 00:00:00','2026-05-20','active',24),
+(29,0,'class',NULL,NULL,NULL,'App','Conditioning','Drink more water',NULL,NULL,NULL,NULL,'2026-04-20 00:00:00','2026-05-20','active',24),
+(30,0,'class',NULL,NULL,NULL,'App','Belt Exam','Prepare your self!',NULL,NULL,NULL,NULL,'2026-04-20 00:00:00','2026-05-20','active',24),
+(31,0,'class',NULL,NULL,NULL,'App','Competition','Prepare yourself!','Sm Fairview',NULL,NULL,NULL,'2026-04-20 11:54:54','2026-05-20','active',24),
+(32,0,'specific_parents',NULL,NULL,NULL,'App','Meeting','Good day, Parents!\n\nWe would like to invite you to a Parents’ Meeting for our Taekwondo program. The purpose of this meeting is to discuss your child’s progress, upcoming activities, training schedules, and important guidelines to support their development in Taekwondo.','Sm Fairview',NULL,NULL,NULL,'2026-04-20 12:18:00','2026-05-20','active',24),
+(33,0,'specific_parents',NULL,NULL,NULL,'App','Meetings','Good day, Parents!\n\nWe would like to invite you to a Parents’ Meeting for our Taekwondo program. The purpose of this meeting is to discuss your child’s progress, upcoming activities, training schedules, and important guidelines to support their development in Taekwondo.','Caloocan Complex',NULL,NULL,NULL,'2026-04-20 12:29:54','2026-05-20','active',24),
+(34,0,'specific_students',NULL,NULL,NULL,'App','Palarong pambansa','Goodluck triever to upcoming fights. Be prepared','China Town',NULL,'9:00am to 10:00am','500','2026-04-20 12:58:25','2026-05-20','active',24),
+(35,0,'all',NULL,NULL,NULL,'App','Summer Competetion','Goodluck Students! Be prepared','Sm Fairview','Apr 23, 2026','2:30 AM to 6:30 PM','500','2026-04-20 13:32:53','2026-05-20','active',24),
+(36,0,'all',NULL,NULL,NULL,'App','Promotion Events','Good day, Parents and Students!\n\nWe are pleased to announce our upcoming Taekwondo Promotion Event, where students will have the opportunity to demonstrate their skills and advance to the next belt level. This event is an important milestone that reflects their hard work, discipline, and dedication in training','Sm North','Apr 30, 2026','8:00 AM to 11:00 PM',NULL,'2026-04-20 14:20:30','2026-05-20','active',24),
+(37,0,'specific_students',NULL,NULL,NULL,'App','Stamina Training','Jogging 10km','Forest Park','Apr 21, 2026',NULL,NULL,'2026-04-20 14:31:32','2026-05-20','active',24),
+(38,0,'specific_students',NULL,NULL,NULL,'App','Belt Exam','Prepare yourself',NULL,NULL,NULL,NULL,'2026-04-20 14:47:10','2026-05-20','active',24),
+(39,0,'specific_students',NULL,NULL,NULL,'App','Supencion','You are suspend in 3 weeks',NULL,'Apr 21, 2026',NULL,NULL,'2026-04-20 16:28:04','2026-05-20','active',24),
+(40,0,'specific_parents',NULL,NULL,NULL,'App','Subscription','Good day sir! Your daughter subscription is need to renew','Quezon City','Apr 28, 2026',NULL,NULL,'2026-04-20 16:39:43','2026-05-20','active',24),
+(41,0,'specific_students',NULL,NULL,NULL,'App','Greetings','Welcome! Triever?',NULL,NULL,NULL,NULL,'2026-04-20 17:14:18','2026-05-20','active',24),
+(42,0,'specific_students',NULL,NULL,NULL,'App','International Taekwondo Competition','Good day, Triever\n\nWe are proud to announce that you are been officially selected to represent our Taekwondo team in an upcoming International Taekwondo Competition. This is a remarkable achievement that reflects dedication, discipline, and performance in training.','Thailand','Apr 25, 2026','8:30 AM to 12:30 PM','Free','2026-04-20 17:32:30','2026-05-20','active',24);
 
 /*Table structure for table `attendance_logs` */
 
@@ -83,7 +235,7 @@ CREATE TABLE `attendance_logs` (
   `status` int(1) NOT NULL DEFAULT 1,
   `attendance_status` enum('present','late','absent','excused') NOT NULL DEFAULT 'present',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `attendance_logs` */
 
@@ -131,7 +283,9 @@ insert  into `attendance_logs`(`id`,`student_id`,`class_session_id`,`checkin_tim
 (45,13,37,'2026-04-13 02:26:54','2026-04-13 02:26:54','manual','100',24,0,1,'present'),
 (48,21,37,'2026-04-13 04:37:01','2026-04-13 04:37:01','manual','100',24,0,1,'absent'),
 (60,20,36,'2026-04-13 13:28:39','2026-04-13 13:28:39','face_scan','100',24,0,1,'late'),
-(61,15,36,'2026-04-13 13:31:15','2026-04-13 13:31:15','face_scan','100',24,0,1,'present');
+(61,15,36,'2026-04-13 13:31:15','2026-04-13 13:31:15','face_scan','100',24,0,1,'present'),
+(62,22,36,'2026-04-13 22:18:00','2026-04-13 22:18:00','face_scan','100',24,0,1,'present'),
+(63,15,38,'2026-04-14 21:29:41','2026-04-14 21:29:41','manual','100',24,0,1,'late');
 
 /*Table structure for table `audit_logs` */
 
@@ -416,7 +570,7 @@ CREATE TABLE `class_schedules` (
   PRIMARY KEY (`id`),
   KEY `class_schedules_class_id_foreign` (`class_id`),
   CONSTRAINT `class_schedules_class_id_foreign` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `class_schedules` */
 
@@ -425,14 +579,15 @@ insert  into `class_schedules`(`id`,`class_id`,`day_of_week`,`start_time`,`end_t
 (8,1,'tuesday','13:00:00','16:00:00','2026-03-25 16:36:57','2026-03-25 16:36:57'),
 (10,5,'wednesday','12:00:00','15:30:00','2026-03-26 12:12:26','2026-03-26 12:12:26'),
 (11,3,'friday','08:30:00','11:00:00','2026-03-26 12:35:11','2026-03-26 12:35:11'),
-(12,6,'monday','12:15:00','14:15:00','2026-03-26 14:15:53','2026-03-26 14:15:53'),
-(15,9,'wednesday','11:20:00','12:25:00','2026-03-27 02:22:16','2026-03-27 02:22:16'),
 (19,12,'saturday','17:43:00','18:30:00','2026-03-28 09:42:43','2026-03-28 09:42:43'),
 (22,14,'monday','22:58:00','23:35:00','2026-03-31 14:37:40','2026-03-31 14:37:40'),
 (23,14,'tuesday','22:38:00','23:25:00','2026-03-31 14:37:40','2026-03-31 14:37:40'),
 (26,7,'monday','00:12:00','14:12:00','2026-04-06 16:23:25','2026-04-06 16:23:25'),
-(33,13,'monday','10:15:00','11:50:00','2026-04-13 02:19:30','2026-04-13 02:19:30'),
-(34,13,'sunday','23:23:00','23:55:00','2026-04-13 02:19:30','2026-04-13 02:19:30');
+(35,6,'monday','22:10:00','23:30:00','2026-04-13 22:13:51','2026-04-13 22:13:51'),
+(36,13,'monday','10:15:00','11:50:00','2026-04-14 21:28:31','2026-04-14 21:28:31'),
+(37,13,'sunday','23:23:00','23:55:00','2026-04-14 21:28:31','2026-04-14 21:28:31'),
+(38,13,'tuesday','21:28:00','23:30:00','2026-04-14 21:28:31','2026-04-14 21:28:31'),
+(39,9,'monday','11:59:00','12:25:00','2026-04-20 11:02:54','2026-04-20 11:02:54');
 
 /*Table structure for table `class_sessions` */
 
@@ -453,7 +608,7 @@ CREATE TABLE `class_sessions` (
   KEY `class_sessions_class_id_foreign` (`class_id`),
   KEY `class_sessions_instructor_id_foreign` (`instructor_id`),
   CONSTRAINT `class_sessions_class_id_foreign` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `class_sessions` */
 
@@ -468,7 +623,10 @@ insert  into `class_sessions`(`id`,`class_id`,`session_date`,`start_time`,`end_t
 (34,13,'2026-04-10','15:24:56','16:24:56',6,'ongoing',NULL,'2026-04-10 15:24:56','2026-04-10 15:24:56'),
 (35,13,'2026-04-12','15:31:09','16:31:09',6,'ongoing',NULL,'2026-04-12 15:31:09','2026-04-12 15:31:09'),
 (36,6,'2026-04-13','02:20:41','03:20:41',6,'ongoing',NULL,'2026-04-13 02:20:41','2026-04-13 02:20:41'),
-(37,13,'2026-04-13','02:20:46','03:20:46',6,'ongoing',NULL,'2026-04-13 02:20:46','2026-04-13 02:20:46');
+(37,13,'2026-04-13','02:20:46','03:20:46',6,'ongoing',NULL,'2026-04-13 02:20:46','2026-04-13 02:20:46'),
+(38,13,'2026-04-14','21:29:29','22:29:29',6,'ongoing',NULL,'2026-04-14 21:29:29','2026-04-14 21:29:29'),
+(39,9,'2026-04-15','22:55:33','23:55:33',6,'ongoing',NULL,'2026-04-15 22:55:33','2026-04-15 22:55:33'),
+(40,13,'2026-04-20','10:37:03','11:37:03',6,'ongoing',NULL,'2026-04-20 10:37:03','2026-04-20 10:37:03');
 
 /*Table structure for table `class_students` */
 
@@ -482,7 +640,7 @@ CREATE TABLE `class_students` (
   `end_date` date DEFAULT NULL,
   `status` enum('active','completed','dropped') DEFAULT 'active',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `class_students` */
 
@@ -510,7 +668,10 @@ insert  into `class_students`(`id`,`class_id`,`student_id`,`start_date`,`end_dat
 (28,13,20,'2026-04-10',NULL,'active'),
 (29,13,9,'2026-04-10',NULL,'active'),
 (30,6,15,'2026-04-13',NULL,'active'),
-(31,6,20,'2026-04-13',NULL,'active');
+(31,6,20,'2026-04-13',NULL,'active'),
+(32,6,22,'2026-04-13',NULL,'active'),
+(33,6,23,'2026-04-13',NULL,'active'),
+(34,9,24,'2026-04-20',NULL,'active');
 
 /*Table structure for table `classes` */
 
@@ -538,9 +699,9 @@ insert  into `classes`(`id`,`branch_id`,`class_name`,`age_group`,`level`,`max_st
 (2,1,'White Belt Fundamentals Class','8-14','White',20,5,NULL,'active','2026-03-25 02:32:41','2026-03-25 16:36:51'),
 (3,1,'Taekwondo 101: White Belt Level','10-15','White',20,4,NULL,'inactive','2026-03-25 02:34:48','2026-03-26 12:35:11'),
 (5,4,'White-Yellow Belt Skills Development','17-20','White-Yellow',20,4,3,'active','2026-03-26 12:12:26','2026-03-26 12:12:26'),
-(6,1,'Veterans training','10','Blue-Red',10,6,5,'active','2026-03-26 14:15:53','2026-03-26 14:15:53'),
+(6,1,'Veterans training','10','Blue-Red',10,6,NULL,'active','2026-03-26 14:15:53','2026-04-13 22:13:51'),
 (7,1,'Hard training','10-15','Blue-Red',5,8,7,'active','2026-03-26 15:12:59','2026-04-06 16:23:25'),
-(9,1,'Intermediate Training','10-15','Red-Black',10,6,NULL,'active','2026-03-27 02:22:16','2026-03-27 02:22:16'),
+(9,1,'Intermediate Training','10-15','White-Yellow',10,6,9,'active','2026-03-27 02:22:16','2026-04-20 11:02:54'),
 (12,1,'Master Training','18-22','Red-Black',10,6,9,'active','2026-03-28 07:54:23','2026-03-28 07:54:23'),
 (13,1,'Master Training','18-22','Black',10,6,8,'active','2026-03-30 04:41:01','2026-04-06 16:54:07'),
 (14,2,'Fundamental Training','7-10','Blue-Red',10,6,8,'active','2026-03-30 14:56:55','2026-03-30 14:56:55');
@@ -815,12 +976,14 @@ CREATE TABLE `parent_students` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `parent_students` */
 
 insert  into `parent_students`(`id`,`parent_id`,`student_id`,`relationship`,`is_primary`,`created_at`,`updated_at`) values 
-(1,12,1,'father',0,'2026-03-26 13:38:56',NULL);
+(1,12,1,'father',0,'2026-03-26 13:38:56',NULL),
+(2,13,22,'guardian',0,'2026-04-15 22:13:21',NULL),
+(3,13,23,'guardian',0,'2026-04-15 22:13:21',NULL);
 
 /*Table structure for table `parents` */
 
@@ -838,7 +1001,7 @@ CREATE TABLE `parents` (
   PRIMARY KEY (`id`),
   KEY `parents_user_id_foreign` (`user_id`),
   CONSTRAINT `parents_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `parents` */
 
@@ -849,7 +1012,9 @@ insert  into `parents`(`id`,`user_id`,`emergency_contact`,`relationship_note`,`a
 (9,19,'Carlos Garcia','Father','Caloocan City',1,'2026-03-17 12:06:47','2026-03-17 12:06:47'),
 (10,20,'Grace Lee','Mother','Manila City',1,'2026-03-17 12:06:47','2026-03-17 12:06:47'),
 (11,22,'09876521465','Father','1177 Quirino Highway, Brgy kaligayahan, Novaliches',1,'2026-03-26 13:29:58',NULL),
-(12,23,'09876521465','Father','1177 Quirino Highway, Brgy kaligayahan, Novaliches',1,'2026-03-26 13:38:56',NULL);
+(12,23,'09876521465','Father','1177 Quirino Highway, Brgy kaligayahan, Novaliches',1,'2026-03-26 13:38:56',NULL),
+(13,44,'09699623018','Guardian','camarin caloocan city',1,'2026-04-15 22:13:21',NULL),
+(14,45,'091010982037','Legal Guardian','Alcoy Cebu',1,'2026-04-20 10:59:17',NULL);
 
 /*Table structure for table `payments` */
 
@@ -889,7 +1054,7 @@ CREATE TABLE `personal_access_tokens` (
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`),
   KEY `personal_access_tokens_expires_at_index` (`expires_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=166 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=285 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `personal_access_tokens` */
 
@@ -1058,7 +1223,126 @@ insert  into `personal_access_tokens`(`id`,`tokenable_type`,`tokenable_id`,`name
 (162,'App\\Models\\User',40,'face-login','d799928c69c6bae85ff46e736cb23a4e0cdd701a8f1b9d99e132a78aecc83ec2','[\"*\"]','2026-04-13 13:27:20',NULL,'2026-04-13 13:27:19','2026-04-13 13:27:20'),
 (163,'App\\Models\\User',24,'flutter-mobile-app','44722a4f3986dfb519758c1120de1f9c6dac20b79c67eaf475c040eb4265abf7','[\"*\"]','2026-04-13 13:28:39',NULL,'2026-04-13 13:27:43','2026-04-13 13:28:39'),
 (164,'App\\Models\\User',33,'face-login','5d7f82eb74af11815ffa043af38c0f02926de7c9e67101cc6fd6463a2753d368','[\"*\"]','2026-04-13 13:30:32',NULL,'2026-04-13 13:30:31','2026-04-13 13:30:32'),
-(165,'App\\Models\\User',24,'flutter-mobile-app','58886db1ff5ef7dc8703d7149523c74f3c5f5cb29a72e3c677f7caa5ece824ae','[\"*\"]','2026-04-13 13:31:15',NULL,'2026-04-13 13:31:03','2026-04-13 13:31:15');
+(165,'App\\Models\\User',24,'flutter-mobile-app','58886db1ff5ef7dc8703d7149523c74f3c5f5cb29a72e3c677f7caa5ece824ae','[\"*\"]','2026-04-13 13:31:15',NULL,'2026-04-13 13:31:03','2026-04-13 13:31:15'),
+(166,'App\\Models\\User',42,'flutter-mobile-app','f01b9edded264dc24ff931d951c66bbeff0490322f618f2d49b70d6aa8877bf6','[\"*\"]','2026-04-13 22:15:05',NULL,'2026-04-13 22:14:36','2026-04-13 22:15:05'),
+(167,'App\\Models\\User',42,'face-login','51235af42bcf9de0c4d1f1fad3baa71e611c38eea2f9ee9b65b50bfe9d7ede7d','[\"*\"]','2026-04-13 22:15:23',NULL,'2026-04-13 22:15:22','2026-04-13 22:15:23'),
+(168,'App\\Models\\User',24,'flutter-mobile-app','b52a58bc04c8423e5defdb6c6fc3c44cfc73b4cda83ac28241f2137022282ae1','[\"*\"]','2026-04-13 22:38:25',NULL,'2026-04-13 22:17:33','2026-04-13 22:38:25'),
+(169,'App\\Models\\User',43,'flutter-mobile-app','b0ccb443a0b5aad38bddc0ac2d6fc4d0f6f61d61f3f62bf1265aa87a669e10a8','[\"*\"]','2026-04-13 22:38:59',NULL,'2026-04-13 22:38:53','2026-04-13 22:38:59'),
+(170,'App\\Models\\User',33,'face-login','75399d10963dde1d48b34aff4314189dbba86e29bc3bf10e40ea00ddae4ec119','[\"*\"]','2026-04-13 22:58:20',NULL,'2026-04-13 22:58:19','2026-04-13 22:58:20'),
+(171,'App\\Models\\User',24,'flutter-mobile-app','0822c95d463b24d7fd8051a3d5103b0d67c455f00ec8adf279eadb628c4abd66','[\"*\"]','2026-04-13 23:03:41',NULL,'2026-04-13 23:03:34','2026-04-13 23:03:41'),
+(172,'App\\Models\\User',33,'face-login','fb089be40e26d80c99eec99010e97234e7a25eb477e6a181e4ebf0d813d176b8','[\"*\"]','2026-04-14 16:52:21',NULL,'2026-04-14 16:49:01','2026-04-14 16:52:21'),
+(173,'App\\Models\\User',33,'face-login','f54d1968a0847b9d56c507a66fb61b15ab3c64df9e825af91c95ec0770faae99','[\"*\"]','2026-04-14 16:53:14',NULL,'2026-04-14 16:53:13','2026-04-14 16:53:14'),
+(174,'App\\Models\\User',33,'face-login','2a1435dbc4d56e44309d76d67917a538cc042de4a069ee77997b9e55c04e47e6','[\"*\"]','2026-04-14 17:17:27',NULL,'2026-04-14 17:16:55','2026-04-14 17:17:27'),
+(175,'App\\Models\\User',33,'flutter-mobile-app','fd22e4db737bc6b39806171c4a926c2384f71540258db93189724e8a5bf1b94b','[\"*\"]','2026-04-14 17:21:58',NULL,'2026-04-14 17:19:30','2026-04-14 17:21:58'),
+(176,'App\\Models\\User',33,'face-login','29ca3e9f36e230c28f36ce80deabcc0fd2a64c950c051564ad7c003b29a18d56','[\"*\"]','2026-04-14 17:37:41',NULL,'2026-04-14 17:26:37','2026-04-14 17:37:41'),
+(177,'App\\Models\\User',33,'flutter-mobile-app','552849f0333882e8475619e5555648dbb21c858ff94c9677bed1ad81fb043abb','[\"*\"]','2026-04-14 17:44:49',NULL,'2026-04-14 17:39:15','2026-04-14 17:44:49'),
+(178,'App\\Models\\User',33,'flutter-mobile-app','cca35505e827ac05c865061f92634d2cf457b09988b1e0d6e1687384e8e42aa3','[\"*\"]','2026-04-14 17:50:23',NULL,'2026-04-14 17:49:49','2026-04-14 17:50:23'),
+(179,'App\\Models\\User',24,'flutter-mobile-app','f1bf04c891dd5f863b937c588140cfc0ccc00e63539ab0c5c4db76dd82a32623','[\"*\"]','2026-04-14 21:29:47',NULL,'2026-04-14 21:28:50','2026-04-14 21:29:47'),
+(180,'App\\Models\\User',33,'flutter-mobile-app','4be6de0e74f77098bb7125d5a2d0e00904cb1f67bdb49ac762da299669c41f39','[\"*\"]','2026-04-14 21:34:32',NULL,'2026-04-14 21:30:47','2026-04-14 21:34:32'),
+(181,'App\\Models\\User',24,'flutter-mobile-app','9234b5676d33fc89789d48e27dd8e3485685b9205fc7d75d5844317ee0fd3945','[\"*\"]','2026-04-14 22:00:05',NULL,'2026-04-14 21:35:28','2026-04-14 22:00:05'),
+(182,'App\\Models\\User',24,'flutter-mobile-app','295ac6a62b9f8e482d498d81265e248e98fbbfb396fc08fec62c6105a3b1cab4','[\"*\"]','2026-04-14 22:03:35',NULL,'2026-04-14 22:03:33','2026-04-14 22:03:35'),
+(183,'App\\Models\\User',33,'flutter-mobile-app','78ee34e75e8edfce983993442daed10f7124f660af3bfd4677af89ad313ee386','[\"*\"]','2026-04-14 22:07:36',NULL,'2026-04-14 22:07:35','2026-04-14 22:07:36'),
+(184,'App\\Models\\User',33,'flutter-mobile-app','c507c11184eac60f6be590eea61677f11959cc4645b9d918435034d9f71f9671','[\"*\"]','2026-04-14 22:32:56',NULL,'2026-04-14 22:31:51','2026-04-14 22:32:56'),
+(185,'App\\Models\\User',33,'flutter-mobile-app','f6ae5fe8935481054fba9838e002d58b32164953327147f5fb8346282e3c9d9c','[\"*\"]','2026-04-14 22:33:20',NULL,'2026-04-14 22:33:17','2026-04-14 22:33:20'),
+(186,'App\\Models\\User',24,'flutter-mobile-app','7f1232433ea971b45f332d1352b0ee71ff634d93ce65fe8e8e5b39e5d221f0ef','[\"*\"]','2026-04-14 22:36:28',NULL,'2026-04-14 22:35:00','2026-04-14 22:36:28'),
+(187,'App\\Models\\User',33,'flutter-mobile-app','4b6196f76113a7b2b6f934dc6aba59fad4c7711bc6ce17327da39d62307af8d2','[\"*\"]','2026-04-14 22:37:04',NULL,'2026-04-14 22:37:02','2026-04-14 22:37:04'),
+(188,'App\\Models\\User',24,'flutter-mobile-app','351a6765f211614f63298161d52c53781ddca3a166d0650d9874f1892fbf5d85','[\"*\"]','2026-04-14 22:38:36',NULL,'2026-04-14 22:37:41','2026-04-14 22:38:36'),
+(189,'App\\Models\\User',24,'flutter-mobile-app','272e013c37ea901d7554b15285e2a6ffd891dd2abb4b9bb0e5e876e73278ab2b','[\"*\"]','2026-04-14 22:39:32',NULL,'2026-04-14 22:39:30','2026-04-14 22:39:32'),
+(190,'App\\Models\\User',33,'flutter-mobile-app','881e18e640778a171b9d27c857c22a5280f510af205406bab2225bbf2b2d27cf','[\"*\"]','2026-04-14 22:40:23',NULL,'2026-04-14 22:40:21','2026-04-14 22:40:23'),
+(191,'App\\Models\\User',24,'flutter-mobile-app','273bf7bdcce13e8ecffc47b5538d828ed2254483984542d11127d1af7d4149b9','[\"*\"]','2026-04-14 22:45:39',NULL,'2026-04-14 22:45:37','2026-04-14 22:45:39'),
+(192,'App\\Models\\User',24,'flutter-mobile-app','9a4f70e3ff6bf8072a1f419c65e1ff8e151e0508c62b99f183d55f426aaadd63','[\"*\"]','2026-04-14 23:04:40',NULL,'2026-04-14 23:02:01','2026-04-14 23:04:40'),
+(193,'App\\Models\\User',33,'flutter-mobile-app','0b1b3f57cdd0fe91262b25b5b8ae43edbb4612c00aa297d862216f16ae98eca7','[\"*\"]','2026-04-14 23:04:56',NULL,'2026-04-14 23:04:55','2026-04-14 23:04:56'),
+(194,'App\\Models\\User',24,'flutter-mobile-app','341739448c8baca1ec8eca112200a373020babd2d9014287f2e22f34d6fb1e80','[\"*\"]','2026-04-14 23:27:06',NULL,'2026-04-14 23:24:14','2026-04-14 23:27:06'),
+(195,'App\\Models\\User',33,'flutter-mobile-app','f02e57b86926d5c87d785593d323f1da2a5c86cfea202cd8f5bc08ecafec7741','[\"*\"]','2026-04-14 23:37:13',NULL,'2026-04-14 23:27:54','2026-04-14 23:37:13'),
+(196,'App\\Models\\User',33,'face-login','7c1f8aa9c9ffd789750123c6371ac6ad0b083e1f2a3a918f1439bb73801be1b9','[\"*\"]','2026-04-14 23:50:17',NULL,'2026-04-14 23:40:17','2026-04-14 23:50:17'),
+(197,'App\\Models\\User',33,'face-login','024ffc2dae584025853dae4bd4cc45c0f3ac2bc74247d535b82eb6ab87acbb25','[\"*\"]','2026-04-15 21:54:36',NULL,'2026-04-15 21:54:33','2026-04-15 21:54:36'),
+(198,'App\\Models\\User',24,'flutter-mobile-app','348b4014b73dd0435d1ad4ab8e72cc37dab2a288e426e3bfce6822653d63c83f','[\"*\"]','2026-04-15 22:06:28',NULL,'2026-04-15 22:05:00','2026-04-15 22:06:28'),
+(199,'App\\Models\\User',44,'flutter-mobile-app','96177c5a5f102666a22896a714d241f1da65138c86d8547c548561537954bfbc','[\"*\"]','2026-04-15 22:29:13',NULL,'2026-04-15 22:26:45','2026-04-15 22:29:13'),
+(200,'App\\Models\\User',24,'flutter-mobile-app','44c1ab67d900cdeb10e26ca121dc32d991240d629e4f9684470fe3e2c1e40686','[\"*\"]','2026-04-15 22:55:33',NULL,'2026-04-15 22:55:17','2026-04-15 22:55:33'),
+(201,'App\\Models\\User',44,'flutter-mobile-app','e5ebb5f80a081a403eb518e3e56334a4543dda98a25811b4af6e1268a5bed285','[\"*\"]','2026-04-15 22:57:47',NULL,'2026-04-15 22:55:58','2026-04-15 22:57:47'),
+(202,'App\\Models\\User',44,'flutter-mobile-app','135a79a6e7b0e24fd9fd3188fc52b09aa825fb7e8222628af91a6fef78b6d95e','[\"*\"]','2026-04-16 22:26:51',NULL,'2026-04-16 22:17:01','2026-04-16 22:26:51'),
+(203,'App\\Models\\User',44,'flutter-mobile-app','97b7fe3c99522c8ef76a4572a85a312fecddd004d080668f79a62764264fbd62','[\"*\"]','2026-04-16 22:31:41',NULL,'2026-04-16 22:31:40','2026-04-16 22:31:41'),
+(204,'App\\Models\\User',44,'flutter-mobile-app','0effa1b6a44a4fe0367e570403bafe291e61da63b6b84335934102df494cc86f','[\"*\"]','2026-04-16 22:37:46',NULL,'2026-04-16 22:36:57','2026-04-16 22:37:46'),
+(205,'App\\Models\\User',44,'flutter-mobile-app','6b06be8bf9d47d48e94c72bef23bfe56e1e1fc2fdcb6961d32b011d6199f9d54','[\"*\"]','2026-04-16 22:53:21',NULL,'2026-04-16 22:52:06','2026-04-16 22:53:21'),
+(206,'App\\Models\\User',44,'flutter-mobile-app','556ca278da305b4bb2d49b976edd70d9d54fb30e1c377642a2fd72dc15cb58c1','[\"*\"]','2026-04-17 16:20:25',NULL,'2026-04-17 16:17:35','2026-04-17 16:20:25'),
+(207,'App\\Models\\User',44,'flutter-mobile-app','c18b995382f779fd192749cf8e800ed5220f2dfda20766022d8165bad899d666','[\"*\"]','2026-04-17 21:57:37',NULL,'2026-04-17 21:56:42','2026-04-17 21:57:37'),
+(208,'App\\Models\\User',44,'flutter-mobile-app','3ffd9e123b1218cbe46e231cd7c7c9586f7bf0b0968fa476a716579249b174a4','[\"*\"]','2026-04-17 22:02:44',NULL,'2026-04-17 22:02:42','2026-04-17 22:02:44'),
+(209,'App\\Models\\User',24,'flutter-mobile-app','5b4f6e4cacad38cb6da2c06bc6dcf99e96cf4ff007603a5bd428af3fd76cd777','[\"*\"]','2026-04-17 22:25:28',NULL,'2026-04-17 22:24:27','2026-04-17 22:25:28'),
+(210,'App\\Models\\User',24,'flutter-mobile-app','9cb2762667095375531565d9ea131ef83febbce81b1c7d1263cb520f39db96be','[\"*\"]','2026-04-17 22:38:13',NULL,'2026-04-17 22:26:55','2026-04-17 22:38:13'),
+(211,'App\\Models\\User',24,'flutter-mobile-app','7d6a07e8884e8c37a8013bba875e62bc5fb544e09b3ac8962c3900147d3c7723','[\"*\"]','2026-04-17 22:49:42',NULL,'2026-04-17 22:29:36','2026-04-17 22:49:42'),
+(212,'App\\Models\\User',24,'flutter-mobile-app','722f80d675c5ad90e44cbe63a51d7033cdb44a5cf1808bac77f6d37217df46f4','[\"*\"]','2026-04-17 22:51:49',NULL,'2026-04-17 22:50:44','2026-04-17 22:51:49'),
+(213,'App\\Models\\User',40,'flutter-mobile-app','00d6d0691b17fe7a39ac0a01e360c96ca0222871f37262c64af5834961775c67','[\"*\"]','2026-04-17 22:53:39',NULL,'2026-04-17 22:53:38','2026-04-17 22:53:39'),
+(214,'App\\Models\\User',33,'flutter-mobile-app','ed6651acdefa403a4f4537ca9b0ab2dfe9e1e582a822b83ca4be72c7467c947c','[\"*\"]','2026-04-17 22:55:58',NULL,'2026-04-17 22:55:57','2026-04-17 22:55:58'),
+(215,'App\\Models\\User',43,'flutter-mobile-app','7e8c86ff57b29e29f7c86510238a2ba95e2a4e50417a743e76e6b3cd0efba283','[\"*\"]','2026-04-17 22:56:33',NULL,'2026-04-17 22:56:32','2026-04-17 22:56:33'),
+(216,'App\\Models\\User',24,'flutter-mobile-app','4f5450556e219d2d9b9551f92e6cbc4f032160d52f1e10c36570831818c82316','[\"*\"]','2026-04-17 22:57:44',NULL,'2026-04-17 22:56:56','2026-04-17 22:57:44'),
+(217,'App\\Models\\User',24,'flutter-mobile-app','5286524a850d248e2562977a3c7e946d65c8b4c7fd4fb253be0d6d7739176444','[\"*\"]','2026-04-17 22:58:20',NULL,'2026-04-17 22:58:19','2026-04-17 22:58:20'),
+(218,'App\\Models\\User',33,'flutter-mobile-app','63eb3162898da7c4f38a7f70a97e0b6d19d4bc136d446c40d8999530339449cb','[\"*\"]','2026-04-17 22:58:48',NULL,'2026-04-17 22:58:47','2026-04-17 22:58:48'),
+(219,'App\\Models\\User',40,'flutter-mobile-app','bb91ef5bf849fd88250156a8234f46254bd228acc84adbe9f413bbc5806e488b','[\"*\"]','2026-04-17 22:59:41',NULL,'2026-04-17 22:59:40','2026-04-17 22:59:41'),
+(220,'App\\Models\\User',24,'flutter-mobile-app','b811f21efffda24d7155f7c3875671ac9dc6db14b3b4d3a001e0cea3998d87ca','[\"*\"]','2026-04-17 23:02:53',NULL,'2026-04-17 23:02:04','2026-04-17 23:02:53'),
+(221,'App\\Models\\User',40,'flutter-mobile-app','61b4e892b144f6ebf2a684d0542fe719278f1a5bd11d6344881773ae1253a414','[\"*\"]','2026-04-17 23:03:48',NULL,'2026-04-17 23:03:47','2026-04-17 23:03:48'),
+(222,'App\\Models\\User',33,'flutter-mobile-app','a81b892f669909aa266a5e5dcd9da476560a76aa40ec51b07be9d0a7579ab6b6','[\"*\"]','2026-04-17 23:04:23',NULL,'2026-04-17 23:04:21','2026-04-17 23:04:23'),
+(223,'App\\Models\\User',24,'flutter-mobile-app','f265ff1ca83145cb8393263fcb352f1cc2d7fc9854bc3633b1fce9cb64306fd5','[\"*\"]','2026-04-17 23:11:26',NULL,'2026-04-17 23:10:31','2026-04-17 23:11:26'),
+(224,'App\\Models\\User',33,'flutter-mobile-app','718dd5686fe8ef154b8335862985ce1472c0bd216c89be66b56842637ba700a4','[\"*\"]','2026-04-17 23:12:00',NULL,'2026-04-17 23:11:58','2026-04-17 23:12:00'),
+(225,'App\\Models\\User',33,'flutter-mobile-app','3c32cb4c8f07d0c0b2a235c113e79020198419e4f4ba4c5e644fba983caf86e3','[\"*\"]','2026-04-17 23:13:43',NULL,'2026-04-17 23:13:42','2026-04-17 23:13:43'),
+(226,'App\\Models\\User',24,'flutter-mobile-app','c6806cbe75ef1d451703d07812907546767e5dfed20ceffbbce433c827206d73','[\"*\"]','2026-04-17 23:18:21',NULL,'2026-04-17 23:17:30','2026-04-17 23:18:21'),
+(227,'App\\Models\\User',24,'flutter-mobile-app','6563397576845bc634954e26e96f762221cce7322a196dd9e8bffe97f8df2aac','[\"*\"]','2026-04-17 23:22:41',NULL,'2026-04-17 23:22:04','2026-04-17 23:22:41'),
+(228,'App\\Models\\User',33,'flutter-mobile-app','f40536f3e78a54eb37003e785d8d24c8679afea6c0bdd01b8238ee724bd355c1','[\"*\"]','2026-04-17 23:23:12',NULL,'2026-04-17 23:23:11','2026-04-17 23:23:12'),
+(229,'App\\Models\\User',40,'flutter-mobile-app','0ce6dc2788c7e5532b1f0b144acd7bd6410a96ffd15483892ed600f16376b184','[\"*\"]','2026-04-17 23:23:55',NULL,'2026-04-17 23:23:54','2026-04-17 23:23:55'),
+(230,'App\\Models\\User',24,'flutter-mobile-app','9d9520ee6c302e24a2dd4fd8a0d7ab3a4c67f2046d46fd4f48b6b573e4697a8f','[\"*\"]','2026-04-17 23:31:57',NULL,'2026-04-17 23:26:56','2026-04-17 23:31:57'),
+(231,'App\\Models\\User',43,'flutter-mobile-app','a303e233c312331f78424c267f13bdef9335bee795912796e133c7afd4e396a1','[\"*\"]','2026-04-17 23:32:32',NULL,'2026-04-17 23:32:31','2026-04-17 23:32:32'),
+(232,'App\\Models\\User',24,'flutter-mobile-app','405bb5743c7ecd7da2a2d3d75790455a81ebf9d8a118a8eb251e304683d567ef','[\"*\"]','2026-04-20 10:38:43',NULL,'2026-04-20 10:36:51','2026-04-20 10:38:43'),
+(233,'App\\Models\\User',24,'flutter-mobile-app','e92eb83a920e3e10830e116d8b87ca75cef9f15f266046d5f0863e5595904fca','[\"*\"]','2026-04-20 10:50:21',NULL,'2026-04-20 10:42:18','2026-04-20 10:50:21'),
+(234,'App\\Models\\User',24,'flutter-mobile-app','d693a705c320b07539355eed2f4f61db5412584dabcf49cf8502140ff7f34d8d','[\"*\"]','2026-04-20 10:45:35',NULL,'2026-04-20 10:44:51','2026-04-20 10:45:35'),
+(235,'App\\Models\\User',24,'flutter-mobile-app','792cb8e69688d13a42c185e7dfac10fd35350341a5ffa942acecce9e6316d2b4','[\"*\"]','2026-04-20 11:12:30',NULL,'2026-04-20 10:52:39','2026-04-20 11:12:30'),
+(236,'App\\Models\\User',46,'flutter-mobile-app','a9bb1e400703ec3f001afdfd221eda6c1a59117907138d0ecbab8c78ce7610f9','[\"*\"]','2026-04-20 11:13:44',NULL,'2026-04-20 11:13:42','2026-04-20 11:13:44'),
+(237,'App\\Models\\User',33,'flutter-mobile-app','0b7cdfc4acb524a1f9213fb2a6798e6f2c4dc21a32af75883836ff2c978082d0','[\"*\"]','2026-04-20 11:14:31',NULL,'2026-04-20 11:14:29','2026-04-20 11:14:31'),
+(238,'App\\Models\\User',46,'flutter-mobile-app','73f7e3c236cacaa9ab6e25ccdc13cb0854d0923ff28580c29889eb4b837697df','[\"*\"]','2026-04-20 11:15:21',NULL,'2026-04-20 11:15:19','2026-04-20 11:15:21'),
+(239,'App\\Models\\User',46,'flutter-mobile-app','edf71e68536c4c878997ef059975cf37d0d3abb6daa0697a89ce66fd64c456ab','[\"*\"]','2026-04-20 11:36:56',NULL,'2026-04-20 11:36:52','2026-04-20 11:36:56'),
+(240,'App\\Models\\User',24,'flutter-mobile-app','c2c763d15844b6346499a7e95e037a92342a7145c6525d7a9eee692244f88c84','[\"*\"]','2026-04-20 11:40:31',NULL,'2026-04-20 11:39:52','2026-04-20 11:40:31'),
+(241,'App\\Models\\User',24,'flutter-mobile-app','c054e1bca55dc9bb691155a8d17736bc767e1e181b9b64855ee477b3aeb0fd94','[\"*\"]','2026-04-20 11:40:55',NULL,'2026-04-20 11:40:53','2026-04-20 11:40:55'),
+(242,'App\\Models\\User',46,'flutter-mobile-app','714f9a0055b930b04f6484396c9a941c22014c1d35286b6645e99c4e78551f39','[\"*\"]','2026-04-20 11:41:17',NULL,'2026-04-20 11:41:16','2026-04-20 11:41:17'),
+(243,'App\\Models\\User',46,'flutter-mobile-app','482a60d4c8e3f4b98e6a8aa88635e0e42e9c7a5e75f191c5d8f2bc27a2044c71','[\"*\"]','2026-04-20 11:46:27',NULL,'2026-04-20 11:46:25','2026-04-20 11:46:27'),
+(244,'App\\Models\\User',46,'flutter-mobile-app','b17399630fc24624fbd882ce11e163e44e357ebddf625e0e70dc8f869f552de4','[\"*\"]','2026-04-20 11:49:27',NULL,'2026-04-20 11:49:25','2026-04-20 11:49:27'),
+(245,'App\\Models\\User',24,'flutter-mobile-app','64204143de416b343c26b3d0d87effd66afcd1dbce391be6a3283da41c8f05ad','[\"*\"]','2026-04-20 11:54:54',NULL,'2026-04-20 11:50:06','2026-04-20 11:54:54'),
+(246,'App\\Models\\User',46,'flutter-mobile-app','3160e537ad27c993e20934e75cd4b8756dc611b68f1082731154eab02a89774e','[\"*\"]','2026-04-20 11:55:24',NULL,'2026-04-20 11:55:23','2026-04-20 11:55:24'),
+(247,'App\\Models\\User',44,'flutter-mobile-app','13fe582a7d3ef14bff9a7236e1570d26032268c80e1e0d0a7392014025d75d14','[\"*\"]','2026-04-20 11:56:23',NULL,'2026-04-20 11:56:22','2026-04-20 11:56:23'),
+(248,'App\\Models\\User',44,'flutter-mobile-app','e0b5ce50a4a831da40c9f1a7c8acf068821023a2cafe67a1dfc5d026c9d51834','[\"*\"]','2026-04-20 12:13:52',NULL,'2026-04-20 12:13:50','2026-04-20 12:13:52'),
+(249,'App\\Models\\User',24,'flutter-mobile-app','83883abf07868a4e2cdbc40a3556e81c99fc287898971a60a93996e442b25e39','[\"*\"]','2026-04-20 12:18:01',NULL,'2026-04-20 12:15:58','2026-04-20 12:18:01'),
+(250,'App\\Models\\User',44,'flutter-mobile-app','432584c79a7f2415908a1444264513011383cd66b7661c728a154a1f55f99243','[\"*\"]','2026-04-20 12:18:24',NULL,'2026-04-20 12:18:23','2026-04-20 12:18:24'),
+(251,'App\\Models\\User',24,'flutter-mobile-app','e8a4e566cc53dea97de8a5fd2c7dd0314b944ff8bf284845a6ff63715a663a8e','[\"*\"]','2026-04-20 12:29:55',NULL,'2026-04-20 12:29:24','2026-04-20 12:29:55'),
+(252,'App\\Models\\User',44,'flutter-mobile-app','84676b1f778e076e6bee8df266647351b8808ba6577d1bbcf3f63feac0a07755','[\"*\"]','2026-04-20 12:30:13',NULL,'2026-04-20 12:30:12','2026-04-20 12:30:13'),
+(253,'App\\Models\\User',44,'flutter-mobile-app','dfe250c768d0f0b2720ed3996b3aeb037697121ee372b89a28cefd9377228232','[\"*\"]','2026-04-20 12:36:36',NULL,'2026-04-20 12:36:34','2026-04-20 12:36:36'),
+(254,'App\\Models\\User',33,'flutter-mobile-app','71676b8ec3d167094a66609c971200469e2a227e88704d6a9d5055f4ebe0004b','[\"*\"]','2026-04-20 12:52:57',NULL,'2026-04-20 12:52:55','2026-04-20 12:52:57'),
+(255,'App\\Models\\User',24,'flutter-mobile-app','9744e7db6734f567e9983f2c302b878ca3118acbe6232703022269ab70d528a9','[\"*\"]','2026-04-20 12:58:26',NULL,'2026-04-20 12:56:50','2026-04-20 12:58:26'),
+(256,'App\\Models\\User',33,'flutter-mobile-app','25877e0bd7fece837ceb6e32f2c523fc574970542606cd33cabfd234049f095d','[\"*\"]','2026-04-20 12:58:50',NULL,'2026-04-20 12:58:48','2026-04-20 12:58:50'),
+(257,'App\\Models\\User',33,'flutter-mobile-app','47aa01db56d64d03c745858487616bef52d6f49bcb0948da0ed6497e6b0c7b51','[\"*\"]','2026-04-20 13:00:46',NULL,'2026-04-20 13:00:44','2026-04-20 13:00:46'),
+(258,'App\\Models\\User',24,'flutter-mobile-app','82910d98c86989a994330fd6339dd4c9d05a07fd658b2674069946cd352b3e50','[\"*\"]','2026-04-20 13:32:54',NULL,'2026-04-20 13:30:13','2026-04-20 13:32:54'),
+(259,'App\\Models\\User',33,'flutter-mobile-app','feb852331b4d612be846363745f7821e8e9d07fa79700541aadd3d571545e336','[\"*\"]','2026-04-20 13:33:18',NULL,'2026-04-20 13:33:17','2026-04-20 13:33:18'),
+(260,'App\\Models\\User',44,'flutter-mobile-app','ca53379c73a7841f35587c23616536eb595db4c3a8c28c42c54704dd35d282b0','[\"*\"]','2026-04-20 13:37:15',NULL,'2026-04-20 13:34:14','2026-04-20 13:37:15'),
+(261,'App\\Models\\User',44,'flutter-mobile-app','5cfbe4d30dd33e14a9d18fa79114fac44ceff7b0c380ff852a56f89364c4bf85','[\"*\"]','2026-04-20 13:37:50',NULL,'2026-04-20 13:37:49','2026-04-20 13:37:50'),
+(262,'App\\Models\\User',44,'flutter-mobile-app','2141b0795267ad02d7aa768afb11af90521143fa9a96fb985f1ff933dbf91dba','[\"*\"]','2026-04-20 13:43:49',NULL,'2026-04-20 13:43:47','2026-04-20 13:43:49'),
+(263,'App\\Models\\User',33,'flutter-mobile-app','62a840f5a6f04f9c6846fd38d4326ab42a16507c3310b029ec281f9b12e09491','[\"*\"]','2026-04-20 13:45:42',NULL,'2026-04-20 13:45:41','2026-04-20 13:45:42'),
+(264,'App\\Models\\User',33,'flutter-mobile-app','3a4de3395ab099858c519b90dbeab929a9f604096f6b1d789ce92fc787fbf7dc','[\"*\"]','2026-04-20 13:48:43',NULL,'2026-04-20 13:48:41','2026-04-20 13:48:43'),
+(265,'App\\Models\\User',24,'flutter-mobile-app','cdb409133eca939c5b0c51fb1b462fcc7af322f6c0298f81803f14c27a4b4c27','[\"*\"]','2026-04-20 14:20:32',NULL,'2026-04-20 14:17:45','2026-04-20 14:20:32'),
+(266,'App\\Models\\User',33,'flutter-mobile-app','b89b285e2ed0d7e947c3c533075ff11817841aab41f5d22bdd9354dd9ca916d9','[\"*\"]','2026-04-20 14:21:00',NULL,'2026-04-20 14:20:53','2026-04-20 14:21:00'),
+(267,'App\\Models\\User',44,'flutter-mobile-app','e15af393bdddd371cdcced2fb89138f2406e584f7184be996fdebdab658af8ca','[\"*\"]','2026-04-20 14:25:15',NULL,'2026-04-20 14:25:10','2026-04-20 14:25:15'),
+(268,'App\\Models\\User',24,'flutter-mobile-app','88ae75171db35e234142e1f8243242a181bbf8e0c0239b53b077893c7633a9d6','[\"*\"]','2026-04-20 14:31:32',NULL,'2026-04-20 14:26:04','2026-04-20 14:31:32'),
+(269,'App\\Models\\User',33,'flutter-mobile-app','38efcf3cf3d788602690a73c118315d5286dcc3b1d205308c7d30a6b67240216','[\"*\"]','2026-04-20 14:32:06',NULL,'2026-04-20 14:31:58','2026-04-20 14:32:06'),
+(270,'App\\Models\\User',24,'flutter-mobile-app','30bf3eb0bf1f144c701901846647e081fe9bb71bb2407284a6227c953173b4b8','[\"*\"]','2026-04-20 14:47:11',NULL,'2026-04-20 14:45:42','2026-04-20 14:47:11'),
+(271,'App\\Models\\User',33,'flutter-mobile-app','6584275ee4ecef44221e2bd403e16ccb01f1392d39a0861e4e1b6641905f653b','[\"*\"]','2026-04-20 14:47:41',NULL,'2026-04-20 14:47:38','2026-04-20 14:47:41'),
+(272,'App\\Models\\User',24,'flutter-mobile-app','3f3ee70bff268352cb9cbbbc41963ad7daeb50f0c37d471f77fe8f338a5dca81','[\"*\"]','2026-04-20 16:28:05',NULL,'2026-04-20 16:25:29','2026-04-20 16:28:05'),
+(273,'App\\Models\\User',33,'flutter-mobile-app','690152224ac67dd1a43b430e5ec06dbef66d388c0387322cc5410d047160e5f3','[\"*\"]','2026-04-20 16:36:11',NULL,'2026-04-20 16:28:45','2026-04-20 16:36:11'),
+(274,'App\\Models\\User',33,'flutter-mobile-app','4db29791a633b1c376cddd5897da24eb1ebabde9e2633b6d8883221f42a058b6','[\"*\"]','2026-04-20 16:37:29',NULL,'2026-04-20 16:37:25','2026-04-20 16:37:29'),
+(275,'App\\Models\\User',24,'flutter-mobile-app','1e6d9adc2619737f7cebd503816575280caeedc8e294e9e1bc8b6103439e0956','[\"*\"]','2026-04-20 16:39:44',NULL,'2026-04-20 16:37:57','2026-04-20 16:39:44'),
+(276,'App\\Models\\User',44,'flutter-mobile-app','1ae41427623689c5e217ec48036ec462e8aadeb7068fc7a1614da529edce8eea','[\"*\"]','2026-04-20 16:43:05',NULL,'2026-04-20 16:40:22','2026-04-20 16:43:05'),
+(277,'App\\Models\\User',33,'flutter-mobile-app','fae792dc1ed1925c67bd733528333d1e5867ab27342487b3dab3483142ed9be5','[\"*\"]','2026-04-20 16:59:12',NULL,'2026-04-20 16:44:10','2026-04-20 16:59:12'),
+(278,'App\\Models\\User',33,'flutter-mobile-app','dca34e9e6109adf6a2418d6da231fdd50d19e4b4d9a12fc145797bee3cb833dc','[\"*\"]','2026-04-20 17:10:21',NULL,'2026-04-20 17:01:51','2026-04-20 17:10:21'),
+(279,'App\\Models\\User',33,'flutter-mobile-app','6f9b048af3e014779c013e9989e1963b0db439c4036267689405ee6904e07306','[\"*\"]','2026-04-20 17:12:18',NULL,'2026-04-20 17:11:19','2026-04-20 17:12:18'),
+(280,'App\\Models\\User',24,'flutter-mobile-app','c7e366a67aeab03b805c73f632b85a19519714e919aad702e223f99bf4aab830','[\"*\"]','2026-04-20 17:14:19',NULL,'2026-04-20 17:13:03','2026-04-20 17:14:19'),
+(281,'App\\Models\\User',33,'flutter-mobile-app','03593dea8084f13d9591208dbd27f8228aed3ebdbcf582d7b1741631e38b45bb','[\"*\"]','2026-04-20 17:14:51',NULL,'2026-04-20 17:14:41','2026-04-20 17:14:51'),
+(282,'App\\Models\\User',40,'flutter-mobile-app','3e3adda43d5226be56c36d9e258be977961a69bdaae79e41002bef94750520c1','[\"*\"]','2026-04-20 17:17:21',NULL,'2026-04-20 17:15:26','2026-04-20 17:17:21'),
+(283,'App\\Models\\User',24,'flutter-mobile-app','2ed7654450817af3caf0c45296ca84c55a26dc1d404abdc4b6c5be1ad07be224','[\"*\"]','2026-04-20 17:32:31',NULL,'2026-04-20 17:23:36','2026-04-20 17:32:31'),
+(284,'App\\Models\\User',33,'flutter-mobile-app','cd71a680205b6cf0213cf9d48e036a7f78f3d18a8e1de15cf3a9fed97aad6c8e','[\"*\"]','2026-04-20 17:40:00',NULL,'2026-04-20 17:33:08','2026-04-20 17:40:00');
 
 /*Table structure for table `plans` */
 
@@ -1147,26 +1431,14 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('0hGthE8LUAnrL3J1IjSVJoEVQo7JKHtPJXJRTk5k',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTEFPOW9SSnNvYnd4Q1ZUVGpHODFXdm1tSEpSRHJGRENrOUwwbDhXNCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jbGFzc2VzIjtzOjU6InJvdXRlIjtzOjEzOiJjbGFzc2VzLmluZGV4Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Nzt9',1776046771),
-('1D8dsx7mgKI5EZYKQqymi57Sag9clPwLTj2BjoW2',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiNlR6TWpDTlprVUpwY0w3cHFIR1ZVYWJLVG90M3dCWUV0N0VZdlFEcyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055777),
-('4T8e5jPseQ9F4f0aXIKPVtBBOpSevYYz0iZJexlJ',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiM3dQYVlQZjhHeGFDdk9zTnM5ZjllZXVQN2E2d0FQSzE0a0lZanAxZSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055775),
-('8tNU4Hg28pkObowgTgsrxRbgJxsPnLBzhs1sxSLG',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiN0VQQ3diRUtXM3lWOE5XSW5WcHlGazN3MnpLbTBXVW1NejdTSGFwaSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055776),
-('95pfzCBUIGOxOOmHWIRDTy7NnKL1JSOFc3Xz1zsj',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWEVsNm1KVE1FbDVWQkZRcWVwdGZzb3I0eDBPS20xRXB6RWZENWw2QiI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055777),
-('9fe2HuJBeP0FCnVgYZff5CPmIiLTKlGSuoW9Nak7',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoicGdqNzRKNmFYd2EwbktkQ3Q1Nzg2d2c1UFlnRmNEVnhjTjlJcTB2USI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055771),
-('dpc5zr5mGJZvNztGsCancMP9ESgSztKgDuLDIIMp',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWnIxSFhPQXRUREM0cllYRlh1d2ZJeXJwWGduVEU4aFNlU29yZVpWcCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055773),
-('Gj6AmLundbT7YvJeZE1803oQMoAyfw7Y0BfDkgCn',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiam1hNkJlSXZ1ZGU2QzZsUTB5RzVBeEhwVFhEWTRIVVBjTU9jdXpCcyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055776),
-('gKzosWHZb8Rg4EY1t8zwJVaITLjz9Cyi0rjpiDGQ',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoibzZkUnU0N2paa0xuNVY2SnY4Q045VmtTeHdCdFJ0ajhLMTBkUTZIYyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055774),
-('GVTRbuPkayiF1eLSL6vsKWRRKO0dMnondYYqd9pq',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoieUh0SFA0NEtSbnJYTFMzUThGeWVmMTJzUnpNb1hzZEpQdnh1ZmxWdSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMvNiI7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjIxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAiO3M6NToicm91dGUiO3M6NToibG9naW4iO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055779),
-('H9KevYhJ4mi3jcUWaWpipIfMZNhBl56U2SylJovZ',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoib3hXSzNpcE5Wck4xRmJIa3BMcDVSSkkxS1hlcWVlR0p5c0c0SFZYWSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055777),
-('I3uLyt38q9CGGEiPm7K4nrkjoc3K8VHwtTylNger',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMUVoY2lwUE5aU2dlbnR3ekdMWnpzWFdtYkIySUs2VGl3bjFiOFdJNyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055774),
-('MOHVHFMP9cQumr4ale7iH474SIzsHqB8c0rOdM2P',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWkRDbDlLN3NsRW1wR0JNenpmdXFXbXN0enBJdXg4bUs5SEo3UDNsbSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055775),
-('mPOG0ncJGel5rxef9N09ugEN7t5oTNeVm9GNK3fh',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoibVhWcldUZFBSeE5ld3l5aDhibURNdGI3SEVaMHdEWGhLSHFqYVNqRSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055774),
-('Oqu3Nk1qdsZzFSw9cmfXULeHimMAgmWUgvt094V1',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMzI2Y2xia1JtMlVzczFHMnRJS2V3dXZGUHl4R0tUQTRyNlpTUnFxRyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055776),
-('qEONwNgLtVLB74R0dKClUPdzpLTXDTrX3AY0IksA',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoidjFuaDZybEozam5Xc05qenBLdWMzVHdad3NPcWpMOHBUQzVGWWxiZCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055775),
-('u4Gcg4e7vNHOAUmeLzWm8VKcBdFtkXAafP3dNkA0',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiS2tuOW9PWmc2NEJ0aEdHT0ZoRkxrVWVxZElDZG9oWGZ0bWM0RTFKcSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055773),
-('WXWpQrVC94xexYh0gWPYwFXilQe0yZ7mfZ3l6C9v',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMU1zZDZoN2pOTFJVRkZ4b1hSd25RWkpoWUlRQjRmUDZiYmdpZGJzQSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyOToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2NsYXNzZXMiO3M6NToicm91dGUiO3M6MTM6ImNsYXNzZXMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19',1776055772),
-('XH8uZwtMH6BoJgOPz2E3dQ7KqdWFkSu1fXfpnlLr',8,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWXFFN0ZHWWZZcnE3cFlRMnV4TWJybUtWRkhrUnJrQVdlaWxlb2RjdiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZXBvcnRzL2F0dGVuZGFuY2UiO3M6NToicm91dGUiO3M6MTg6InJlcG9ydHMuYXR0ZW5kYW5jZSI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjg7fQ==',1776008209),
-('Yoot0N36n0paeUaY8JXwwr9AqTA59pifhcKaG1OT',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiUDZMR0FIUjZzcXJOZTlneWZGeHVhdmZZUk9zSnJTRzVYaHUyMkJXYSI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjI5OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvY2xhc3NlcyI7czo1OiJyb3V0ZSI7czoxMzoiY2xhc3Nlcy5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjc7fQ==',1776058112);
+('32fRqHHSLzP75ARQYDfpCyhQcSap5ZMd28QkJC8m',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTkl5NzVCWUozeHRlM2ZXNm80eUR4OUdWekQ2bHRHNWt2eWc5SGNTVSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9iaWxsaW5nIjtzOjU6InJvdXRlIjtzOjEzOiJiaWxsaW5nLmluZGV4Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Nzt9',1776349018),
+('8E7RpSVoY9thMbP4X0vGnAGGmI9SZB3gTQxGUtMt',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUklLanI2NmJVUWttd0d3SHpySzdTZUFPRDJsRVhWcnpZdkk3NVdwZCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hbm5vdW5jZW1lbnQvMjUiO3M6NToicm91dGUiO3M6MTg6ImFubm91bmNlbWVudHMuc2hvdyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjc7fQ==',1776440317),
+('bLMyejpDCbpvd6TUb4YDVl9fPQ56RHrwfd5maBKb',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWG1XSW9jUVY1SXhjbW5JZmNGYTVLeUw0M1VYY25INkc0c0Y3VDFmdSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hdHRlbmRhbmNlIjtzOjU6InJvdXRlIjtzOjE2OiJhdHRlbmRhbmNlLmluZGV4Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Nzt9',1776158932),
+('eHqLMdR3VP5xwV8Tln2NBvpsxz0ZFu7Wd7l5yzmm',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiQlV2d0pVV2JFNmdNSG1RbHRGMGJOY3dCQ3Q4M0hFNHoxblRxbWVtSSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wYXJlbnQiO3M6NToicm91dGUiO3M6NjoicGFyZW50Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Nzt9',1776262430),
+('i2tuIvAxDG3MIfQF6IuO4DxT9zjMOftqX1wJ3uHR',NULL,'192.168.68.105','Thunder Client (https://www.thunderclient.com)','YTozOntzOjY6Il90b2tlbiI7czo0MDoibFhXZGY2SWhUckRGRlFGRjFONFVqdzVSaWk1MlQ2czFlajZueVNaUSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xOTIuMTY4LjY4LjEwNTo4MDAwIjtzOjU6InJvdXRlIjtzOjU6ImxvZ2luIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==',1776158466),
+('Jfhwac0UUvzzrSKqhW5CeHRcT4zVnJcts02fMOFl',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiMmgxcVQwN3hWRnp3SWFrV2RRYU1PUVFrNm83cUlUVDVNOWRHOGpiUiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjM1OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvY29tcGV0aXRpb24vMSI7czo1OiJyb3V0ZSI7czoxNjoiY29tcGV0aXRpb24uc2hvdyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjc7fQ==',1776173995),
+('Ne31DFkgHvAgBFEpfIUJ2gup0URFMUqEoPDHI5j7',NULL,'192.168.68.105','Thunder Client (https://www.thunderclient.com)','YTozOntzOjY6Il90b2tlbiI7czo0MDoiM0o3TDI2RjdRSDNjVExJVnB3TmtGcjFrNVo1VGNwNTU3ZVlCWWt1cCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xOTIuMTY4LjY4LjEwNTo4MDAwIjtzOjU6InJvdXRlIjtzOjU6ImxvZ2luIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==',1776177338),
+('Rbfm1M70NG0sg7JLinsHoaOB4DYVfbASxtqOW8Oy',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiR0NpZmFXVTBIUU1pZU9VZERrQml4dmpjTFhBUW5kWUd1dTlhM2g1aSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jbGFzc2VzLzEzIjtzOjU6InJvdXRlIjtzOjEyOiJjbGFzc2VzLnNob3ciO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo3O30=',1776654852);
 
 /*Table structure for table `skill_checklist` */
 
@@ -1270,7 +1542,7 @@ CREATE TABLE `students` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `student_code` (`student_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `students` */
 
@@ -1288,12 +1560,15 @@ insert  into `students`(`id`,`user_id`,`branch_id`,`student_code`,`first_name`,`
 (11,29,1,'TKD-0CWXF','benedick1','Caber',NULL,'2014-02-20','male',NULL,NULL,NULL,'4','2026-03-30','active','N/A','N/A','Roberto Reyes','09287364831',16,'2026-03-30 13:48:47'),
 (12,30,1,'TKD-KDDI5','Cyril','maldives',NULL,'2012-03-30','female',NULL,NULL,NULL,'2','2026-03-30','active','N/A','N/A','Dwayne wade','09218734930',10,'2026-03-30 14:11:24'),
 (13,31,1,'TKD-RZDVA','Lester','Reyes',NULL,'2017-05-17','male',NULL,NULL,NULL,'7','2026-03-30','active','N/A','N/A','kelson dee','09283743892',16,'2026-03-30 14:21:45'),
-(15,33,1,'TKD-DPMSM','Triever','Estareja',NULL,'2015-11-27','male',NULL,'face-photos/HMajBRcoQxCW95ZJjttbIRLhf0igcvGCsECxRhCr.jpg','2723933','9','2026-03-31','active','N/A','N/A','Emmalyn Ruga','09283948172',16,'2026-03-31 14:35:10'),
+(15,33,1,'TKD-DPMSM','Triever','Estareja',NULL,'2015-11-27','male',NULL,'face-photos/tPDDXZS3cU7SPsqo7RvuywWpCKoX8KNMhHNduPbn.jpg','2726409','9','2026-03-31','active','N/A','N/A','Emmalyn Ruga','09283948172',16,'2026-03-31 14:35:10'),
 (17,35,5,'TKD-I9FFF','Dennis','Cruz',NULL,'2026-04-01','male',NULL,NULL,NULL,'1','2026-04-01','active',NULL,NULL,'Mr. Asimo','09399012345',20,'2026-04-01 01:07:01'),
 (18,36,1,'26-00001','Princess Dianne','Garay',NULL,'2003-08-24','female',NULL,NULL,NULL,'11','2026-04-01','active',NULL,NULL,'Mr. Asimo','0999999999',16,'2026-04-01 01:47:23'),
 (19,37,2,'26-00002','Nathaniel','Custodio',NULL,'2003-08-03','male',NULL,NULL,NULL,'11','2026-04-01','active',NULL,NULL,'Mr. Asimo','0999999999',17,'2026-04-01 01:51:02'),
 (20,40,1,'TKD-WRNZF','edrich','carmello',NULL,'2015-02-11','male',NULL,'face-photos/SqafxfM774GH9SJOwvD4dfwtY3uQcG4hIBxcEE6z.jpg','2723962','4','2026-04-10','active','N/A','N/A','Jonas Lopez','09182739482',16,'2026-04-10 15:05:06'),
-(21,41,1,'TKD-4V3TK','kawhi','leonard',NULL,'2016-02-09','male',NULL,NULL,NULL,'2','2026-04-10','active','N/A','N/A','Mikey Delacruz','09281762836',10,'2026-04-10 15:07:37');
+(21,41,1,'TKD-4V3TK','kawhi','leonard',NULL,'2016-02-09','male',NULL,NULL,NULL,'2','2026-04-10','active','N/A','N/A','Mikey Delacruz','09281762836',10,'2026-04-10 15:07:37'),
+(22,42,1,'TKD-DHFQ3','Daniel','Vibar',NULL,'2010-06-15','male',NULL,'face-photos/B2odymx5CmaXcfAdZrWIR6lUBu3Ky5EHuriLtZdE.jpg','2725405','8','2026-04-13','active','N/A','N/A','Maria cruz','09298712398',16,'2026-04-13 22:10:48'),
+(23,43,1,'TKD-VARZE','Donald','Crumps',NULL,'1995-02-16','male',NULL,NULL,NULL,'10','2026-04-13','active','Asthma','Food allergy','Ana Crumps','09281692301',18,'2026-04-13 22:37:37'),
+(24,46,1,'TKD-E7PP4','Rene','Baterbonia',NULL,'2010-10-11','male',NULL,NULL,NULL,'2','2026-04-20','active','N/A','N/A','Donny Baterbonia','09291019273',45,'2026-04-20 11:01:12');
 
 /*Table structure for table `users` */
 
@@ -1318,12 +1593,12 @@ CREATE TABLE `users` (
   UNIQUE KEY `email` (`email`),
   KEY `fk_branch` (`branch_id`),
   CONSTRAINT `fk_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,`mobile`,`password`,`photo_url`,`status`,`last_login_at`,`created_at`,`updated_at`) values 
-(7,2,'admin','1234admin','Nataniel','Herras','testing@gmail.com','09499333000','$2y$12$93a4KdYWPG1OSuQe0DtOyOzD7dW5HLaVLEMslAQGuV8Hq.knHl9Dq','profile-photos/1774326137_h9uoElzpCo.png',1,'2026-04-13 04:49:42','2026-03-03 06:58:17','2026-04-13 04:49:42'),
+(7,2,'admin','1234admin','Nataniel','Herras','testing@gmail.com','09499333000','$2y$12$93a4KdYWPG1OSuQe0DtOyOzD7dW5HLaVLEMslAQGuV8Hq.knHl9Dq','profile-photos/1774326137_h9uoElzpCo.png',1,'2026-04-20 10:54:01','2026-03-03 06:58:17','2026-04-20 10:54:01'),
 (8,2,'staff','admin','Princess','Valdez','Valdez@gmail.com','09444444444','$2y$12$TX1QJw1.7///Sj0I93nSgOpr2rCLkDGo6Am.sPbOxtIYW3SSmxPTm','profile-photos/1775534251_LJ7GSmkN6T.jpg',1,'2026-04-12 15:31:46','2026-03-03 07:02:26','2026-04-12 15:31:46'),
 (10,1,'parent','parent1234','Cletus','Christopher','magulang123@gmail.com','09329329939','$2y$12$I8ofrlo50mdWeSWCOxac8.7T4AKyJILkquPZJS5KqxrR7i4AoLP5q',NULL,1,'2026-03-11 03:58:31','2026-03-10 08:48:46','2026-03-25 02:19:21'),
 (11,1,'instructor','jdoe','John','Doe','jdoe@example.com','09171234567','hashed_pw1','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:47'),
@@ -1354,7 +1629,12 @@ insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,
 (37,2,'student','nathaniel.custodio815','Nathaniel','Custodio','Nathaniel@gmail.com','0999999999','$2y$12$7O.mtCLHVbwOjMTcdkTVPuBPfcFyyTgxm43Y7qCw/.I5f//Lf/xe.',NULL,1,NULL,'2026-04-01 01:51:02','2026-04-01 01:51:02'),
 (38,5,'admin','','Garay','Princess','Princess@gmail.com','09473258232','$2y$12$9P5OQRWVYIpV8RRrZq3/QeDthaJLTTqhh20aVnl56DWf4pZ/4AjS2','profile-photos/1775030025_MHmDaGY8El.jpg',1,NULL,'2026-04-01 15:53:45','2026-04-01 15:53:45'),
 (40,1,'student','edrich.carmello518','edrich','carmello','edrich@gmail.com',NULL,'$2y$12$HsY8NaUPBz7L.vbj95SjD.kk6y2LRYcMe128wMZ6Hkm7wRwHRuZyi',NULL,0,NULL,'2026-04-10 15:05:06','2026-04-10 15:05:06'),
-(41,1,'student','kawhi.leonard705','kawhi','leonard','kawhi@gmail.com',NULL,'$2y$12$/tEKa.fQPt6Mtlg3Gk47ne7v1Yyx7XR6ukksn6R3c64nBhvmhG9GS',NULL,0,NULL,'2026-04-10 15:07:37','2026-04-10 15:07:37');
+(41,1,'student','kawhi.leonard705','kawhi','leonard','kawhi@gmail.com',NULL,'$2y$12$/tEKa.fQPt6Mtlg3Gk47ne7v1Yyx7XR6ukksn6R3c64nBhvmhG9GS',NULL,0,NULL,'2026-04-10 15:07:37','2026-04-10 15:07:37'),
+(42,1,'student','daniel.vibar966','Daniel','Vibar','dandan@gmail.com',NULL,'$2y$12$gtTb0TQ7TeEKXgp8nhRx2uOOjHOYGWC92RUuj/KGa7i/.Zi5vpoXu',NULL,0,NULL,'2026-04-13 22:10:48','2026-04-13 22:10:48'),
+(43,1,'student','donald.crumps922','Donald','Crumps','donald@gmail.com',NULL,'$2y$12$junng1rovqQmSKz1ksQKxuoYixb0Y6YGAvuye/R0tIlenMblgPvnW',NULL,0,NULL,'2026-04-13 22:37:36','2026-04-13 22:37:36'),
+(44,1,'parent','','Peter','Pan','peter@gmail.com','09699623018','$2y$12$OfKnZ40ijMUPyUv3FGPMGuBcciOdWdkLp97x52.woFnA.YlQfMARe',NULL,1,NULL,'2026-04-15 22:13:21','2026-04-15 22:13:21'),
+(45,1,'parent','','Donny','Baterbonia','donny@gmail.com','091010982037','$2y$12$g1jG4XUnA.J1L3RwR.9wAuXIMn.Z3a7lFyppoh9h8J45/0o/YN5NC',NULL,1,NULL,'2026-04-20 10:59:17','2026-04-20 10:59:17'),
+(46,1,'student','rene.baterbonia543','Rene','Baterbonia','rene@gmail.com',NULL,'$2y$12$YcZYD5DAeMjfvnUDilfN9.TNC888gxujj5wCjY.KYOmqBJbxvXegC',NULL,0,NULL,'2026-04-20 11:01:12','2026-04-20 11:01:12');
 
 /*Table structure for table `parentviews` */
 

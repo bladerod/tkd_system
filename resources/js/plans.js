@@ -30,6 +30,108 @@ if (document.getElementById('addPlanModal')) {
     });
 }
 
+// ==================== SESSION TYPE TOGGLE FUNCTION ====================
+function toggleSessionFields() {
+    const sessionTypeSelect = document.getElementById('session_type');
+    const unlimitedFields = document.getElementById('unlimited_fields');
+    const limitedFields = document.getElementById('limited_fields');
+    
+    if (!sessionTypeSelect) return;
+    
+    if (sessionTypeSelect.value === 'unlimited') {
+        if (unlimitedFields) unlimitedFields.style.display = 'block';
+        if (limitedFields) limitedFields.style.display = 'none';
+        
+        // Disable limited fields
+        const sessionsCount = document.getElementById('sessions_count');
+        const expiryValue = document.getElementById('expiry_value');
+        const expiryUnit = document.getElementById('expiry_unit');
+        
+        if (sessionsCount) sessionsCount.disabled = true;
+        if (expiryValue) expiryValue.disabled = true;
+        if (expiryUnit) expiryUnit.disabled = true;
+        
+        // Enable unlimited fields
+        const expiryPeriodUnlimited = document.getElementById('expiry_period_unlimited');
+        if (expiryPeriodUnlimited) expiryPeriodUnlimited.disabled = false;
+    } else {
+        if (unlimitedFields) unlimitedFields.style.display = 'none';
+        if (limitedFields) limitedFields.style.display = 'block';
+        
+        // Enable limited fields
+        const sessionsCount = document.getElementById('sessions_count');
+        const expiryValue = document.getElementById('expiry_value');
+        const expiryUnit = document.getElementById('expiry_unit');
+        
+        if (sessionsCount) sessionsCount.disabled = false;
+        if (expiryValue) expiryValue.disabled = false;
+        if (expiryUnit) expiryUnit.disabled = false;
+        
+        // Disable unlimited fields
+        const expiryPeriodUnlimited = document.getElementById('expiry_period_unlimited');
+        if (expiryPeriodUnlimited) expiryPeriodUnlimited.disabled = true;
+    }
+}
+
+// ==================== EDIT SESSION TYPE TOGGLE FUNCTION ====================
+function toggleEditSessionFields() {
+    const sessionTypeSelect = document.getElementById('edit_session_type');
+    const unlimitedFields = document.getElementById('edit_unlimited_fields');
+    const limitedFields = document.getElementById('edit_limited_fields');
+    
+    if (!sessionTypeSelect) return;
+    
+    if (sessionTypeSelect.value === 'unlimited') {
+        if (unlimitedFields) unlimitedFields.style.display = 'block';
+        if (limitedFields) limitedFields.style.display = 'none';
+        
+        // Disable limited fields
+        const sessionsCount = document.getElementById('edit_sessions_count');
+        const expiryValue = document.getElementById('edit_expiry_value');
+        const expiryUnit = document.getElementById('edit_expiry_unit');
+        
+        if (sessionsCount) sessionsCount.disabled = true;
+        if (expiryValue) expiryValue.disabled = true;
+        if (expiryUnit) expiryUnit.disabled = true;
+        
+        // Enable unlimited fields
+        const expiryPeriodUnlimited = document.getElementById('edit_expiry_period_unlimited');
+        if (expiryPeriodUnlimited) expiryPeriodUnlimited.disabled = false;
+    } else {
+        if (unlimitedFields) unlimitedFields.style.display = 'none';
+        if (limitedFields) limitedFields.style.display = 'block';
+        
+        // Enable limited fields
+        const sessionsCount = document.getElementById('edit_sessions_count');
+        const expiryValue = document.getElementById('edit_expiry_value');
+        const expiryUnit = document.getElementById('edit_expiry_unit');
+        
+        if (sessionsCount) sessionsCount.disabled = false;
+        if (expiryValue) expiryValue.disabled = false;
+        if (expiryUnit) expiryUnit.disabled = false;
+        
+        // Disable unlimited fields
+        const expiryPeriodUnlimited = document.getElementById('edit_expiry_period_unlimited');
+        if (expiryPeriodUnlimited) expiryPeriodUnlimited.disabled = true;
+    }
+}
+
+// Initialize session type toggle when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for Add Modal
+    const sessionTypeSelect = document.getElementById('session_type');
+    if (sessionTypeSelect) {
+        sessionTypeSelect.addEventListener('change', toggleSessionFields);
+        toggleSessionFields(); // Initialize on page load
+    }
+
+    // Listen for Edit Modal
+    const editSessionTypeSelect = document.getElementById('edit_session_type');
+    if (editSessionTypeSelect) {
+        editSessionTypeSelect.addEventListener('change', toggleEditSessionFields);
+    }
+});
+
 // ==================== EDIT PLAN MODAL FUNCTIONS ====================
 window.openEditPlanModal = function(planId) {
     // Fetch plan data via AJAX
@@ -43,12 +145,24 @@ window.openEditPlanModal = function(planId) {
                 document.getElementById('editPlanForm').action = `/plans/${plan.id}`;
                 
                 // Populate form fields
+                document.getElementById('edit_class_id').value = plan.class_id || '';
                 document.getElementById('edit_plan_name').value = plan.plan_name || '';
                 document.getElementById('edit_description').value = plan.description || '';
                 document.getElementById('edit_monthly_price').value = plan.monthly_price || '0.00';
                 document.getElementById('edit_billing_cycle').value = plan.billing_cycle || 'monthly';
                 document.getElementById('edit_status').value = plan.active_flag !== undefined ? plan.active_flag : 1;
                 
+                document.getElementById('edit_session_type').value = plan.session_type || 'unlimited';
+                document.getElementById('edit_sessions_count').value = plan.sessions_count || '';
+                
+                if (plan.session_type === 'unlimited') {
+                    document.getElementById('edit_expiry_period_unlimited').value = plan.expiry_value || '12';
+                } else {
+                    document.getElementById('edit_expiry_value').value = plan.expiry_value || '';
+                    document.getElementById('edit_expiry_unit').value = plan.expiry_unit || 'months';
+                }
+
+                toggleEditSessionFields();
                 // Clear any previous error messages
                 document.querySelectorAll('#editPlanForm .error-message').forEach(el => {
                     el.classList.add('hidden');
@@ -108,7 +222,6 @@ window.deletePlan = function(planId, planName) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Deleted!', 'Plan has been deleted.', 'success');
                     // Reload the page or remove the row from table
                     location.reload();
                 } else {
@@ -142,7 +255,7 @@ if (document.getElementById('editPlanForm')) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                Swal.fire('Success!', 'Plan has been updated successfully.', 'success');
+                // Swal.fire('Success!', 'Plan has been updated successfully.', 'success');
                 window.closeEditPlanModal();
                 location.reload(); // Reload to show updated data
             } else {

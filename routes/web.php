@@ -23,7 +23,7 @@ use App\Http\Controllers\UserController;
 use App\Models\BeltLevel;
 use App\Models\Classes;
 use App\Models\User;
-use FontLib\Table\Type\name;
+// use FontLib\Table\Type\name;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -76,11 +76,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
-    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
-    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
-    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
-    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
     // Student Tabs
     Route::prefix('students/{student}')->middleware('permission:students,view')->group(function () {
@@ -156,6 +151,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->middleware('permission:billing,view')->name('reminder');
         Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->middleware('permission:billing,view')->name('receipt');
     });
+    Route::post('/billing/create-invoice', [InvoiceController::class, 'createInvoice'])->name('billing.create.invoice');
+    Route::post('/billing/get-discount', [InvoiceController::class, 'getDiscountAmount'])->name('billing.get.discount');
+    Route::post('/billing/get-penalty', [InvoiceController::class, 'getPenaltyAmount'])->name('billing.get.penalty');
+    Route::post('/billing/create-invoice', [InvoiceController::class, 'createInvoice'])->name('billing.create.invoice');
 
     // Plans management
     Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
@@ -187,17 +186,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
         // CHANGE THIS: Use the DB facade to pull from the view
         $vwstudents = DB::table('student_overview')
-            ->orderByDesc('id')
-            ->select(
-                'id',
-                'student_code',
-                'student_name',
-                'current_belt',
-                'status',
-                'parent_name',
-                'balance',
-                'attendance'
-            )->get();
+        ->orderBy('student_name', 'asc')
+        ->select(
+            'id',
+            'student_code',
+            'student_name',
+            'current_belt',
+            'status',
+            'parent_name',
+            'balance',
+            'attendance'
+        )->get();
 
         return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
     })->name('student');

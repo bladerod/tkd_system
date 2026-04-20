@@ -302,112 +302,14 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    @vite(['resources/js/app.js'])
+    {{-- @vite(['resources/js/app.js']) --}}
     @vite(['resources/js/navbarDrop.js'])
     @vite(['resources/js/discount.js'])
     
     <script>
-        // Debug: Check if discount.js is loaded
-        console.log('Discounts page loaded');
         
-        // Make sure functions are globally available
-        window.openAddDiscountModal = function() {
-            console.log('Opening add modal');
-            const modal = document.getElementById('addDiscountModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        }
         
-        window.closeAddDiscountModal = function() {
-            console.log('Closing add modal');
-            const modal = document.getElementById('addDiscountModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                const form = document.getElementById('addDiscountForm');
-                if (form) form.reset();
-            }
-        }
         
-        window.closeEditDiscountModal = function() {
-            console.log('Closing edit modal');
-            const modal = document.getElementById('editDiscountModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }
-        
-        // Test delete button click
-        document.addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('.delete-discount-btn');
-            if (deleteBtn) {
-                console.log('Delete button clicked');
-                e.preventDefault();
-                const discountId = deleteBtn.getAttribute('data-discount-id');
-                const discountName = deleteBtn.getAttribute('data-discount-name');
-                console.log('Delete discount ID:', discountId, 'Name:', discountName);
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: `You are about to delete "${discountName}". This action cannot be undone.`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = `/discounts/${discountId}`;
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-                        form.innerHTML = `
-                            <input type="hidden" name="_token" value="${csrfToken}">
-                            <input type="hidden" name="_method" value="DELETE">
-                        `;
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                });
-            }
-        });
-        
-        // Test edit button click
-        document.addEventListener('click', function(e) {
-            const editBtn = e.target.closest('.edit-discount-btn');
-            if (editBtn) {
-                e.preventDefault();
-                const discountId = editBtn.getAttribute('data-discount-id');
-                console.log('Edit button clicked for ID:', discountId);
-                
-                fetch(`/discounts/${discountId}`)
-                    .then(response => response.json())
-                    .then(discount => {
-                        console.log('Discount data:', discount);
-                        document.getElementById('edit_name').value = discount.name;
-                        document.getElementById('edit_type').value = discount.type;
-                        document.getElementById('edit_value').value = discount.value;
-                        document.getElementById('edit_applicable_to').value = discount.applicable_to;
-                        document.getElementById('edit_valid_from').value = discount.valid_from;
-                        document.getElementById('edit_valid_to').value = discount.valid_to;
-                        document.getElementById('edit_status').value = discount.status;
-                        
-                        const editForm = document.getElementById('editDiscountForm');
-                        editForm.action = `/discounts/${discount.id}`;
-                        
-                        document.getElementById('editDiscountModal').classList.remove('hidden');
-                        document.body.style.overflow = 'hidden';
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire('Error', 'Failed to load discount data', 'error');
-                    });
-            }
-        });
     </script>
 </body>
 </html>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Certificate;
+use App\Models\CertificateTemplate;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -23,51 +24,50 @@ class CertificateController extends Controller
     }
 
     /* ================= API ================= */
- public function getStudents()
+    public function getStudents()
     {
-        // 1. Fetch the data using the logic you provided
-        $students = Student::select(
+        return Student::select(
             'id',
             DB::raw("CONCAT(first_name, ' ', last_name) as name")
         )->get();
-
-        // 2. Return as JSON response (Laravel does this automatically if you return a collection)
-        return response()->json($students);
     }
 
-    /* ================= CREATE (GENERATE) ================= */
+    public function getTemplates()
+    {
+        return CertificateTemplate::select('id','name','type','layout','background')->get();
+    }
+
+    /* ================= CREATE ================= */
     public function store(Request $request)
     {
         $request->validate([
             'student_id' => 'required|exists:students,id',
-            'certificate_type' => 'required',
-            'title' => 'required'
+            'template_id' => 'required|exists:certificate_templates,id',
         ]);
 
         $student = Student::findOrFail($request->student_id);
+        $template = CertificateTemplate::findOrFail($request->template_id);
 
         $qrCode = 'CERT-' . Str::uuid();
-        $verifyUrl = url('/verify/' . $qrCode);
 
         $cert = Certificate::create([
             'student_id' => $student->id,
-            'certificate_type' => $request->certificate_type,
-            'title' => $request->title,
+            'certificate_type' => $template->type,
+            'title' => $template->name,
             'description' => $request->description ?? null,
             'issued_date' => now(),
-            'issued_by_user_id' => auth()->id(), // IMPORTANT
+            'issued_by_user_id' => auth()->id(),
             'qr_code_value' => $qrCode,
-            'verification_url' => $verifyUrl,
+            'verification_url' => url('/verify/'.$qrCode),
             'pdf_path' => null
         ]);
 
         return response()->json([
-            'success' => true,
-            'data' => $cert
+            'success' => true
         ]);
     }
 
-    /* ================= READ ================= */
+    /* ================= VIEW ================= */
     public function show($id)
     {
         $cert = Certificate::with('student')->findOrFail($id);
@@ -77,20 +77,20 @@ class CertificateController extends Controller
     /* ================= DELETE ================= */
     public function destroy($id)
     {
-        $cert = Certificate::findOrFail($id);
-        $cert->delete();
-
-        return response()->json([
-            'success' => true
-        ]);
+        Certificate::findOrFail($id)->delete();
+        return response()->json(['success'=>true]);
     }
 
-    /* ================= PDF ================= */
+    /* ================= PDF (DYNAMIC TEMPLATE) ================= */
     public function download($id)
     {
         $cert = Certificate::with('student')->findOrFail($id);
 
-        $pdf = Pdf::loadView('certificates.pdf', compact('cert'))
+        $template = CertificateTemplate::where('name', $cert->title)->first();
+
+        $layout = json_decode($template->layout, true);
+
+        $pdf = Pdf::loadView('certificates.pdf', compact('cert','template','layout'))
             ->setPaper('a4','landscape');
 
         return $pdf->download('certificate-'.$cert->id.'.pdf');

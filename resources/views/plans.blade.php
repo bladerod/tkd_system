@@ -2,6 +2,7 @@
     $canCreatePlans = auth()->user()->canCreate('classes');
     $canEditPlans = auth()->user()->canEdit('classes');
     $canDeletePlans = auth()->user()->canDelete('classes');
+    $branding = \App\Models\Branding::first();
 @endphp
 
 <html lang="en">
@@ -11,6 +12,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrainNova | Plans Management</title>
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
@@ -82,21 +86,14 @@
                                         <table id="userTable" class="min-w-full divide-y divide-gray-200 p-3">
                                             <thead class="bg-gray-50">
                                                 <tr>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Plan Name</th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Description</th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Monthly Price</th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Billing Cycle</th>
-                                                    <th
-                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Actions</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Associated Class</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan Name</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type & Sessions</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validity</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Price</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Billing Cycle</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                                 </tr>
                                             </thead>
 
@@ -104,21 +101,51 @@
                                                 @forelse($plans as $plan)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm">
-                                                                {{ ucfirst(trim(($plan->plan_name ?? ''))) }}</div>
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 font-medium  text-gray-800">
+                                                                {{ $plan->relatedClass ? $plan->relatedClass->class_name : 'No Class Assigned' }}
+                                                            </span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm">
-                                                                {{ ucfirst(trim(($plan->description ?? ''))) }}</div>
+                                                            <div class="text-sm font-bold text-gray-900">{{ ucfirst(trim($plan->plan_name ?? '')) }}</div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm">
-                                                                {{ ucfirst(trim(($plan->monthly_price ?? ''))) }}</div>
+                                                            <div class="mt-1" >
+                                                                {{ \Illuminate\Support\Str::limit(ucfirst(trim($plan->description ?? '')), 40, '...') }}
+                                                            </div>
                                                         </td>
+                                                        
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm">
-                                                                {{ ucfirst(trim(($plan->billing_cycle ?? ''))) }}</div>
+                                                            @if(($plan->session_type ?? '') === 'unlimited' || $plan->unlimited_flag == 1)
+                                                                <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Unlimited</span>
+                                                                <div class="text-sm mt-1 text-gray-700">All Sessions</div>
+                                                            @else
+                                                                <span class="px-2 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full">Limited</span>
+                                                                <div class="text-sm mt-1 text-gray-700 font-medium">{{ $plan->sessions_count ?? $plan->sessions_per_week }} Sessions</div>
+                                                            @endif
                                                         </td>
+                                                        
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="text-sm text-gray-700 font-medium">
+                                                                @if(($plan->session_type ?? '') === 'unlimited' || $plan->unlimited_flag == 1)
+                                                                    {{ $plan->expiry_value ?? 12 }} Months
+                                                                @else
+                                                                    {{ $plan->expiry_value ?? 0 }} {{ ucfirst($plan->expiry_unit ?? 'months') }}
+                                                                @endif
+                                                            </div>
+                                                        </td>
+                                                        
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="text-sm font-bold text-gray-900">
+                                                                ₱{{ number_format($plan->monthly_price ?? 0, 2) }}
+                                                            </div>
+                                                        </td>
+                                                        
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="text-sm text-gray-700">
+                                                                {{ ucfirst(trim($plan->billing_cycle ?? '')) }}
+                                                            </div>
+                                                        </td>
+                                                        
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center gap-3">
                                                                 <button 
@@ -145,12 +172,11 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                                             <div class="flex flex-col items-center">
-                                                                <i class="fas fa-sync-alt text-4xl text-gray-300 mb-3"></i>
+                                                                <i class="fas fa-clipboard-list text-4xl text-gray-300 mb-3"></i>
                                                                 <p class="text-lg font-medium">No Plans found</p>
-                                                                <p class="text-sm">Click the "Add Plan" button to create a
-                                                                    new Plan.</p>
+                                                                <p class="text-sm">Click the "Add Plan" button to create a new Plan.</p>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -180,9 +206,21 @@
                 <!-- Modal Body - Form -->
                 <form id="addPlanForm" method="POST" action="{{ route('plans.store') }}">
                     @csrf
-                    <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Associated Class <span class="text-red-500">*</span>
+                            </label>
+                            <select name="class_id" id="class_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="" disabled selected>Select a Class</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->class_name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_class_id"></div>
+                        </div>
                         <!-- plan_name -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Plan Name <span class="text-red-500">*</span>
                             </label>
@@ -193,7 +231,7 @@
                         </div>
 
                         <!-- description -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Description
                             </label>
@@ -203,18 +241,83 @@
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_description"></div>
                         </div>
 
+                        <!-- Session Type Selection -->
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Session Type <span class="text-red-500">*</span>
+                            </label>
+                            <select name="session_type" id="session_type" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="unlimited">Unlimited Sessions</option>
+                                <option value="limited">Limited Sessions</option>
+                            </select>
+                        </div>
+
+                        <!-- Unlimited Sessions Fields (shown when Unlimited is selected) -->
+                        <div id="unlimited_fields" class="col-span-2 space-y-4">
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Sessions
+                                </label>
+                                <input type="text" value="Unlimited" readonly disabled
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+                                <p class="text-xs text-gray-500 mt-1">Unlimited access to all classes</p>
+                            </div>
+                            <div class=" form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Expiry Period
+                                </label>
+                                <select name="expiry_period_unlimited" id="expiry_period_unlimited"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                    <option value="1">1 Month</option>
+                                    <option value="3">3 Months</option>
+                                    <option value="6">6 Months</option>
+                                    <option value="12" selected>12 Months</option>
+                                    <option value="24">24 Months</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Plan validity period</p>
+                            </div>
+                        </div>
+
+                        <!-- Limited Sessions Fields (shown when Limited is selected) -->
+                        <div id="limited_fields" class="col-span-2 space-y-4" style="display: none;">
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Number of Sessions <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" name="sessions_count" id="sessions_count" min="1" max="100" value="8"
+                                    placeholder="e.g., 8, 10, 12"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <p class="text-xs text-gray-500 mt-1">Total number of sessions included</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Expiry Period <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" name="expiry_value" id="expiry_value" min="1" max="36" value="2"
+                                        placeholder="Number"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                    <select name="expiry_unit" id="expiry_unit"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                        <option value="weeks">Weeks</option>
+                                        <option value="months" selected>Months</option>
+                                    </select>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Example: 2 Months, 8 Weeks</p>
+                            </div>
+                        </div>
 
                         <!-- monthly_price -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Monthly Price (₱)
+                                Monthly Price (₱) <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" name="monthly_price" id="monthly_price" step="0.01" min="0"
+                            <input type="number" name="monthly_price" id="monthly_price" step="0.01" min="0" required
                                 value="0.00" placeholder="0.00"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_monthly_price"></div>
                         </div>
-
 
                         <!-- billing_cycle -->
                         <div class="form-group">
@@ -224,17 +327,16 @@
                             <select name="billing_cycle" id="billing_cycle"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                                 <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
+                                <option value="monthly" selected>Monthly</option>
                                 <option value="quarterly">Quarterly</option>
                                 <option value="yearly">Yearly</option>
                             </select>
-                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_billing_cycle"></div>
                         </div>
 
                         <!-- active_flag -->
                         <div class="form-group">
-                            <label class="flex items-center space-x-2">
-                                <span class="text-sm font-medium text-gray-700">Status</span>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Status
                             </label>
                             <select name="status" id="status"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
@@ -275,9 +377,21 @@
                 <form id="editPlanForm" method="POST" action="">
                     @csrf
                     @method('PUT')
-                    <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2 form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Associated Class <span class="text-red-500">*</span>
+                            </label>
+                            <select name="class_id" id="edit_class_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="" disabled>Select a Class</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->class_name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_class_id"></div>
+                        </div>
                         <!-- plan_name -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Plan Name <span class="text-red-500">*</span>
                             </label>
@@ -288,7 +402,7 @@
                         </div>
 
                         <!-- description -->
-                        <div class="form-group">
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Description
                             </label>
@@ -298,9 +412,71 @@
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_description"></div>
                         </div>
 
-                        <!-- monthly_price -->
-                        <div class="form-group">
+                        <!-- Session Type Selection-->
+                        <div class="col-span-2 form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Session Type <span class="text-red-500">*</span>
+                            </label>
+                            <select name="session_type" id="edit_session_type" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                <option value="unlimited">Unlimited Sessions</option>
+                                <option value="limited">Limited Sessions</option>
+                            </select>
+                        </div>
+
+                        <!-- Unlimited Sessions Fields (Edit Modal) -->
+                        <div id="edit_unlimited_fields" class="col-span-2 space-y-4">
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Sessions
+                                </label>
+                                <input type="text" value="Unlimited" readonly disabled
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Expiry Period
+                                </label>
+                                <select name="expiry_period_unlimited" id="edit_expiry_period_unlimited"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                    <option value="1">1 Month</option>
+                                    <option value="3">3 Months</option>
+                                    <option value="6">6 Months</option>
+                                    <option value="12">12 Months</option>
+                                    <option value="24">24 Months</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Limited Sessions Fields (Edit Modal) -->
+                        <div id="edit_limited_fields" class="col-span-2 space-y-4" style="display: none;">
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Number of Sessions <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" name="sessions_count" id="edit_sessions_count" min="1" max="100"
+                                    placeholder="e.g., 8, 10, 12"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Expiry Period <span class="text-red-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" name="expiry_value" id="edit_expiry_value" min="1" max="36" placeholder="Number"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                    <select name="expiry_unit" id="edit_expiry_unit"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                        <option value="weeks">Weeks</option>
+                                        <option value="months" selected>Months</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- monthly_price -->
+                        <div class="col-span-2 form-group">
+                            <label class=" block text-sm font-medium text-gray-700 mb-2">
                                 Monthly Price (₱)
                             </label>
                             <input type="number" name="monthly_price" id="edit_monthly_price" step="0.01" min="0"
@@ -308,9 +484,9 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_monthly_price"></div>
                         </div>
-
+                        
                         <!-- billing_cycle -->
-                        <div class="form-group">
+                        <div class=" form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Billing Cycle
                             </label>
@@ -325,7 +501,7 @@
                         </div>
 
                         <!-- status (active_flag) -->
-                        <div class="form-group">
+                        <div class=" form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Status
                             </label>

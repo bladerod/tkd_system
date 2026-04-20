@@ -8,17 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Payment extends Model
 {
     protected $table = 'payments';
-    public $timestamps = false; // Schema uses 'payment_date' instead
-
+    public $timestamps = true;
     protected $fillable = [
         'invoice_id', 
         'amount', 
         'payment_method', 
         'transaction_reference', 
-        'payment_date', 
+        'paid_at', 
         'status'
     ];
-
+    protected $casts = [
+        'paid_at' => 'timestamp'
+    ];
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);

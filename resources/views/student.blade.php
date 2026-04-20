@@ -60,15 +60,14 @@
                 </select>
             </div>
 
-                <div class="dropdown">
-                    <label for="instructor">Instructor</label>
-                    <select name="instructor" id="instructor">
-                        <option value="" disabled selected>-- Select instructor --</option>
-                        @foreach ($users->where('role', 'instructor') as $user)
-                            <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="dropdown">
+                <label for="instructor">Instructor</label>
+                <select name="instructor" id="instructor">
+                    <option value="" disabled selected>-- Select instructor --</option>
+                    @foreach ($users->where('role', 'instructor') as $user)
+                        <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
+                    @endforeach
+                </select>
             </div>
         </div> --}}
 
@@ -194,7 +193,6 @@
 
 <div id="certificatesTab" class="tab-content hidden"></div>
     </div>
-</div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
@@ -218,8 +216,8 @@ async function openModal(button) {
     modal.classList.remove("hidden");
     modal.style.display = "flex";
 
-    const studentId = button.getAttribute("data-id");
-    modal.dataset.studentId = studentId;
+            const studentId = button.getAttribute("data-id");
+            modal.dataset.studentId = studentId;
 
     // Loading UI
     document.getElementById("profileTab").innerHTML = `

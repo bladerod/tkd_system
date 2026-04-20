@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Class Management - TKD CMS')
+@section('title', 'TrainNova | Classes')
 
 @section('content')
 @php

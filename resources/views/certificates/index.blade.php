@@ -90,12 +90,23 @@
     <!-- ================= MODAL ================= -->
     <div id="modal"
         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-
         <div style="background:white; padding:20px; width:400px;">
             <h2 class="text-xl mb-3">Generate Certificate</h2>
 
             <form id="form">
-                <select name="student_id" id="studentSelect" class="w-full border p-2 mb-2" required></select>
+                <select name="branch" id="branch" class="w-full border p-2 mb-2" required>
+                        <option disabled selected value="">Select Branch</option>
+                    @foreach ($branches as $branch)
+                        <option value="{{$branch->id}}">{{ $branch->name }} {{ $branch->code }}</option>
+                    @endforeach
+                </select>
+
+                <select name="student_id" id="studentSelect" class="w-full border p-2 mb-2" required>
+                        <option disabled selected value="promotion">Select Student</option>
+                    @foreach ($students as $student)
+                        <option value="{{$student->id}}">{{ $student->first_name }} {{ $student->last_name }}</option>
+                    @endforeach
+                </select>
 
         <button id="printBtn" disabled class="btn-action">Print</button>
         <button id="emailBtn" disabled class="btn-action">Email</button>

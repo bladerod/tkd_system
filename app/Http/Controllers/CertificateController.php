@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
 use App\Models\Student;
@@ -16,7 +17,10 @@ class CertificateController extends Controller
     public function index()
     {
         $certificates = Certificate::with('student')->latest()->get();
-        return view('certificates.index', compact('certificates'));
+        $branches = Branch::all();
+        $students = Student::all();
+        return view('certificates.index', compact('certificates', 'students', 'branches'));
+        
     }
 
     /* ================= API ================= */

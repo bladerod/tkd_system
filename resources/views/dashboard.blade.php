@@ -1,8 +1,9 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrainNova</title>
+    <title>TrainNova | Dashboard</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -33,7 +34,7 @@
                         </div>
                     @endif
                     <!-- Action Buttons -->
-                    <div class="grid grid-cols-5 gap-4 mb-8">
+                    <div class="grid grid-cols-4 gap-4 mb-8">
                         <div>
                             <button command="show-modal" commandfor="dialog"
                                 class="button w-full bg-[#1C1C1D] text-white px-4 py-3 rounded-lg hover:bg-[#535353] transition-colors flex items-center justify-center gap-2">
@@ -48,13 +49,7 @@
                                 Add Parent
                             </button>
                         </div>
-                        <div>
-                            <button
-                                class="button w-full bg-[#1C1C1D] text-white px-4 py-3 rounded-lg hover:bg-[#535353] transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-file"></i>
-                                Record Payment
-                            </button>
-                        </div>
+
                         <div>
                             <button
                                 class="button w-full bg-[#1C1C1D] text-white px-4 py-3 rounded-lg hover:bg-[#535353] transition-colors flex items-center justify-center gap-2">
@@ -63,7 +58,7 @@
                             </button>
                         </div>
                         <div>
-                            <button
+                            <button command="show-modal" commandfor="announcementDialog"
                                 class="button w-full bg-[#1C1C1D] text-white px-4 py-3 rounded-lg hover:bg-[#535353] transition-colors flex items-center justify-center gap-2">
                                 <i class="fa fa-bullhorn" aria-hidden="true"></i>
                                 Send Announcement
@@ -120,7 +115,8 @@
                                 </div>
                                 <div class="p-3">
                                     <h3 class="text-gray-500 text-sm font-medium mb-1">Outstanding Balance</h3>
-                                    <p class="text-5xl font-bold text-[#1C1C1D]">₱{{ number_format($outstandingBalance, 2) }}</p>
+                                    <p class="text-5xl font-bold text-[#1C1C1D]">
+                                        ₱{{ number_format($outstandingBalance, 2) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -142,8 +138,11 @@
                                                     class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#1C1C1D] border border-[#1C1C1D] rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] focus:ring-offset-2 transition-all duration-200"
                                                     type="button">
                                                     <span x-text="selected"></span>
-                                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    <svg class="w-4 h-4 transition-transform duration-200"
+                                                        :class="{ 'rotate-180': open }" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                     </svg>
                                                 </button>
 
@@ -156,13 +155,15 @@
                                                     x-transition:leave-end="transform opacity-0 scale-95"
                                                     class="absolute right-0 z-10 min-w-[160px] mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
                                                     <li>
-                                                        <a href="#" @click.prevent="selected = 'Weekly'; open = false; window.updateRevenueChartPeriod('weekly')"
+                                                        <a href="#"
+                                                            @click.prevent="selected = 'Weekly'; open = false; window.updateRevenueChartPeriod('weekly')"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 rounded-t-lg">
                                                             Weekly (Last 7 Days)
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#" @click.prevent="selected = 'Monthly'; open = false; window.updateRevenueChartPeriod('monthly')"
+                                                        <a href="#"
+                                                            @click.prevent="selected = 'Monthly'; open = false; window.updateRevenueChartPeriod('monthly')"
                                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 rounded-b-lg">
                                                             Monthly (This Year)
                                                         </a>
@@ -264,18 +265,18 @@
                                 @foreach($timeLabels as $bucket => $label)
                                     <div class="grid grid-cols-8 gap-2 items-center">
                                         <div class="text-xs text-gray-500 font-medium">{{ $label }}</div>
-                                        
+
                                         @for($day = 1; $day <= 7; $day++)
                                             @php
                                                 $count = $heatmapData[$bucket][$day];
-                                                
+
                                                 // Default Color for Zero Attendances
                                                 $color = '#f3f4f6'; // Tailwind gray-100
-                                                
+
                                                 // Dynamic Orange Scaling
                                                 if ($count > 0) {
                                                     $percentage = $count / $maxHeatmapCount;
-                                                    
+
                                                     if ($percentage <= 0.33) {
                                                         $color = '#FFE5CC'; // Low
                                                     } elseif ($percentage <= 0.66) {
@@ -285,10 +286,10 @@
                                                     }
                                                 }
                                             @endphp
-                                            
-                                            <div class="heatmap-cell rounded transition-all duration-300 hover:scale-105 cursor-pointer" 
-                                                 style="background-color: {{ $color }}; width: 100%; height: 24px;"
-                                                 title="{{ $count }} Attendances ({{ $label }})">
+
+                                            <div class="heatmap-cell rounded transition-all duration-300 hover:scale-105 cursor-pointer"
+                                                style="background-color: {{ $color }}; width: 100%; height: 24px;"
+                                                title="{{ $count }} Attendances ({{ $label }})">
                                             </div>
                                         @endfor
                                     </div>
@@ -298,7 +299,8 @@
                             <!-- Legend -->
                             <div class="flex items-center justify-end gap-4 mt-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-4 h-4 rounded" style="background-color: #f3f4f6 border: 1px solid #e5e7eb;"></div>
+                                    <div class="w-4 h-4 rounded"
+                                        style="background-color: #f3f4f6 border: 1px solid #e5e7eb;"></div>
                                     <span class="text-xs text-gray-500">None (0)</span>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -340,8 +342,8 @@
 
                     <!-- Form Body -->
                     <div class="px-6 pt-6 pb-4 bg-white">
-                        <form action="{{ route('dashboard.student.store') }}" method="POST" enctype="multipart/form-data"
-                            class="space-y-5">
+                        <form action="{{ route('dashboard.student.store') }}" method="POST"
+                            enctype="multipart/form-data" class="space-y-5">
                             @csrf
                             <!-- Branch - Moved to top as it's a primary identifier -->
                             <div>
@@ -736,62 +738,178 @@
     </el-dialog>
     {{-- end parent modal --}}
 
-    {{-- Payment Modal --}}
-    <div id="paymentModal" class="fixed inset-0 bg-gray-500 bg-opacity-90 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-lg bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Record Payment</h3>
-                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
+
+    {{-- add announcement modal--}}
+    <el-dialog>
+        <dialog id="announcementDialog" aria-labelledby="dialog-title"
+            class="fixed inset-0 size-auto max-h-none max-w-none overflow-y-auto bg-transparent backdrop:bg-transparent">
+            <el-dialog-backdrop
+                class="fixed inset-0 bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
+
+            <div tabindex="0"
+                class="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0">
+                <el-dialog-panel
+                    class="relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl outline -outline-offset-1 outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-4xl data-closed:sm:translate-y-0 data-closed:sm:scale-95">
+
+                    <!-- Header -->
+                    <div class="bg-[#1c1c1d] p-4 text-white flex items-center gap-2">
+                        <i class="fa fa-bullhorn" aria-hidden="true"></i>
+                        <h1 class="font-bold text-xl">Send Announcement</h1>
+                    </div>
+
+                    <!-- Form Body -->
+                    <div class="px-6 pt-6 pb-4 bg-white">
+                        <form 
+                        {{-- id="addAnnouncementForm"  --}}
+                        method="POST" action="{{ route('dashboard.announcement.store') }}"
+                            class="space-y-5">
+                            @csrf
+
+                            <!-- Created By (Hidden - will be set from session) -->
+                            <input type="hidden" name="created_by_user_id" value="{{ auth()->user()->id ?? 1 }}">
+
+                            <!-- Title -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Title <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" name="title" placeholder="Enter announcement title" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                            </div>
+
+                            <!-- Message -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Message <span
+                                        class="text-red-500">*</span></label>
+                                <textarea name="message" rows="4" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] resize-y min-h-[100px] bg-white placeholder-gray-400"
+                                    placeholder="Enter announcement message..."></textarea>
+                            </div>
+
+                            <!-- Target Audience -->
+                            <div class="">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Target Audience <span
+                                            class="text-red-500">*</span></label>
+                                    <select name="target_type" id="target_type" required onchange="toggleTargetTypeFields()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                        <option value="" disabled selected>Select target</option>
+                                        <option value="all">All</option>
+                                        <option value="class">Class</option>
+                                        <option value="belt">Belt</option>
+                                        <option value="branch">Branch</option>
+                                    </select>
+                                </div>
+
+                                <!-- Competition Team -->
+                                {{-- <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Competition Team</label>
+                                    <input type="text" name="competition_team" placeholder="Enter team name"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                                </div> --}}
+                            </div>
+
+                            <!-- Class Field (conditional) -->
+                            <div id="class_field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Select Class <span
+                                        class="text-red-500">*</span></label>
+                                <select name="class_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <option value="">Select class</option>
+                                    @isset($classes)
+                                        @forelse($classes as $class)
+                                            <option value="{{ $class->id }}">
+                                                {{ $class->class_name }}
+                                            </option>
+                                        @empty
+                                            <option value="" disabled>No classes available</option>
+                                        @endforelse
+                                    @else
+                                        <option value="" disabled>Classes not loaded</option>
+                                    @endisset
+                                </select>
+                            </div>
+
+                            <!-- Belt Field (conditional) -->
+                            <div id="belt_field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Belt Level <span
+                                        class="text-red-500">*</span></label>
+                                <select name="belt_level"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <option value="">Select belt level</option>
+                                    <option value="White Belt">White Belt</option>
+                                    <option value="Yellow Belt">Yellow Belt</option>
+                                    <option value="Orange Belt">Orange Belt</option>
+                                    <option value="Green Belt">Green Belt</option>
+                                    <option value="Blue Belt">Blue Belt</option>
+                                    <option value="Brown Belt">Brown Belt</option>
+                                    <option value="Black Belt">Black Belt</option>
+                                </select>
+                            </div>
+
+                            <!-- Branch Field (conditional) -->
+                            <div id="branch_field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Select Branch <span
+                                        class="text-red-500">*</span></label>
+                                <select name="branch_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
+                                    <option value="">Select branch</option>
+                                    @isset($branches)
+                                        @foreach($branches as $branch)
+                                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                        @endforeach
+                                    @endisset
+                                </select>
+                            </div>
+
+                            <!-- Channel -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Channel <span
+                                        class="text-red-500">*</span></label>
+                                <div class="flex flex-wrap gap-4">
+                                    <label class="flex items-center gap-2">
+                                        <input type="checkbox" name="channel[]" value="App"
+                                            class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d]">
+                                        <span class="text-sm text-gray-700">App</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input type="checkbox" name="channel[]" value="SMS"
+                                            class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d]">
+                                        <span class="text-sm text-gray-700">SMS</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input type="checkbox" name="channel[]" value="Email"
+                                            class="rounded text-[#1c1c1d] focus:ring-[#1c1c1d]">
+                                        <span class="text-sm text-gray-700">Email</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Expire Date -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Expire Date <span
+                                        class="text-red-500">*</span></label>
+                                <input type="date" name="expire_date" required min="{{ date('Y-m-d') }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]">
+                            </div>
+                            <hr class="opacity-40">
+                            <div class=" px-6 py-3 flex justify-end gap-2">
+                                <button type="button" command="close" commandfor="dialog"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                    Close
+                                </button>
+                                <button type="submit" command="close" commandfor="dialog"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-[#1c1c1d] rounded-md hover:bg-[#2f2f2f] transition-colors">
+                                    Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </el-dialog-panel>
             </div>
-            <form id="paymentForm">
-                <input type="hidden" id="invoiceId" name="invoice_id">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Invoice #</label>
-                    <p id="invoiceNoDisplay" class="text-gray-900 font-medium"></p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
-                    <p id="studentNameDisplay" class="text-gray-900"></p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Due</label>
-                    <p id="totalDueDisplay" class="text-xl font-bold text-gray-900"></p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount to Pay</label>
-                    <input type="number" id="paymentAmount" name="amount" step="0.01" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                    <select id="paymentMethod" name="payment_method" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                        <option value="cash">Cash</option>
-                        <option value="gcash">GCash</option>
-                        <option value="card">Credit/Debit Card</option>
-                        <option value="bank">Bank Transfer</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Reference No. (Optional)</label>
-                    <input type="text" id="transactionReference" name="transaction_reference"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                </div>
-                <div class="flex gap-3 justify-end">
-                    <button type="button" onclick="closePaymentModal()"
-                        class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                        class="px-4 py-2 text-sm text-white bg-[#63ad35] rounded-md hover:bg-[#71c93e] transition-colors">
-                        Process Payment
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+        </dialog>
+    </el-dialog>
+    {{-- end send announcement modal --}}
+
 
     {{-- end of modals --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

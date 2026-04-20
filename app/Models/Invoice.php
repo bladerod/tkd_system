@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Invoice extends Model {
     protected $table = "invoices";
-    protected $fillable = ['student_id', 'subscription_id', 'invoice_no', 'billing_period_start', 'billing_period_end', 'amount', 'discount', 'penalty', 'total_due', 'due_date', 'status'];
+    protected $fillable = ['student_id','parent_id', 'subscription_id', 'invoice_no', 'billing_period_start', 'billing_period_end', 'amount', 'discount', 'penalty', 'total_due', 'due_date', 'status'];
 
     public function student(): BelongsTo { return $this->belongsTo(Student::class, 'student_id', 'id'); }
     public function parent(): BelongsTo { return $this->belongsTo(Parents::class); }

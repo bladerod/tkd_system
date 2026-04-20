@@ -614,253 +614,48 @@ if (document.readyState === 'loading') {
     initFormValidations();
 }
 
-
-
-
-
-
-// ============================================
-// Payment Modal Functions (for Record Payment button)
-// ============================================
-
-// Store invoice data globally for the dashboard
-window.dashboardInvoices = null;
-
-// Fetch invoices from server for the Record Payment button
-async function fetchInvoicesForPayment() {
-    try {
-        // Get CSRF token safely
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (!csrfToken) {
-            console.warn('CSRF token meta tag not found');
-            return [];
-        }
-        
-        // Use the correct route WITHOUT /billing prefix
-        const response = await fetch('/invoices-json', {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken.content
-            }
-        });
-        
-        // Check if response is OK before trying to parse JSON
-        if (!response.ok) {
-            console.error('HTTP error:', response.status);
-            return [];
-        }
-        
-        const data = await response.json();
-        return data.success ? data.invoices : [];
-    } catch (error) {
-        console.error('Error fetching invoices:', error);
-        return [];
-    }
+window.openAddAnnouncementModal = function () {
+    document.getElementById("addAnnouncementModal").classList.remove("hidden");
+    document.body.style.overflow = 'hidden';
+    
+    // Reset the form and hide all conditional fields
+    const form = document.getElementById('addAnnouncementForm');
+    if (form) form.reset();
+    
+    document.getElementById('class_field').classList.add('hidden');
+    document.getElementById('belt_field').classList.add('hidden');
+    document.getElementById('branch_field').classList.add('hidden');
 }
 
-// Open payment modal with invoice selection (for the Record Payment button on dashboard)
-window.openPaymentModal = async function() {
-    let invoiceOptions = [];
+window.closeAddAnnouncementModal = function () {
+    document.getElementById("addAnnouncementModal").classList.add("hidden");
+    document.getElementById('addAnnouncementForm').reset();
+    document.body.style.overflow = 'auto';
     
-    // Try to get invoice data from the table if it exists (billing page style)
-    const invoiceRows = document.querySelectorAll('#invoiceTable tbody tr[data-invoice-id]');
-    
-    if (invoiceRows.length > 0) {
-        // Use data from table if available
-        invoiceRows.forEach(row => {
-            const invoiceId = row.getAttribute('data-invoice-id');
-            const invoiceNo = row.getAttribute('data-invoice-no');
-            const studentName = row.getAttribute('data-student-name');
-            const totalDue = row.getAttribute('data-total-due');
-            const status = row.getAttribute('data-status');
-            
-            if (status !== 'paid') {
-                invoiceOptions.push({
-                    id: invoiceId,
-                    text: `${invoiceNo} - ${studentName} - ₱${parseFloat(totalDue).toLocaleString()} (${status})`,
-                    invoiceNo: invoiceNo,
-                    studentName: studentName,
-                    totalDue: totalDue
-                });
-            }
-        });
-    } else {
-        // Fallback: Fetch from API
-        const invoices = await fetchInvoicesForPayment();
-        invoiceOptions = invoices
-            .filter(inv => inv.status !== 'paid')
-            .map(inv => ({
-                id: inv.id,
-                text: `${inv.invoice_no} - ${inv.student_name} - ₱${parseFloat(inv.total_due).toLocaleString()} (${inv.status})`,
-                invoiceNo: inv.invoice_no,
-                studentName: inv.student_name,
-                totalDue: inv.total_due
-            }));
-    }
-    
-    if (invoiceOptions.length === 0) {
-        Swal.fire({
-            title: 'No Pending Invoices',
-            text: 'All invoices are already paid or no invoices exist.',
-            icon: 'info',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-    
-    // Create HTML for invoice selection
-    let optionsHtml = '';
-    invoiceOptions.forEach(option => {
-        optionsHtml += `<option value="${option.id}" data-invoice-no="${option.invoiceNo}" data-student-name="${option.studentName}" data-total-due="${option.totalDue}">${option.text}</option>`;
-    });
-    
-    Swal.fire({
-        title: 'Select Invoice',
-        html: `
-            <div class="text-left">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Choose Invoice:</label>
-                <select id="invoiceSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]" style="width: 100%;">
-                    ${optionsHtml}
-                </select>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Proceed to Payment',
-        cancelButtonText: 'Cancel',
-        preConfirm: () => {
-            const select = document.getElementById('invoiceSelect');
-            const selectedOption = select.options[select.selectedIndex];
-            return {
-                invoiceId: select.value,
-                invoiceNo: selectedOption.getAttribute('data-invoice-no'),
-                studentName: selectedOption.getAttribute('data-student-name'),
-                totalDue: selectedOption.getAttribute('data-total-due')
-            };
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const { invoiceId, invoiceNo, studentName, totalDue } = result.value;
-            
-            document.getElementById('invoiceId').value = invoiceId;
-            document.getElementById('invoiceNoDisplay').textContent = invoiceNo;
-            document.getElementById('studentNameDisplay').textContent = studentName;
-            document.getElementById('totalDueDisplay').textContent = '₱' + parseFloat(totalDue).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('paymentAmount').value = '';
-            document.getElementById('paymentAmount').max = parseFloat(totalDue);
-            document.getElementById('paymentAmount').placeholder = 'Max: ₱' + parseFloat(totalDue).toLocaleString();
-            
-            document.getElementById('paymentModal').classList.remove('hidden');
-        }
-    });
+    // Reset targeted by fields
+    document.getElementById('class_field').classList.add('hidden');
+    document.getElementById('belt_field').classList.add('hidden');
+    document.getElementById('branch_field').classList.add('hidden');
 }
 
-// Close payment modal
-window.closePaymentModal = function() {
-    const modal = document.getElementById('paymentModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    const form = document.getElementById('paymentForm');
-    if (form) {
-        form.reset();
+// Toggle target type fields for Add Modal
+window.toggleTargetTypeFields = function() {
+    const targetType = document.getElementById('target_type').value;
+    const classField = document.getElementById('class_field');
+    const beltField = document.getElementById('belt_field');
+    const branchField = document.getElementById('branch_field');
+    
+    // Hide all fields first
+    if (classField) classField.classList.add('hidden');
+    if (beltField) beltField.classList.add('hidden');
+    if (branchField) branchField.classList.add('hidden');
+    
+    // Show the relevant field
+    if (targetType === 'class') {
+        if (classField) classField.classList.remove('hidden');
+    } else if (targetType === 'belt') {
+        if (beltField) beltField.classList.remove('hidden');
+    } else if (targetType === 'branch') {
+        if (branchField) branchField.classList.remove('hidden');
     }
 }
-
-// Setup payment form submit handler
-function setupPaymentForm() {
-    const paymentForm = document.getElementById('paymentForm');
-    if (!paymentForm) return;
-    
-    // Remove any existing event listeners to avoid duplicates
-    const newForm = paymentForm.cloneNode(true);
-    paymentForm.parentNode.replaceChild(newForm, paymentForm);
-    
-    newForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const invoiceId = document.getElementById('invoiceId').value;
-        const amount = document.getElementById('paymentAmount').value;
-        const paymentMethod = document.getElementById('paymentMethod').value;
-        const transactionReference = document.getElementById('transactionReference').value;
-        
-        if (!invoiceId) {
-            Swal.fire('Error!', 'No invoice selected.', 'error');
-            return;
-        }
-        
-        if (!amount || parseFloat(amount) <= 0) {
-            Swal.fire('Error!', 'Please enter a valid amount.', 'error');
-            return;
-        }
-        
-        const maxAmount = parseFloat(document.getElementById('paymentAmount').max);
-        if (parseFloat(amount) > maxAmount) {
-            Swal.fire('Error!', `Payment amount cannot exceed ₱${maxAmount.toLocaleString()}`, 'error');
-            return;
-        }
-        
-        Swal.fire({
-            title: 'Processing Payment...',
-            text: 'Please wait.',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        
-        try {
-            const response = await fetch(`/billing/${invoiceId}/payment`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    amount: amount,
-                    payment_method: paymentMethod,
-                    transaction_reference: transactionReference
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: data.message,
-                    icon: 'success'
-                }).then(() => {
-                    closePaymentModal();
-                    location.reload();
-                });
-            } else {
-                throw new Error(data.message);
-            }
-        } catch (error) {
-            Swal.fire('Error!', error.message, 'error');
-        }
-    });
-}
-
-// Close modal on click outside
-window.addEventListener('click', function(event) {
-    const modal = document.getElementById('paymentModal');
-    if (event.target === modal) {
-        closePaymentModal();
-    }
-});
-
-// Initialize payment form when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    setupPaymentForm();
-    
-    // Attach click handler to the Record Payment button if it exists
-    const recordPaymentBtn = document.querySelector('button i.fa-solid.fa-file')?.closest('button');
-    if (recordPaymentBtn && !recordPaymentBtn.hasAttribute('data-payment-handler')) {
-        recordPaymentBtn.setAttribute('data-payment-handler', 'true');
-        recordPaymentBtn.onclick = function(e) {
-            e.preventDefault();
-            openPaymentModal();
-        };
-    }
-});

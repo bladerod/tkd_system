@@ -99,6 +99,6 @@ class Student extends Model
 
     public function certificates()
     {
-        return $this->hasMany(Certificate::class, 'issued_by_user_id');
+        return $this->hasMany(Certificate::class, 'student_id', 'id');
     }
 }

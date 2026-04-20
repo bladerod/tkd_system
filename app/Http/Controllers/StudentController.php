@@ -28,7 +28,7 @@ class StudentController extends Controller
             ->withCount(['attendanceLogs as present_count' => function($q) {
                 $q->whereIn('status', ['present', 'late']);
             }])
-            ->orderBy('first_name', 'asc')
+            ->orderBy('student_name', 'asc')
             ->get()
             ->map(function ($student) {
                 return [
@@ -274,18 +274,24 @@ public function certificates($id)
     //     ]);
     // }
 
-    public function competitions($studentId)
-    {
-        $entries = CompetitionEntry::with('competition', 'instructor.user')
-            ->where('student_id', $studentId)
-            ->get();
+public function competitions($studentId)
+{
+    $entries = DB::table('competition_entries as ce')
+        ->leftJoin('competitions as c', 'ce.competition_id', '=', 'c.id')
+        ->leftJoin('instructors as i', 'ce.instructor_id', '=', 'i.id')
+        ->leftJoin('users as u', 'i.user_id', '=', 'u.id')
+        ->select(
+            'ce.*',
+            'c.name as competition_name',
+            'c.date as competition_date',
+            DB::raw("CONCAT(u.fname, ' ', u.lname) as instructor_name")
+        )
+        ->where('ce.student_id', $studentId)
+        ->orderBy('c.date', 'desc')
+        ->get();
 
-        $beltlevels = DB::table('belt_levels')->get();
-        $classes = DB::table('classes')->get();
-        $users = DB::table('users')->get();
-
-        return view('students.index', compact('vwstudents','beltlevels','classes','users'));
-    }
+    return response()->json($entries);
+}
 
  public function show($id)
     {

@@ -9,24 +9,25 @@ use App\Models\ChatThread;
 use App\Models\ChatMessage;
 
 class ChatController extends Controller
-{public function index()
 {
-    $users = User::all();
+    public function index()
+    {
+        $users = User::all();
 
-    $threads = auth()->user()->threads()
-    ->with(['messages.sender'])
-    ->withCount(['messages as unread_count' => function ($q) {
-        $q->where('sender_user_id', '!=', auth()->id())
-          ->where('is_seen', false);
-    }])
-    ->get();
+        $threads = auth()->user()->threads()
+            ->with(['messages.sender'])
+            ->withCount(['messages as unread_count' => function ($q) {
+                $q->where('sender_user_id', '!=', auth()->id())
+                    ->where('is_seen', false);
+            }])
+            ->get();
 
-    return view('chat', [
-        'threads' => $threads,
-        'thread' => null,
-        'users' => $users // ✅ ADD THIS
-    ]);
-}
+        return view('chat', [
+            'threads' => $threads,
+            'thread' => null,
+            'users' => $users // ✅ ADD THIS
+        ]);
+    }
 
     public function show($id)
     {
@@ -54,36 +55,36 @@ class ChatController extends Controller
         ]);
 
         $message = ChatMessage::create([
-    'thread_id' => $id,
-    'sender_user_id' => auth()->id(),
-    'message' => $request->message,
-    'sent_at' => now(),
-    'is_seen' => false
-]);
+            'thread_id' => $id,
+            'sender_user_id' => auth()->id(),
+            'message' => $request->message,
+            'sent_at' => now(),
+            'is_seen' => false
+        ]);
 
-broadcast(new MessageSent($message));
+        // broadcast(new MessageSent($message));
 
         return redirect()->route('chat.show', $id);
     }
 
-public function create(Request $request)
-{
-    $request->validate([
-        'participants' => 'required|array|min:1',
-        'type' => 'required|string'
-    ]);
+    public function create(Request $request)
+    {
+        $request->validate([
+            'participants' => 'required|array|min:1',
+            'type' => 'required|string'
+        ]);
 
-    $participants = $request->participants;
-    $participants[] = auth()->id();
+        $participants = $request->participants;
+        $participants[] = auth()->id();
 
-    // ✅ USE SELECTED TYPE
-    $thread = ChatThread::create([
-        'type' => $request->type,
-        'name' => $request->type !== 'private' ? ucfirst($request->type) . ' Chat' : null
-    ]);
+        // ✅ USE SELECTED TYPE
+        $thread = ChatThread::create([
+            'type' => $request->type,
+            'name' => $request->type !== 'private' ? ucfirst($request->type) . ' Chat' : null
+        ]);
 
-    $thread->participants()->attach($participants);
+        $thread->participants()->attach($participants);
 
-    return redirect()->route('chat.show', $thread->id);
-}
+        return redirect()->route('chat.show', $thread->id);
+    }
 }

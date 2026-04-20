@@ -135,6 +135,6 @@ Route::get('/certificates/students', [CertificateController::class,'getStudents'
 Route::get('/certificate-templates', [CertificateController::class,'getTemplates']);
 Route::post('/certificates/generate', [CertificateController::class,'generate']);
 
-Route::get('/students/{id}', [StudentController::class, 'show']);
-Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
+Route::get('/api/students/{id}', [StudentController::class, 'show']);
+Route::get('/api/students/{id}/attendance', [StudentController::class, 'attendance']);
 });

@@ -196,7 +196,7 @@ public function isOnline()
         $permission = RolePermission::where('role', $this->role)
             ->where('module', $module)
             ->first();
-        
+
         return $permission ? (bool) $permission->can_view : false;
     }
 
@@ -205,7 +205,7 @@ public function isOnline()
         $permission = RolePermission::where('role', $this->role)
             ->where('module', $module)
             ->first();
-        
+
         return $permission ? (bool) $permission->can_create : false;
     }
 
@@ -214,7 +214,7 @@ public function isOnline()
         $permission = RolePermission::where('role', $this->role)
             ->where('module', $module)
             ->first();
-        
+
         return $permission ? (bool) $permission->can_edit : false;
     }
 
@@ -223,7 +223,7 @@ public function isOnline()
         $permission = RolePermission::where('role', $this->role)
             ->where('module', $module)
             ->first();
-        
+
         return $permission ? (bool) $permission->can_delete : false;
     }
 
@@ -231,4 +231,11 @@ public function getNameAttribute()
 {
     return trim($this->fname . ' ' . $this->lname);
 }
+
+public function students()
+{
+    // hasMany(RelatedModel, foreignKey, localKey)
+    return $this->hasMany(Student::class, 'primary_parent_id', 'id');
+}
+
 }

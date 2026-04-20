@@ -38,7 +38,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->middleware('permission:dashboard,view')->name('dashboard.index');
     Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->middleware('permission:students,create')->name('dashboard.student.store');
     Route::post('/dashboard/parent',[ParentsController::class,'store'])->middleware('permission:parents,create')->name('parent.store');
-    
+
 
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -51,6 +51,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->middleware('permission:announcements,delete')->name('announcements.destroy');
 
     // PARENTS
+    Route::get('/parents/{id}', [ParentsController::class, 'show']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
@@ -65,14 +66,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // STUDENTS
     Route::post('/student', [StudentController::class,'store'])->name('student.create');
-
+Route::get('/students/{id}', [StudentController::class, 'show']);
+Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
+Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
+Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
+Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
-    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
-    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
-    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
-    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
     // Student Tabs
     Route::prefix('students/{student}')->middleware('permission:students,view')->group(function () {
@@ -148,10 +148,6 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
         Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->middleware('permission:billing,view')->name('reminder');
         Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->middleware('permission:billing,view')->name('receipt');
     });
-Route::get('/settings/integration', function () {
-        return view('integration');
-    });
-
 
    // BRANCHES
     Route::post('/branch/check', [BranchController::class, 'checkField'])->middleware('permission:branches,view')->name('branch.check');
@@ -168,17 +164,17 @@ Route::get('/settings/integration', function () {
         Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
     });
 
-// Don't forget to import DB at the top of web.php if it's not there:
-// use Illuminate\Support\Facades\DB;
-
     Route::get('/student', function () {
         $beltlevels = BeltLevel::all();
         $users = User::all();
         $classes = Classes::all();
 
         // CHANGE THIS: Use the DB facade to pull from the view
-        $vwstudents = DB::table('student_overview')->select(
+        $vwstudents = DB::table('student_overview')
+        ->orderBy('student_name', 'asc')
+        ->select(
             'id',
+            'student_code',
             'student_name',
             'current_belt',
             'status',
@@ -193,9 +189,19 @@ Route::get('/settings/integration', function () {
 
     Route::get('/certificates', [CertificateController::class,'index']);
 
-    Route::post('/certificates/preview', [CertificateController::class,'preview']);
-    Route::get('/certificates/{id}', [CertificateController::class,'show']);
-    Route::get('/certificates/{id}/download', [CertificateController::class,'download']);
+ /* CRUD */
+Route::post('/api/certificates', [CertificateController::class, 'store']);
+Route::delete('/api/certificates/{id}', [CertificateController::class, 'destroy']);
+
+/* VIEW */
+Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+Route::get('/certificates/{id}/download', [CertificateController::class, 'download']);
+
+/* PREVIEW */
+Route::post('/certificates/preview', [CertificateController::class, 'preview']);
+
+/* VERIFY */
+Route::get('/verify/{code}', [CertificateController::class, 'verify']);
     Route::get('/templates', [CertificateController::class,'templates']);
     Route::get('/templates/create', [CertificateController::class,'createTemplate']);
     Route::post('/templates/store', [CertificateController::class,'storeTemplate']);
@@ -216,7 +222,7 @@ Route::get('/settings/integration', function () {
             Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users,delete')->name('destroy');
         });
 
-    // Billing Rules
+        // Billing Rules
         Route::get('/billing-rules', [BillingRulesController::class, 'index'])->middleware('permission:settings,view');
         Route::post('/billing-rules', [BillingRulesController::class, 'update'])->middleware('permission:settings,edit');
 

@@ -18,4 +18,9 @@ class CertificateTemplate extends Model
     protected $casts = [
         'layout' => 'array'
     ];
+
+    public function getTemplates()
+{
+    return CertificateTemplate::select('id', 'name', 'type')->get();
+}
 }

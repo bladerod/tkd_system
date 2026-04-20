@@ -17,23 +17,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('chart-monthly-revenue');
     if (!ctx) return;
     
-    const monthlyData = {
-        labels: ['Feb 17', 'Feb 18', 'Feb 19', 'Feb 20', 'Feb 21', 'Feb 22', 'Feb 23'],
-        values: [70.1, 80.1, 90.1, 100.1, 110.1, 120.1, 130.1]
+    const chartData = window.dynamicRevenueData;
+    
+    const weeklyData = {
+        labels: chartData.daily.labels,
+        values: chartData.daily.values
     };
     
-    const annualData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        values: [450, 650, 800, 720, 950, 1100, 1250, 1400, 1350, 1200, 980, 1500]
+    const monthlyData = {
+        labels: chartData.monthly.labels,
+        values: chartData.monthly.values
+    };
+    
+    // Helper function to format currency
+    const formatCurrency = (value) => {
+        if (value >= 1000) {
+            return '₱' + (value / 1000).toFixed(1) + 'K'; // E.g., ₱12.5K
+        }
+        return '₱' + value;
     };
     
     let chart = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
-            labels: monthlyData.labels,
+            labels: weeklyData.labels,
             datasets: [{
-                label: 'Sales (P)',
-                data: monthlyData.values,
+                label: 'Revenue',
+                data: weeklyData.values,
                 borderColor: '#1C1C1D',
                 backgroundColor: 'rgba(28, 28, 29, 0.1)',
                 tension: 0.4,
@@ -56,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (context) => '₱' + context.raw + 'K'
+                        label: (context) => '₱' + context.raw.toLocaleString()
                     }
                 },
                 datalabels: {
@@ -68,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     font: { size: 10, weight: 'bold' },
                     align: 'top',
                     offset: 8,
-                    formatter: (value) => '₱' + value + 'K'
+                    formatter: (value) => formatCurrency(value) 
                 }
             },
             scales: {
@@ -76,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     grid: { color: 'rgba(0, 0, 0, 0.05)' },
                     ticks: {
-                        callback: (value) => '₱' + value + 'K',
+                        callback: (value) => formatCurrency(value),
                         font: { size: 10 }
                     }
                 },
@@ -88,13 +98,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    window.updateChartPeriod = function(period) {
-        if (period === 'monthly') {
+    window.updateRevenueChartPeriod = function(period) {
+        if (period === 'weekly') {
+            chart.data.labels = weeklyData.labels;
+            chart.data.datasets[0].data = weeklyData.values;
+        } else {
             chart.data.labels = monthlyData.labels;
             chart.data.datasets[0].data = monthlyData.values;
-        } else {
-            chart.data.labels = annualData.labels;
-            chart.data.datasets[0].data = annualData.values;
         }
         chart.update();
     };
@@ -105,14 +115,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('chart-monthly-enrollees');
     if (!ctx) return;
     
+    const chartData = window.dynamicEnrolleesData;
+    
     const monthlyData = {
-        labels: ['Feb 17', 'Feb 18', 'Feb 19', 'Feb 20', 'Feb 21', 'Feb 22', 'Feb 23'],
-        values: [8, 12, 15, 10, 18, 22, 25]
+        labels: chartData.daily.labels, // Last 7 days
+        values: chartData.daily.values
     };
     
     const annualData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        values: [45, 52, 68, 58, 72, 85, 92, 105, 98, 82, 70, 120]
+        labels: chartData.monthly.labels, // 12 Months
+        values: chartData.monthly.values
     };
     
     let chart = new Chart(ctx.getContext('2d'), {
@@ -165,14 +177,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     grid: { color: 'rgba(0, 0, 0, 0.05)' },
                     title: {
                         display: true,
-                        text: 'Number of Enrollees',
+                        text: 'Daily Enrollees', // Default title
                         font: { size: 10, weight: '500' },
                         color: '#6B7280'
                     },
                     ticks: {
                         callback: (value) => value,
                         font: { size: 10 },
-                        stepSize: 5
+                        stepSize: 1 // Forces whole numbers (you can't have 1.5 students!)
                     }
                 },
                 x: {

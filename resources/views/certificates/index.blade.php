@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Certificates</title>
@@ -8,229 +9,192 @@
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/certificates.css'])
 
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
 <body>
 
-@include("includes.navbar")
-@include("includes.sidebar")
+    @include("includes.navbar")
+    @include("includes.sidebar")
 
-<div class="main-content">
+    <div class="main-content">
 
-    <!-- BREADCRUMB -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 mt-1">
-        <a href="/dashboard">Dashboard</a>
-        <span>/</span>
-        <span class="text-[#1C1C1D] font-medium">Certificate</span>
-    </div>
-
-    <h1 class="text-4xl font-bold mb-4">Certificate</h1>
-
-    <div class="content-card">
+        <!-- HEADER -->
+        <h1 class="text-3xl font-bold mb-4">Certificates</h1>
 
         <!-- ACTIONS -->
-        <div class="action-buttons">
-            <button class="btn-action" onclick="openGenerateModal()">
-                <i class="fa-solid fa-plus"></i> Generate
+        <div class="flex gap-3 mb-4">
+            <button onclick="openModal()" class="btn-action">
+                Generate Certificate
             </button>
 
-            <button class="btn-action" onclick="bulkGenerate()" id="bulkBtn" style="display:none">
-                <i class="fa-solid fa-users"></i> Bulk Generate
+            <button onclick="printSelected()" id="printBtn" disabled class="btn-action">
+                Print
             </button>
 
-            <button class="btn-action" onclick="printSelected()" id="printBtn" disabled>
-                <i class="fa-solid fa-print"></i> Print
+            <button onclick="emailSelected()" id="emailBtn" disabled class="btn-action">
+                Email
             </button>
 
-            <button class="btn-action" onclick="emailSelected()" id="emailBtn" disabled>
-                <i class="fa-solid fa-envelope"></i> Email
+            <button onclick="openVerifyPage()" class="btn-action">
+                Verify Link
             </button>
-        </div>
-
-        <!-- FILTERS -->
-        <div class="filters mb-4 flex gap-3">
-            <select id="typeFilter" onchange="filterCertificates()" class="border px-3 py-2">
-                <option value="">All Types</option>
-                <option value="promotion">Belt Promotion</option>
-                <option value="competition">Competition</option>
-            </select>
-
-            <input type="text" id="searchStudent"
-                   placeholder="Search student..."
-                   onkeyup="filterCertificates()"
-                   class="border px-3 py-2">
         </div>
 
         <!-- TABLE -->
-        <div class="table-card">
-            <div class="table-header">
-                <h2>Certificates List</h2>
-                <span id="certCount">0 certificates</span>
-            </div>
+        <table class="w-full border">
+            <thead class="table-header">
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>Student</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>QR</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-            <div class="table-content">
-                <table class="certificate-table">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="selectAll"></th>
-                            <th>Student</th>
-                            <th>Type</th>
-                            <th>Title</th>
-                            <th>Date</th>
-                            <th>QR</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="certificatesTableBody">
-
-                    @forelse ($certificates as $cert)
-                    <tr data-id="{{ $cert->id }}"
-                        data-type="{{ $cert->certificate_type }}"
-                        data-student="{{ strtolower($cert->student->name) }}">
-
-                        <td>
-                            <input type="checkbox"
-                                   class="cert-checkbox"
-                                   value="{{ $cert->id }}"
-                                   onchange="toggleSelection({{ $cert->id }}, this.checked)">
-                        </td>
-
-                        <td>{{ $cert->student->name }}</td>
-
-                        <td>{{ ucfirst(str_replace('_',' ', $cert->certificate_type)) }}</td>
-
-                        <td>{{ $cert->title }}</td>
-
-                        <td>{{ \Carbon\Carbon::parse($cert->issued_date)->format('F d, Y') }}</td>
-
-                        <td>
-                            @if($cert->qr_code_value)
-                                <i class="fa-solid fa-qrcode text-green-600"></i>
-                            @else
-                                -
-                            @endif
-                        </td>
-
-                        <td>
-                            <button onclick="viewCertificate({{ $cert->id }})">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-
-                            <button onclick="downloadCertificate({{ $cert->id }})">
-                                <i class="fa-solid fa-download"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    @empty
+            <tbody id="tableBody">
+                @forelse ($certificates as $cert)
                     <tr>
-                        <td colspan="7" class="text-center">No certificates</td>
-                    </tr>
-                    @endforelse
+                        <td>
+                            <input type="checkbox" class="checkbox" value="{{ $cert->id }}">
+                        </td>
 
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                        <td>{{ $cert->student->fname }} {{ $cert->student->lname }}</td>
+
+                        <td>{{ ucfirst($cert->certificate_type) }}</td>
+
+                        <td>{{ \Carbon\Carbon::parse($cert->issued_date)->format('M d, Y') }}</td>
+
+                        <td>{{ $cert->qr_code_value ? 'Yes' : 'No' }}</td>
+
+                        <td class="flex gap-2">
+                            <button onclick="viewCert({{ $cert->id }})">View</button>
+                            <button onclick="downloadCert({{ $cert->id }})">Download</button>
+                            <button onclick="deleteCert({{ $cert->id }})">Delete</button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No certificates</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
 
     </div>
+
+    <!-- ================= MODAL ================= -->
+    <div id="modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+
+        <div style="background:white; padding:20px; width:400px;">
+            <h2 class="text-xl mb-3">Generate Certificate</h2>
+
+            <form id="form">
+                <select name="student_id" id="studentSelect" class="w-full border p-2 mb-2" required></select>
+
+        <button id="printBtn" disabled class="btn-action">Print</button>
+        <button id="emailBtn" disabled class="btn-action">Email</button>
+
+                <textarea name="description" placeholder="Description" class="w-full border p-2 mb-2"></textarea>
+
+    <!-- TABLE -->
+    <table class="w-full border">
+        <thead class="table-header">
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>Student</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>QR</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        @forelse ($certificates as $cert)
+        <tr>
+            <td>
+                <input type="checkbox" class="checkbox" value="{{ $cert->id }}">
+            </td>
+
+            <td>{{ $cert->student->first_name }} {{ $cert->student->last_name }}</td>
+
+            <td>{{ ucfirst($cert->certificate_type) }}</td>
+
+            <td>{{ \Carbon\Carbon::parse($cert->issued_date)->format('M d, Y') }}</td>
+
+            <td>{{ $cert->qr_code_value ? 'Yes' : 'No' }}</td>
+
+            <td class="flex gap-2">
+                <button onclick="viewCert({{ $cert->id }})">View</button>
+                <button onclick="downloadCert({{ $cert->id }})">Download</button>
+                <button onclick="deleteCert({{ $cert->id }})">Delete</button>
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="6" class="text-center">No certificates</td>
+        </tr>
+        @endforelse
+        </tbody>
+    </table>
+
 </div>
 
-<!-- ================= MODALS ================= -->
+<!-- ================= MODAL ================= -->
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
 
-<!-- GENERATE -->
-<div id="generateModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <h2>Generate Certificate</h2>
+    <div style="background:white; padding:20px; width:400px;">
+        <h2 class="text-xl mb-3">Generate Certificate</h2>
 
-        <form id="generateForm">
+        <form id="form">
 
-            <select name="student_id" id="studentSelect" required class="w-full border px-3 py-2 mb-3"></select>
+            <!-- STUDENT -->
+            <select name="student_id" id="studentSelect" class="w-full border p-2 mb-2" required></select>
 
-            <select name="template_id" id="templateSelect" required class="w-full border px-3 py-2 mb-3"></select>
+            <!-- TEMPLATE (IMPORTANT FIX) -->
+            <select name="template_id" id="templateSelect" class="w-full border p-2 mb-2" required>
+                <option value="">Select Template</option>
+            </select>
 
-            <div id="dynamicFields"></div>
+            <!-- DESCRIPTION -->
+            <textarea name="description" placeholder="Description" class="w-full border p-2 mb-2"></textarea>
 
-            <div class="flex gap-2 justify-end">
-                <button type="button" onclick="closeGenerateModal()">Cancel</button>
-                <button type="button" onclick="previewCertificate()">Preview</button>
-                <button type="submit">Generate</button>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeModal()" class="bg-red-500 text-white px-4 py-2 rounded">
+                    Cancel
+                </button>
+                <button type="submit" class="btn-action">
+                    Generate
+                </button>
             </div>
-
         </form>
     </div>
 </div>
 
-<!-- VIEW MODAL -->
-<div id="viewModal" class="modal" style="display:none;">
-    <div class="modal-content modal-lg">
-        <span onclick="closeViewModal()" style="cursor:pointer;">&times;</span>
-        <div id="certificateDetails"></div>
-    </div>
-</div>
-
 <!-- ================= JS ================= -->
-
 <script>
-let selectedCerts = [];
 
-/* SELECT ALL */
-document.getElementById('selectAll').addEventListener('change', function () {
-    document.querySelectorAll('.cert-checkbox').forEach(cb => {
-        cb.checked = this.checked;
-        toggleSelection(cb.value, this.checked);
-    });
-});
+let selected = [];
 
-function toggleSelection(id, checked) {
-    if (checked) {
-        if (!selectedCerts.includes(id)) selectedCerts.push(id);
-    } else {
-        selectedCerts = selectedCerts.filter(c => c != id);
-    }
-
-    document.getElementById('printBtn').disabled = selectedCerts.length === 0;
-    document.getElementById('emailBtn').disabled = selectedCerts.length === 0;
-}
-
-/* FILTER */
-function filterCertificates() {
-    let type = document.getElementById('typeFilter').value;
-    let search = document.getElementById('searchStudent').value.toLowerCase();
-
-    let count = 0;
-
-    document.querySelectorAll('#certificatesTableBody tr').forEach(row => {
-        let match =
-            (!type || row.dataset.type === type) &&
-            (!search || row.dataset.student.includes(search));
-
-        row.style.display = match ? '' : 'none';
-        if (match) count++;
-    });
-
-    document.getElementById('certCount').innerText = count + " certificates";
-}
-
-/* MODAL */
-function openGenerateModal() {
+/* OPEN MODAL */
+function openModal(){
     loadStudents();
     loadTemplates();
-    document.getElementById('generateModal').style.display = 'flex';
+    document.getElementById('modal').style.display = 'flex';
 }
 
-function closeGenerateModal() {
-    document.getElementById('generateModal').style.display = 'none';
+function closeModal(){
+    document.getElementById('modal').style.display = 'none';
 }
 
-function closeViewModal() {
-    document.getElementById('viewModal').style.display = 'none';
-}
-
-/* LOAD DATA */
-function loadStudents() {
+/* LOAD STUDENTS */
+function loadStudents(){
     fetch('/api/certificates/students')
     .then(res => res.json())
     .then(data => {
@@ -239,10 +203,12 @@ function loadStudents() {
             html += `<option value="${s.id}">${s.name}</option>`;
         });
         document.getElementById('studentSelect').innerHTML = html;
-    });
+    })
+    .catch(err => console.error(err));
 }
 
-function loadTemplates() {
+/* LOAD TEMPLATES */
+function loadTemplates(){
     fetch('/api/certificate-templates')
     .then(res => res.json())
     .then(data => {
@@ -251,34 +217,17 @@ function loadTemplates() {
             html += `<option value="${t.id}">${t.name}</option>`;
         });
         document.getElementById('templateSelect').innerHTML = html;
-    });
-}
-
-/* PREVIEW */
-function previewCertificate() {
-    let form = document.getElementById('generateForm');
-
-    fetch('/certificates/preview', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: new FormData(form)
     })
-    .then(res => res.text())
-    .then(html => {
-        document.getElementById('certificateDetails').innerHTML = html;
-        document.getElementById('viewModal').style.display = 'flex';
-    });
+    .catch(err => console.error(err));
 }
 
-/* GENERATE */
-document.getElementById('generateForm').addEventListener('submit', function(e){
+/* SUBMIT */
+document.getElementById('form').addEventListener('submit', function(e){
     e.preventDefault();
 
-    fetch('/api/certificates/generate', {
-        method: 'POST',
-        headers: {
+    fetch('/api/certificates', {
+        method:'POST',
+        headers:{
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
         body: new FormData(this)
@@ -288,26 +237,83 @@ document.getElementById('generateForm').addEventListener('submit', function(e){
         if(data.success){
             location.reload();
         }
+    })
+    .catch(err => console.error(err));
+});
+
+/* SELECT ALL */
+document.getElementById('selectAll').addEventListener('change', function(){
+    selected = [];
+
+    document.querySelectorAll('.checkbox').forEach(cb=>{
+        cb.checked = this.checked;
+        if(this.checked) selected.push(cb.value);
+    });
+
+    toggleBtns();
+});
+
+/* SINGLE SELECT */
+document.querySelectorAll('.checkbox').forEach(cb=>{
+    cb.addEventListener('change', function(){
+        if(this.checked){
+            if(!selected.includes(this.value)){
+                selected.push(this.value);
+            }
+        }else{
+            selected = selected.filter(i=>i != this.value);
+        }
+
+        document.getElementById('selectAll').checked = false;
+        toggleBtns();
     });
 });
 
+function toggleBtns(){
+    document.getElementById('printBtn').disabled = selected.length === 0;
+    document.getElementById('emailBtn').disabled = selected.length === 0;
+}
+
 /* ACTIONS */
-function viewCertificate(id) {
-    fetch(`/certificates/${id}`)
-    .then(res => res.text())
-    .then(html => {
-        document.getElementById('certificateDetails').innerHTML = html;
-        document.getElementById('viewModal').style.display = 'flex';
-    });
+function viewCert(id){
+    window.open(`/certificates/${id}`, '_blank');
 }
 
-function downloadCertificate(id) {
-    window.open(`/certificates/${id}/download`);
+function downloadCert(id){
+    window.open(`/certificates/${id}/download`, '_blank');
 }
 
-/* INIT */
-filterCertificates();
-</script>
+function deleteCert(id){
+    if(!confirm('Delete certificate?')) return;
+
+    fetch(`/api/certificates/${id}`, {
+        method:'DELETE',
+        headers:{
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+
+function openVerifyPage(){
+    window.open('/verify', '_blank');
+}
+
+        function deleteCert(id) {
+            if (!confirm('Delete certificate?')) return;
+
+            fetch(`/api/certificates/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(() => location.reload());
+        }
+
+        function openVerifyPage() {
+            window.open('/verify');
+        }
+
+    </script>
 
 </body>
+
 </html>

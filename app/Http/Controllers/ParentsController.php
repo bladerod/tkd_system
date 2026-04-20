@@ -13,23 +13,34 @@ use Illuminate\Support\Facades\Log;
 
 class ParentsController extends Controller
 {
+
+    public function sanitizeInput($value)
+    {
+        if(is_string($value))
+        {
+            $value = trim($value);
+            $value = strip_tags($value);
+            $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $value;
+    }
     /**
      * Display a listing of parents.
      */
     public function index()
     {
         $parents = Parents::with(['parent.user', 'students'])->get();
-        
+
         $students = Student::select('id', 'student_name', 'student_code')
                         ->where('status', 'active')
                         ->get();
-        
+
         $users = User::where('role', 'parent')
-                    ->orWhereDoesntHave('parent') 
+                    ->orWhereDoesntHave('parent')
                     ->get();
-        
+
         $branches = Branch::all();
-        
+
         return view('parent', compact(
             'parents',
             'students',
@@ -44,14 +55,16 @@ class ParentsController extends Controller
     public function store(Request $request)
     {
         try {
+            DB::beginTransaction();
 
             // Validate the request
             $request->validate([
-                'fname' => 'required|string|max:170',
-                'lname' => 'required|string|max:170',
+                // Added strict regex to prevent bad characters from slipping through
+                'fname' => ['required', 'string', 'max:170', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'lname' => ['required', 'string', 'max:170', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'address' => 'required|string|max:255',
-                'relationship_note' => 'nullable|string',
-                'mobile' => 'nullable|string|max:13',
+                'relationship_note' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
+                'mobile' => ['nullable', 'string', 'max:13', 'regex:/^[\d\s\-\+\(\)]+$/'],
                 'status' => 'required|in:1,0',
                 'email' => 'nullable|email|unique:users,email',
                 'password' => 'nullable|string|min:6|confirmed',
@@ -60,17 +73,26 @@ class ParentsController extends Controller
                 'photo_url' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             ]);
 
+            $data = [
+                'fname' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->fname)),
+                'lname' => preg_replace('/[^a-zA-Z\s\'-]/', '', $this->sanitizeInput($request->lname)),
+                'address' => $this->sanitizeInput($request->address),
+                'relationship_note' => $this->sanitizeInput($request->relationship_note),
+                'mobile' => preg_replace('/[^\d+]/', '', $this->sanitizeInput($request->mobile)),
+                'email' => filter_var($this->sanitizeInput($request->email), FILTER_SANITIZE_EMAIL)
+            ];
+
             // Check if email exists
             $existingUser = null;
             $user = null;
-            
+
             if ($request->filled('email')) {
                 $existingUser = User::where('email', $request->email)->first();
-                
+
                 if ($existingUser) {
                     // If user exists, use that user account
                     $user = $existingUser;
-                    
+
                     // Update user details if needed
                     $user->update([
                         'fname' => $request->fname,
@@ -82,18 +104,18 @@ class ParentsController extends Controller
             }
 
             if (!$user) {
-                
+
                 if ($request->filled('email') && User::where('email', $request->email)->exists()) {
                     throw new \Exception('The email address is already registered. Please use a different email or login to an existing account.');
                 }
-                
+
                 $user = User::create([
                     'branch_id' => 1, // Default branch
                     'role' => 'parent',
-                    'fname' => $request->fname,
-                    'lname' => $request->lname,
-                    'email' => $request->email,
-                    'mobile' => $request->mobile,
+                    'fname' => $data['fname'],
+                    'lname' => $data['lname'],
+                    'email' => $data['email'],
+                    'mobile' => $data['mobile'],
                     'password' => Hash::make($request->password ?? 'default123'),
                     'status' => $request->status,
                     'created_at' => now(),
@@ -101,7 +123,7 @@ class ParentsController extends Controller
             }
 
             $existingParent = Parents::where('user_id', $user->id)->first();
-            
+
             if ($existingParent) {
                 throw new \Exception('A parent record already exists for this user. Please edit the existing record instead.');
             }
@@ -115,10 +137,10 @@ class ParentsController extends Controller
             // Create parent record
             $parent = Parents::create([
                 'user_id' => $user->id,
-                'emergency_contact' => $request->mobile, 
+                'emergency_contact' => $request->mobile,
                 'relationship_note' => $request->relationship_note,
                 'address' => $request->address,
-                'id_verified_flag' => $photoUrl ? 1 : 0, 
+                'id_verified_flag' => $photoUrl ? 1 : 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -129,7 +151,7 @@ class ParentsController extends Controller
                     DB::table('parent_students')->insert([
                         'parent_id' => $parent->id,
                         'student_id' => $studentId,
-                        'relationship' => $request->relationship_note ?? 'guardian',
+                        'relationship' => $data['relationship_note'] ?? 'guardian',
                         'is_primary' => 0,
                         'created_at' => now(),
                     ]);
@@ -138,18 +160,18 @@ class ParentsController extends Controller
 
             DB::commit();
 
-            $message = $existingUser 
-                ? 'Parent created successfully! Linked to existing user account.' 
+            $message = $existingUser
+                ? 'Parent created successfully! Linked to existing user account.'
                 : 'Parent created successfully! New user account has been created.';
-            
+
             return redirect()->route('dashboard.index')
                 ->with('success', $message);
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to create parent: ' . $e->getMessage());
             Log::error('Request data: ' . json_encode($request->all()));
-            
+
             return redirect()->back()
                 ->with('error', 'Failed to create parent. ' . $e->getMessage())
                 ->withInput();
@@ -159,31 +181,28 @@ class ParentsController extends Controller
     /**
      * Display the specified parent.
      */
-    public function show($id)
-    {
-        try {
-            $parent = Parents::with(['user', 'students'])->findOrFail($id);
-            
-            return response()->json([
-                'id' => $parent->id,
-                'full_name' => $parent->fname . ' ' . $parent->lname,
-                'fname' => $parent->fname,
-                'lname' => $parent->lname,
-                'address' => $parent->address,
-                'emergency_contact' => $parent->emergency_contact,
-                'relationship_note' => $parent->relationship_note,
-                'status' => $parent->status,
-                'gender' => $parent->gender ?? 'Not specified',
-                'created_at' => $parent->created_at,
-                'user' => $parent->user,
-                'students' => $parent->students,
-                'children_count' => $parent->students->count(),
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Failed to load parent: ' . $e->getMessage());
-            return response()->json(['error' => 'Parent not found'], 404);
-        }
+public function show($id)
+{
+    try {
+        $parent = User::with('students')
+            ->where('role', 'parent')
+            ->where('id', $id) // ✅ FIX HERE
+            ->firstOrFail();
+
+        return response()->json([
+            'id' => $parent->id,
+            'full_name' => $parent->fname . ' ' . $parent->lname,
+            'email' => $parent->email,
+            'mobile' => $parent->mobile,
+            'students' => $parent->students,
+            'children_count' => $parent->students->count(),
+            'profile' => $parent->photo_url
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Parent not found'], 404);
     }
+}
 
     /**
      * Update the specified parent.
@@ -222,7 +241,7 @@ class ParentsController extends Controller
             if ($request->has('students')) {
                 // Delete existing links
                 DB::table('parent_students')->where('id', $parent->id)->delete();
-                
+
                 // Add new links
                 foreach ($request->students as $studentId) {
                     DB::table('parent_students')->insert([
@@ -259,10 +278,10 @@ class ParentsController extends Controller
             DB::beginTransaction();
 
             $parent = Parents::findOrFail($id);
-            
+
             // Delete student links from pivot table first
             DB::table('parent_students')->where('id', $parent->id)->delete();
-            
+
             // Delete parent
             $parent->delete();
 

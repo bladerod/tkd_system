@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-use DB;
 use App\Models\AttendanceLog;
 use App\Models\BeltLevel;
 use App\Models\Certificate;
@@ -11,6 +10,7 @@ use App\Models\Instructor;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -28,6 +28,7 @@ class StudentController extends Controller
             ->withCount(['attendanceLogs as present_count' => function($q) {
                 $q->whereIn('status', ['present', 'late']);
             }])
+            ->orderBy('student_name', 'asc')
             ->get()
             ->map(function ($student) {
                 return [
@@ -180,10 +181,10 @@ class StudentController extends Controller
 
         $stats = [
             'total_sessions' => AttendanceLog::where('student_id', $studentId)->count(),
-            'present' => AttendanceLog::where('student_id', $studentId)->where('status', 'present')->count(),
-            'late' => AttendanceLog::where('student_id', $studentId)->where('status', 'late')->count(),
-            'absent' => AttendanceLog::where('student_id', $studentId)->where('status', 'absent')->count(),
-            'excused' => AttendanceLog::where('student_id', $studentId)->where('status', 'excused')->count(),
+            'present' => AttendanceLog::where('student_id', $studentId)->where('attendance_status', 'present')->count(),
+            'late' => AttendanceLog::where('student_id', $studentId)->where('attendance_status', 'late')->count(),
+            'absent' => AttendanceLog::where('student_id', $studentId)->where('attendance_status', 'absent')->count(),
+            'excused' => AttendanceLog::where('student_id', $studentId)->where('attendance_status', 'excused')->count(),
             'by_method' => [
                 'face' => AttendanceLog::where('student_id', $studentId)->where('method', 'face')->count(),
                 'qr' => AttendanceLog::where('student_id', $studentId)->where('method', 'qr')->count(),
@@ -196,6 +197,33 @@ class StudentController extends Controller
             'logs' => $logs,
         ]);
     }
+public function billing($id)
+{
+    $billings = DB::table('invoices') // change if needed
+        ->where('student_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($billings);
+}
+public function competition($id)
+{
+    $competitions = DB::table('competitions') // change table name
+        ->where('id', $id)
+        ->orderBy('date', 'desc')
+        ->get();
+
+    return response()->json($competitions);
+}
+public function certificates($id)
+{
+    $certificates = DB::table('certificates') // change if needed
+        ->where('student_id', $id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($certificates);
+}
 
     // public function billing($studentId)
     // {
@@ -246,57 +274,48 @@ class StudentController extends Controller
     //     ]);
     // }
 
-    public function competitions($studentId)
+public function competitions($studentId)
+{
+    $entries = DB::table('competition_entries as ce')
+        ->leftJoin('competitions as c', 'ce.competition_id', '=', 'c.id')
+        ->leftJoin('instructors as i', 'ce.instructor_id', '=', 'i.id')
+        ->leftJoin('users as u', 'i.user_id', '=', 'u.id')
+        ->select(
+            'ce.*',
+            'c.name as competition_name',
+            'c.date as competition_date',
+            DB::raw("CONCAT(u.fname, ' ', u.lname) as instructor_name")
+        )
+        ->where('ce.student_id', $studentId)
+        ->orderBy('c.date', 'desc')
+        ->get();
+
+    return response()->json($entries);
+}
+
+ public function show($id)
     {
-        $entries = CompetitionEntry::with('competition', 'instructor.user')
-            ->where('student_id', $studentId)
-            ->get();
+        $student = DB::table('student_overview')
+            ->where('id', $id)
+            ->first();
 
-        $beltlevels = DB::table('belt_levels')->get();
-        $classes = DB::table('classes')->get();
-        $users = DB::table('users')->get();
+        if (!$student) {
+            return response()->json([
+                'error' => 'Student not found'
+            ], 404);
+        }
 
-        return view('students.index', compact('vwstudents','beltlevels','classes','users'));
+        return response()->json($student);
     }
 
-    public function show($id)
-    {
-        $student = DB::table('students')->where('id', $id)->first();
-
-        return response()->json([
-            'id' => $student->id,
-            'first_name' => $student->first_name,
-            'last_name' => $student->last_name,
-            'birthdate' => $student->birthdate,
-            'status' => $student->status,
-            'emergency_contact' => $student->emergency_contact_name,
-
-            'belt_name' => DB::table('belt_levels')
-                ->where('id', $student->current_belt)
-                ->value('name'),
-
-            'invoices' => DB::table('invoices')
-                ->where('student_id', $id)
-                ->get(),
-
-            'competitions' => DB::table('competition_entries as ce')
-                ->join('competitions as c', 'ce.competition_id', '=', 'c.id')
-                ->where('ce.student_id', $id)
-                ->select('c.name', 'ce.category', 'ce.result', 'ce.medal')
-                ->get(),
-
-            'certificates' => DB::table('certificates')
-                ->where('student_id', $id)
-                ->get()
-        ]);
-    }
-
+    // // ✅ ATTENDANCE DATA
     // public function attendance($id)
     // {
-    //     return response()->json(
-    //         DB::table('attendance_logs')
-    //             ->where('student_id', $id)
-    //             ->get()
-    //     );
+    //     $attendance = DB::table('attendances') // 🔁 change if your table name is different
+    //         ->where('student_id', $id)
+    //         ->orderBy('checkin_time', 'desc')
+    //         ->get();
+
+    //     return response()->json($attendance);
     // }
 }

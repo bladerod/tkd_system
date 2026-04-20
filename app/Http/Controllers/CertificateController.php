@@ -2,178 +2,103 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CertificateController extends Controller
 {
     /* ================= PAGE ================= */
     public function index()
     {
-        $certificates = Certificate::with('student','template')->latest()->get();
+        $certificates = Certificate::with('student')->latest()->get();
         return view('certificates.index', compact('certificates'));
     }
 
     /* ================= API ================= */
-
     public function getStudents()
     {
-        return Student::select('id', \DB::raw("CONCAT(fname,' ',lname) as name"))->get();
+        return Student::select(
+            'id',
+            DB::raw("CONCAT(first_name, ' ', last_name) as name")
+        )->get();
     }
 
     public function getTemplates()
     {
-        return CertificateTemplate::select('id','name','type')->get();
+        return CertificateTemplate::select('id','name','type','layout','background')->get();
     }
 
-    /* ================= GENERATE ================= */
-
-    public function generate(Request $request)
+    /* ================= CREATE ================= */
+    public function store(Request $request)
     {
-        $student = Student::find($request->student_id);
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'template_id' => 'required|exists:certificate_templates,id',
+        ]);
+
+        $student = Student::findOrFail($request->student_id);
+        $template = CertificateTemplate::findOrFail($request->template_id);
+
+        $qrCode = 'CERT-' . Str::uuid();
 
         $cert = Certificate::create([
             'student_id' => $student->id,
-            'template_id' => $request->template_id,
-            'certificate_type' => 'promotion',
-            'title' => 'Belt Promotion',
+            'certificate_type' => $template->type,
+            'title' => $template->name,
+            'description' => $request->description ?? null,
             'issued_date' => now(),
-
-            'data' => json_encode([
-                'student_name' => $student->fname . ' ' . $student->lname,
-                'belt_level' => $request->belt_level ?? 'Yellow Belt',
-                'date_issued' => now()->format('F d, Y')
-            ]),
-
-            'qr_code_value' => 'CERT-' . uniqid()
+            'issued_by_user_id' => auth()->id(),
+            'qr_code_value' => $qrCode,
+            'verification_url' => url('/verify/'.$qrCode),
+            'pdf_path' => null
         ]);
 
-        return response()->json(['success'=>true]);
-    }
-
-    /* ================= PREVIEW ================= */
-
-    public function preview(Request $request)
-    {
-        $template = CertificateTemplate::find($request->template_id);
-
-        $layout = $template->layout;
-
-        $cert = (object)[
-            'template' => (object)['layout' => $layout],
-            'data' => [
-                'student_name' => 'Juan Dela Cruz',
-                'belt_level' => $request->belt_level ?? 'Yellow Belt'
-            ],
-            'qr_code_value' => 'PREVIEW'
-        ];
-
-        return view('certificates.preview', compact('cert'));
+        return response()->json([
+            'success' => true
+        ]);
     }
 
     /* ================= VIEW ================= */
-
     public function show($id)
     {
-        $cert = Certificate::with('template')->findOrFail($id);
+        $cert = Certificate::with('student')->findOrFail($id);
         return view('certificates.preview', compact('cert'));
     }
 
-    /* ================= PDF ================= */
+    /* ================= DELETE ================= */
+    public function destroy($id)
+    {
+        Certificate::findOrFail($id)->delete();
+        return response()->json(['success'=>true]);
+    }
 
+    /* ================= PDF (DYNAMIC TEMPLATE) ================= */
     public function download($id)
     {
-        $cert = Certificate::with('template')->findOrFail($id);
+        $cert = Certificate::with('student')->findOrFail($id);
 
-        $pdf = Pdf::loadView('certificates.pdf', compact('cert'))
+        $template = CertificateTemplate::where('name', $cert->title)->first();
+
+        $layout = json_decode($template->layout, true);
+
+        $pdf = Pdf::loadView('certificates.pdf', compact('cert','template','layout'))
             ->setPaper('a4','landscape');
 
-        return $pdf->download('certificate.pdf');
+        return $pdf->download('certificate-'.$cert->id.'.pdf');
     }
 
     /* ================= VERIFY ================= */
-
     public function verify($code)
     {
-        $cert = Certificate::where('qr_code_value',$code)->firstOrFail();
+        $cert = Certificate::where('qr_code_value',$code)
+            ->with('student')
+            ->firstOrFail();
+
         return view('certificates.verify', compact('cert'));
     }
-
-    /* ================= TEMPLATE LIST ================= */
-public function templates()
-{
-    $templates = CertificateTemplate::all();
-    return view('templates.index', compact('templates'));
-}
-
-/* ================= CREATE PAGE ================= */
-public function createTemplate()
-{
-    return view('templates.create');
-}
-
-/* ================= STORE ================= */
-public function storeTemplate(Request $request)
-{
-    CertificateTemplate::create([
-        'name' => $request->name,
-        'type' => $request->type,
-
-        // IMPORTANT: TEXT field
-        'layout' => json_encode([
-            "student_name" => ["x"=>300,"y"=>250],
-            "belt_level" => ["x"=>300,"y"=>320]
-        ])
-    ]);
-
-    return redirect('/templates');
-}
-
-/* ================= EDITOR ================= */
-public function editor($id)
-{
-    $template = CertificateTemplate::findOrFail($id);
-    return view('templates.editor', compact('template'));
-}
-
-/* ================= SAVE LAYOUT ================= */
-public function saveLayout(Request $request, $id)
-{
-    $template = CertificateTemplate::findOrFail($id);
-
-    $template->layout = json_encode($request->layout);
-    $template->save();
-
-    return response()->json([
-        'success' => true
-    ]);
-}
-
-/* ================= UPLOAD BACKGROUND ================= */
-public function uploadBackground(Request $request, $id)
-{
-    $template = CertificateTemplate::findOrFail($id);
-
-    $file = $request->file('background');
-    $path = $file->store('templates', 'public');
-
-    $template->background = $path;
-    $template->save();
-
-    return response()->json(['path'=>$path]);
-}
-
-public function uploadImage(Request $request)
-{
-    $file = $request->file('image');
-    $path = $file->store('templates', 'public');
-
-    return response()->json([
-        'path' => $path
-    ]);
-}
 }

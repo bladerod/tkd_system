@@ -14,12 +14,31 @@ use Carbon\Carbon;
 class AnnouncementController extends Controller
 {
     /**
+     * For sanitize inputs
+     */
+    private function sanitizeInput($value)
+    {
+        if (is_string($value)) {
+            // Trim whitespace
+            $value = trim($value);
+            // Remove HTML tags entirely
+            $value = strip_tags($value);
+            // Convert special characters to HTML entities
+            $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $value;
+    }
+
+
+    /**
      * Display a listing of announcements.
      */
     public function index()
     {
         // Get all announcements with their creator, class, and branch
-        $announcements = Announcement::with(['createdBy', 'class', 'branch'])->get();
+        $announcements = Announcement::with(['createdBy', 'class', 'branch'])
+            ->orderByDesc('id')    
+            ->get();
         
         // Get classes for dropdown
         $classes = Classes::select('id', 'class_name', 'branch_id')->get();
@@ -63,8 +82,8 @@ class AnnouncementController extends Controller
 
             // Validate the request with custom messages
             $validated = $request->validate([
-                'title' => 'required|string|max:200',
-                'message' => 'required|string',
+                'title' => ['required', 'string', 'max:200', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+                'message' => ['required', 'string', 'regex:/^[^<>]+$/'],
                 'target_type' => 'required|in:all,class,belt,branch',
                 'class_id' => 'nullable|exists:classes,id',
                 'belt_level' => 'nullable|string',
@@ -101,8 +120,8 @@ class AnnouncementController extends Controller
             $data = [
                 'created_by_user_id' => $request->created_by_user_id,
                 'target_type' => $request->target_type,
-                'title' => $request->title,
-                'message' => $request->message,
+                'title' => $this->sanitizeInput($request->title),
+                'message' => $this->sanitizeInput($request->message),
                 'channel' => $channelString,
                 'publish_date' => Carbon::now(),
                 'expire_date' => $request->expire_date,
@@ -181,7 +200,10 @@ class AnnouncementController extends Controller
                 'publish_date' => $announcement->publish_date ? $announcement->publish_date->format('Y-m-d') : null,
                 'expire_date' => $announcement->expire_date ? $announcement->expire_date->format('Y-m-d') : null,
                 'created_by_user_id' => $announcement->created_by_user_id,
-                'creator_name' => $announcement->createdBy ? $announcement->creator->fname . ' ' . $announcement->creator->lname : 'Unknown',
+                
+                // ✅ FIX: Changed 'creator' to 'createdBy' 
+                'creator_name' => $announcement->createdBy ? $announcement->createdBy->fname . ' ' . $announcement->createdBy->lname : 'Unknown',
+                
                 'is_active' => Carbon::now()->lte($announcement->expire_date),
                 'is_expired' => Carbon::now()->gt($announcement->expire_date),
             ]);
@@ -205,8 +227,8 @@ class AnnouncementController extends Controller
             Log::info('Announcement update request:', $request->all());
 
             $validated = $request->validate([
-                'title' => 'required|string|max:200',
-                'message' => 'required|string',
+                'title' => ['required', 'string', 'max:200', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+                'message' => ['required', 'string', 'regex:/^[^<>]+$/'],
                 'target_type' => 'required|in:all,class,belt,branch',
                 'class_id' => 'nullable|exists:classes,id',
                 'belt_level' => 'nullable|string',
@@ -241,8 +263,8 @@ class AnnouncementController extends Controller
             // Prepare data for update
             $data = [
                 'target_type' => $request->target_type,
-                'title' => $request->title,
-                'message' => $request->message,
+                'title' => $this->sanitizeInput($request->title),
+                'message' => $this->sanitizeInput($request->message),
                 'channel' => $channelString,
                 'expire_date' => $request->expire_date,
             ];

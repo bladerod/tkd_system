@@ -16,6 +16,17 @@ use Illuminate\Support\Facades\Log;
 
 class ClassController extends Controller
 {
+    public function sanitizeInput($value)
+    {
+        if(is_string($value))
+        {
+            $value = trim($value);
+            $value = strip_tags($value);
+            $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $value;
+    }
+
     /**
      * Display a listing of classes.
      */
@@ -51,9 +62,9 @@ class ClassController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'branch_id' => 'required|exists:branches,id',
-            'class_name' => 'required|string|max:150',
-            'age_group' => 'nullable|string|max:50',
-            'level' => 'nullable|string|max:50',
+            'class_name' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+            'age_group' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9\s\-+]+$/'],
+            'level' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9\s\-]+$/'],
             'max_students' => 'nullable|integer|min:0',
             'primary_instructor_id' => 'nullable|exists:instructors,id',
             'assistant_instructor_id' => 'nullable|exists:instructors,id',
@@ -71,16 +82,23 @@ class ClassController extends Controller
                 ->with('error', 'Please fix the errors below.');
         }
 
+        $data = [
+            'class_name' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->class_name)),
+            'age_group' => preg_replace('/[^a-zA-Z0-9\s\-+]/', '', $this->sanitizeInput($request->age_group)),
+            'level' => preg_replace('/[^a-zA-Z0-9\s\-]/', '', $this->sanitizeInput($request->level)),
+            'max_students' => (int) $request->max_students,
+        ];
+
         try {
             DB::beginTransaction();
 
             // Create the class
-            $class = Classes::create([
+           $class = Classes::create([
                 'branch_id' => $request->branch_id,
-                'class_name' => $request->class_name,
-                'age_group' => $request->age_group,
-                'level' => $request->level,
-                'max_students' => $request->max_students ?? 0,
+                'class_name' => $data['class_name'],
+                'age_group' => $data['age_group'],
+                'level' => $data['level'], 
+                'max_students' => $data['max_students'] ?? 0,
                 'primary_instructor_id' => $request->primary_instructor_id,
                 'assistant_instructor_id' => $request->assistant_instructor_id,
                 'status' => $request->status,
@@ -178,9 +196,9 @@ class ClassController extends Controller
         // Now validate - but only if there are schedules
         $rules = [
             'branch_id' => 'required|exists:branches,id',
-            'class_name' => 'required|string|max:150',
-            'age_group' => 'nullable|string|max:50',
-            'level' => 'nullable|string|max:50',
+            'class_name' => ['required', 'string', 'max:150', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+            'age_group' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9\s\-+]+$/'],
+            'level' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9\s\-]+$/'],
             'max_students' => 'nullable|integer|min:0',
             'primary_instructor_id' => 'nullable|exists:instructors,id',
             'assistant_instructor_id' => 'nullable|exists:instructors,id',
@@ -206,16 +224,23 @@ class ClassController extends Controller
                 ->with('error', 'Please fix the errors below.');
         }
 
+        $data = [
+            'class_name' => preg_replace('/[^a-zA-Z0-9\s\-.,!?\'"]/', '', $this->sanitizeInput($request->class_name)),
+            'age_group' => preg_replace('/[^a-zA-Z0-9\s\-+]/', '', $this->sanitizeInput($request->age_group)),
+            'level' => preg_replace('/[^a-zA-Z0-9\s\-]/', '', $this->sanitizeInput($request->level)),
+            'max_students' => (int) $request->max_students,
+        ];
+
         try {
             DB::beginTransaction();
 
             // Update class
             $class->update([
                 'branch_id' => $request->branch_id,
-                'class_name' => $request->class_name,
-                'age_group' => $request->age_group,
-                'level' => $request->level,
-                'max_students' => $request->max_students ?? 0,
+                'class_name' => $data['class_name'],
+                'age_group' => $data['age_group'],
+                'level' => $data['level'], // ✅ FIXED: Using $data
+                'max_students' => $data['max_students'] ?? 0,
                 'primary_instructor_id' => $request->primary_instructor_id,
                 'assistant_instructor_id' => $request->assistant_instructor_id,
                 'status' => $request->status,
@@ -252,47 +277,52 @@ class ClassController extends Controller
     /**
      * Remove the specified class.
      */
-   public function destroy($id)
-{
-    try {
-        $class = Classes::findOrFail($id);
-        
-        // Check if class has active students
-        $activeStudents = ClassStudent::where('class_id', $id)
-            ->where('status', 'active')
-            ->count();
-        
-        if ($activeStudents > 0) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete class with active students. Please drop students first.');
-        }
-        
-        // Delete attendance logs related to class sessions
-        DB::table('attendance_logs')
-            ->whereIn('class_session_id', function($query) use ($id) {
-                $query->select('id')->from('class_sessions')->where('class_id', $id);
-            })->delete();
-
-        // Delete class sessions
-        DB::table('class_sessions')->where('class_id', $id)->delete();
-        
-        // Delete schedules
-        ClassSchedule::where('class_id', $id)->delete();
-        
-        // Delete class students
-        ClassStudent::where('class_id', $id)->delete();
-        
-        // Delete class
-        $class->delete();
-        
-        return redirect()->route('classes.index')
-            ->with('success', 'Class deleted successfully!');
+    public function destroy($id)
+    {
+        try {
+            $class = Classes::findOrFail($id);
             
-    } catch (\Exception $e) {
-        return redirect()->back()
-            ->with('error', 'Failed to delete class: ' . $e->getMessage());
+            // Check if class has active students
+            $activeStudents = ClassStudent::where('class_id', $id)
+                ->where('status', 'active')
+                ->count();
+            
+            if ($activeStudents > 0) {
+                return redirect()->back()
+                    ->with('error', 'Cannot delete class with active students. Please drop students first.');
+            }
+            
+            DB::beginTransaction(); // ✅ ADD THIS HERE
+
+            // Delete attendance logs related to class sessions
+            DB::table('attendance_logs')
+                ->whereIn('class_session_id', function($query) use ($id) {
+                    $query->select('id')->from('class_sessions')->where('class_id', $id);
+                })->delete();
+
+            // Delete class sessions
+            DB::table('class_sessions')->where('class_id', $id)->delete();
+            
+            // Delete schedules
+            ClassSchedule::where('class_id', $id)->delete();
+            
+            // Delete class students
+            ClassStudent::where('class_id', $id)->delete();
+            
+            // Delete class
+            $class->delete();
+            
+            DB::commit(); 
+            
+            return redirect()->route('classes.index')
+                ->with('success', 'Class deleted successfully!');
+                
+        } catch (\Exception $e) {
+            DB::rollBack(); 
+            return redirect()->back()
+                ->with('error', 'Failed to delete class: ' . $e->getMessage());
+        }
     }
-}
 
     /**
      * Get class details for AJAX.

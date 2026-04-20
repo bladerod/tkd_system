@@ -69,15 +69,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::get('/students/{id}', [StudentController::class, 'show']);
 Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
 Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
-Route::get('/students/{id}/competition', [StudentController::class, 'competition']);
+Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
 Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
-    Route::get('/students/{student}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{student}/competition', [StudentController::class, 'competition']);
-    Route::get('/students/{student}/certificates', [StudentController::class, 'certificates']);
-    Route::get('/students/{student}/progress', [StudentController::class, 'progress']);
-    Route::get('/students/{student}/chat', [StudentController::class, 'chat']);
 
     // Student Tabs
     Route::prefix('students/{student}')->middleware('permission:students,view')->group(function () {
@@ -176,7 +171,7 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
 
         // CHANGE THIS: Use the DB facade to pull from the view
         $vwstudents = DB::table('student_overview')
-        ->orderByDesc('id')
+        ->orderBy('student_name', 'asc')
         ->select(
             'id',
             'student_code',

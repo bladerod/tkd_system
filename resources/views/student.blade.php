@@ -27,7 +27,6 @@
             <span class="text-[#1C1C1D] font-medium">Student</span>
         </div>
 
-<<<<<<< HEAD
         <h1 class="text-4xl font-bold text-[#1C1C1D] mb-4">Student</h1>
 
         <div class="content-card mb-6">
@@ -35,8 +34,6 @@
                 Student List
             </div>
 
-=======
->>>>>>> 76c4836685be8bde9766cbf2c3a6c67256873320
         {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
             <div class="dropdown">
                 <label for="belt">Belt</label>
@@ -48,21 +45,10 @@
                 </select>
             </div>
 
-<<<<<<< HEAD
-                <div class="dropdown">
-                    <label for="status">Status</label>
-                    <select name="status" id="status">
-                        <option value="" disabled selected>-- Select status --</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-=======
         <div class="content-card mb-6">
             <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
                 Student List
             </div>
->>>>>>> 76c4836685be8bde9766cbf2c3a6c67256873320
 
             <div class="dropdown">
                 <label for="class">Class</label>
@@ -201,22 +187,12 @@
                     <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
             </div>
-<<<<<<< HEAD
-            <div id="noAttendanceData" class="text-gray-500 text-center py-4 hidden">No attendance records found.</div>
         </div>
+        <div id="billingTab" class="tab-content hidden"></div>
 
-            <div id="billingTab" class="tab-content hidden">
-                <p>Loading billing details...</p>
-            </div>
-            <div id="competitionTab" class="tab-content hidden">
-                <p>Loading competition history...</p>
-            </div>
-            <div id="certificatesTab" class="tab-content hidden">
-                <p>Loading certificates...</p>
-            </div>
-=======
->>>>>>> 76c4836685be8bde9766cbf2c3a6c67256873320
-        </div>
+<div id="competitionTab" class="tab-content hidden"></div>
+
+<div id="certificatesTab" class="tab-content hidden"></div>
     </div>
 </div>
 
@@ -457,21 +433,22 @@ async function loadCompetitionData(studentId) {
 
         data.forEach(c => {
             html += `
-                <div class="p-3 border-b">
-                    <strong>${c.name}</strong><br>
-                    Date: ${new Date(c.date).toLocaleDateString()}<br>
-                    Result: ${c.result ?? 'N/A'}
-                </div>
-            `;
+    <div class="p-4 bg-white rounded shadow mb-2">
+        <div class="font-bold text-lg">${c.competition_name}</div>
+        <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
+        <div class="text-sm">Instructor: ${c.instructor_name}</div>
+        <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
+    </div>
+`;
         });
 
         tab.innerHTML = html;
 
     } catch (err) {
+        console.error(err);
         tab.innerHTML = "Failed to load competition";
     }
 }
-
 async function loadCertificatesData(studentId) {
     const tab = document.getElementById("certificatesTab");
     tab.innerHTML = "Loading certificates...";

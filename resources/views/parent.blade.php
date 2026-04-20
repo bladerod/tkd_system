@@ -6,6 +6,7 @@
     <title>TrainNova | Parent Management </title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/parent.css'])
+    @vite(['resources/css/student.css'])
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/attendance.css'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
@@ -178,7 +179,7 @@
                     </div>
                 </div>
 
-                {{-- <!-- Family Billing Tab -->
+                <!-- Family Billing Tab -->
                 <div id="billing" class="tab-pane">
                     <div class="loading-spinner" id="billingLoading">
                         <i class="fas fa-spinner fa-spin"></i> Loading billing data...
@@ -231,10 +232,87 @@
                     <div id="notificationsContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- ========================= -->
+<!-- STUDENT MODAL -->
+<!-- ========================= -->
+<div id="studentModal" class="modal hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="modal-content bg-white rounded-lg p-6 w-3/4 max-w-3xl relative">
+
+        <div class="modal-header flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">Student Profile</h2>
+            <span class="cursor-pointer text-xl font-bold" onclick="closeStudentModal()">&times;</span>
+        </div>
+
+        <div class="tabs flex gap-2 mb-4 border-b">
+            <button class="tab active px-4 py-2 bg-blue-600 text-gray-500 rounded-t font-medium"
+                data-tab="profile" onclick="switchStudentTab(this)">Profile</button>
+
+            <button class="tab px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-t font-medium"
+                data-tab="attendance" onclick="switchStudentTab(this)">Attendance</button>
+
+            <button class="tab px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-t font-medium"
+                data-tab="billing" onclick="switchStudentTab(this)">Billing</button>
+
+            <button class="tab px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-t font-medium"
+                data-tab="competition" onclick="switchStudentTab(this)">Competition</button>
+
+            <button class="tab px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-t font-medium"
+                data-tab="certificates" onclick="switchStudentTab(this)">Certificates</button>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="profileTab" class="tab-content block"></div>
+
+        <!-- ATTENDANCE -->
+        <div id="attendanceTab" class="tab-content hidden">
+            <div class="attendance-summary grid grid-cols-3 gap-4 mb-4">
+                <div class="stat-card p-3 bg-gray-100 rounded text-center">
+                    <span class="block text-sm text-gray-500">Total Sessions</span>
+                    <span id="totalSessions" class="text-xl font-bold">0</span>
+                </div>
+                <div class="stat-card p-3 bg-green-50 rounded text-center text-green-700">
+                    <span class="block text-sm">Present</span>
+                    <span id="presentCount" class="text-xl font-bold">0</span>
+                </div>
+                <div class="stat-card p-3 bg-yellow-50 rounded text-center text-yellow-700">
+                    <span class="block text-sm">Late</span>
+                    <span id="lateCount" class="text-xl font-bold">0</span>
+                </div>
+                <div class="stat-card p-3 bg-red-50 rounded text-center text-red-700">
+                    <span class="block text-sm">Absent</span>
+                    <span id="absentCount" class="text-xl font-bold">0</span>
+                </div>
+                <div class="stat-card p-3 bg-amber-50 rounded text-center text-amber-700">
+                    <span class="block text-sm">Excused</span>
+                    <span id="excusedCount" class="text-xl font-bold">0</span>
+                </div>
+            </div>
+
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- OTHER TABS -->
+        <div id="billingTab" class="tab-content hidden"></div>
+        <div id="competitionTab" class="tab-content hidden"></div>
+        <div id="certificatesTab" class="tab-content hidden"></div>
+    </div>
+</div>
 </div>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -383,7 +461,10 @@ function loadChildren(students) {
 
     students.forEach((child, index) => {
         html += `
-            <div class="p-3 border rounded-lg mb-2 flex justify-between items-center">
+            <div
+                class="p-3 border rounded-lg mb-2 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition"
+                onclick="openStudentModal(${child.id})"
+            >
                 <div>
                     <div class="font-semibold">
                         ${child.first_name ?? ''} ${child.last_name ?? ''}
@@ -458,6 +539,307 @@ window.onclick = function(e) {
     const modal = document.getElementById("parentModal");
     if (e.target === modal) closeModal();
 };
+// =========================
+// OPEN STUDENT MODAL (FIXED)
+// =========================
+window.openStudentModal = function(studentId) {
+    const modal = document.getElementById("studentModal");
+
+    modal.classList.remove("hidden");
+    modal.style.display = "flex";
+    modal.dataset.studentId = studentId;
+
+    // reset UI
+    document.querySelectorAll("#studentModal .tab").forEach(t => t.classList.remove("active"));
+    document.querySelector('#studentModal .tab[data-tab="profile"]').classList.add("active");
+
+    document.querySelectorAll("#studentModal .tab-content").forEach(c => {
+        c.classList.add("hidden");
+        c.classList.remove("block");
+    });
+
+    document.getElementById("profileTab").classList.remove("hidden");
+    document.getElementById("profileTab").classList.add("block");
+
+    loadStudentProfile(studentId);
+};
+
+// =========================
+// CLOSE
+// =========================
+function closeStudentModal() {
+    const modal = document.getElementById("studentModal");
+    modal.classList.add("hidden");
+    modal.style.display = "none";
+}
+
+// =========================
+// PROFILE (EXACT COPY)
+// =========================
+async function loadStudentProfile(studentId) {
+    const tab = document.getElementById("profileTab");
+
+    tab.innerHTML = `<p>Loading profile...</p>`;
+
+    try {
+        const res = await fetch(`/students/${studentId}`);
+        const data = await res.json();
+
+        const fullName =
+            data.student_name ||
+            `${data.first_name ?? ''} ${data.last_name ?? ''}`.trim();
+
+        tab.innerHTML = `
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div><strong>Name:</strong> ${fullName}</div>
+                <div><strong>Belt:</strong> ${data.current_belt ?? 'N/A'}</div>
+                <div><strong>Status:</strong> ${data.status ?? 'N/A'}</div>
+                <div><strong>Parent:</strong> ${data.parent_name ?? 'N/A'}</div>
+                <div>
+  <strong>Birthdate:</strong>
+  ${data.birthdate
+    ? new Date(data.birthdate).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    : 'N/A'}
+</div>
+                <div><strong>Gender:</strong> ${data.gender ?? 'N/A'}</div>
+         <div>
+  <strong>Join Date:</strong>
+  ${data.join_date
+        ? new Date(data.join_date).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    : 'N/A'}
+</div>
+            </div>
+        `;
+    } catch {
+        tab.innerHTML = "Failed to load profile";
+    }
+}
+
+// =========================
+// SWITCH TAB (EXACT LOGIC)
+// =========================
+function switchStudentTab(button) {
+    document.querySelectorAll("#studentModal .tab").forEach(t => t.classList.remove("active"));
+    button.classList.add("active");
+
+    document.querySelectorAll("#studentModal .tab-content").forEach(c => {
+        c.classList.add("hidden");
+        c.classList.remove("block");
+    });
+
+    const tab = document.getElementById(button.dataset.tab + "Tab");
+    tab.classList.remove("hidden");
+    tab.classList.add("block");
+
+    const studentId = document.getElementById("studentModal").dataset.studentId;
+
+    if (button.dataset.tab === "attendance") loadAttendance(studentId);
+    if (button.dataset.tab === "billing") loadBillingData(studentId);
+    if (button.dataset.tab === "competition") loadCompetitionData(studentId);
+    if (button.dataset.tab === "certificates") loadCertificatesData(studentId);
+}
+
+// =========================
+// ATTENDANCE (SAME DATA)
+// =========================
+async function loadAttendance(studentId) {
+    const tbody = document.getElementById("attendanceTableBody");
+    tbody.innerHTML = `<tr><td colspan="5">Loading...</td></tr>`;
+
+    try {
+        const res = await fetch(`/students/${studentId}/attendance`);
+        const response = await res.json();
+
+        const logs = response.logs.data;
+        const stats = response.stats;
+
+        tbody.innerHTML = "";
+
+        logs.forEach(log => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${new Date(log.checkin_time).toLocaleDateString()}</td>
+                    <td>${new Date(log.checkin_time).toLocaleTimeString()}</td>
+                    <td>${log.checkout_time ? new Date(log.checkout_time).toLocaleTimeString() : '-'}</td>
+                    <td class="${getStatusColor(log.attendance_status)}">${log.attendance_status ?? '-'}</td>
+                    <td>${log.method ?? 'Manual'}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("totalSessions").textContent = stats.total_sessions;
+        document.getElementById("presentCount").textContent = stats.present;
+        document.getElementById("absentCount").textContent = stats.absent;
+        document.getElementById("lateCount").textContent = stats.late;
+        document.getElementById("excusedCount").textContent = stats.excused;
+
+    } catch {
+        tbody.innerHTML = `<tr><td colspan="5">Error loading</td></tr>`;
+    }
+}
+
+
+async function loadCompetitionData(studentId) {
+    const tab = document.getElementById("competitionTab");
+    tab.innerHTML = "Loading competition...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/competition`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No competition history</p>";
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(c => {
+            html += `
+    <div class="p-4 bg-white rounded shadow mb-2">
+        <div class="font-bold text-lg">${c.competition_name}</div>
+        <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
+        <div class="text-sm">Instructor: ${c.instructor_name}</div>
+        <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
+    </div>
+`;
+        });
+
+        tab.innerHTML = html;
+
+    } catch (err) {
+        console.error(err);
+        tab.innerHTML = "Failed to load competition";
+    }
+}
+
+async function loadBillingData(studentId) {
+    const tab = document.getElementById("billingTab");
+    tab.innerHTML = "Loading billing...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/billing`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No billing records</p>";
+            return;
+        }
+
+        let html = `
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        data.forEach(b => {
+            html += `
+                <tr>
+                    <td>${new Date(b.created_at).toLocaleDateString()}</td>
+                    <td>₱${b.amount}</td>
+                    <td>${b.status}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        tab.innerHTML = html;
+
+    } catch (err) {
+        tab.innerHTML = "Failed to load billing";
+    }
+}
+
+async function loadCompetitionData(studentId) {
+    const tab = document.getElementById("competitionTab");
+    tab.innerHTML = "Loading competition...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/competition`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No competition history</p>";
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(c => {
+            html += `
+    <div class="p-4 bg-white rounded shadow mb-2">
+        <div class="font-bold text-lg">${c.competition_name}</div>
+        <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
+        <div class="text-sm">Instructor: ${c.instructor_name}</div>
+        <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
+    </div>
+`;
+        });
+
+        tab.innerHTML = html;
+
+    } catch (err) {
+        console.error(err);
+        tab.innerHTML = "Failed to load competition";
+    }
+}
+async function loadCertificatesData(studentId) {
+    const tab = document.getElementById("certificatesTab");
+    tab.innerHTML = "Loading certificates...";
+
+    try {
+        const res = await fetch(`/students/${studentId}/certificates`);
+        const data = await res.json();
+
+        if (!data.length) {
+            tab.innerHTML = "<p>No certificates</p>";
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(cert => {
+            html += `
+                <div class="p-3 border-b">
+                    <strong>${cert.title}</strong><br>
+                    Issued: ${new Date(cert.created_at).toLocaleDateString()}
+                </div>
+            `;
+        });
+
+        tab.innerHTML = html;
+
+    } catch (err) {
+        tab.innerHTML = "Failed to load certificates";
+    }
+}
+
+
+function getStatusColor(status) {
+    const s = status ? status.toLowerCase() : '';
+    switch (s) {
+        case 'present': return 'text-green-600 ';
+        case 'late':    return 'text-yellow-500 ';
+        case 'absent':  return 'text-red-600 ';
+        case 'excused': return 'text-amber-700 '; // Brownish/Orange
+        default:        return 'text-gray-500';
+    }
+}
+
 </script>
     @vite("resources/js/parents.js")
     @vite(['resources/js/navbarDrop.js'])

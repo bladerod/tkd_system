@@ -8,7 +8,7 @@
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/certificates.css'])
 
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
@@ -28,13 +28,8 @@
             Generate Certificate
         </button>
 
-        <button onclick="printSelected()" id="printBtn" disabled class="btn-action">
-            Print
-        </button>
-
-        <button onclick="emailSelected()" id="emailBtn" disabled class="btn-action">
-            Email
-        </button>
+        <button id="printBtn" disabled class="btn-action">Print</button>
+        <button id="emailBtn" disabled class="btn-action">Email</button>
 
         <button onclick="openVerifyPage()" class="btn-action">
             Verify Link
@@ -54,14 +49,14 @@
             </tr>
         </thead>
 
-        <tbody id="tableBody">
+        <tbody>
         @forelse ($certificates as $cert)
         <tr>
             <td>
                 <input type="checkbox" class="checkbox" value="{{ $cert->id }}">
             </td>
 
-            <td>{{ $cert->student->fname }} {{ $cert->student->lname }}</td>
+            <td>{{ $cert->student->first_name }} {{ $cert->student->last_name }}</td>
 
             <td>{{ ucfirst($cert->certificate_type) }}</td>
 
@@ -86,26 +81,31 @@
 </div>
 
 <!-- ================= MODAL ================= -->
-<div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+<div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
 
     <div style="background:white; padding:20px; width:400px;">
         <h2 class="text-xl mb-3">Generate Certificate</h2>
 
         <form id="form">
+
+            <!-- STUDENT -->
             <select name="student_id" id="studentSelect" class="w-full border p-2 mb-2" required></select>
 
-            <select name="certificate_type" class="w-full border p-2 mb-2" required>
-                <option value="promotion">Belt Promotion</option>
-                <option value="competition">Competition</option>
+            <!-- TEMPLATE (IMPORTANT FIX) -->
+            <select name="template_id" id="templateSelect" class="w-full border p-2 mb-2" required>
+                <option value="">Select Template</option>
             </select>
 
-            <input type="text" name="title" placeholder="Title" class="w-full border p-2 mb-2" required>
-
+            <!-- DESCRIPTION -->
             <textarea name="description" placeholder="Description" class="w-full border p-2 mb-2"></textarea>
 
             <div class="flex justify-end gap-2">
-                <button type="button" onclick="closeModal()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors">Cancel</button>
-                <button type="submit" class="btn-action">Generate</button>
+                <button type="button" onclick="closeModal()" class="bg-red-500 text-white px-4 py-2 rounded">
+                    Cancel
+                </button>
+                <button type="submit" class="btn-action">
+                    Generate
+                </button>
             </div>
         </form>
     </div>
@@ -119,6 +119,7 @@ let selected = [];
 /* OPEN MODAL */
 function openModal(){
     loadStudents();
+    loadTemplates();
     document.getElementById('modal').style.display = 'flex';
 }
 
@@ -127,14 +128,31 @@ function closeModal(){
 }
 
 /* LOAD STUDENTS */
-function loadStudents() {
-    fetch('api/certificates/students')
-        .then(res => res.json())
-        .then(data => {
-            const options = data.map(s => `<option value="${s.id}">${s.name}</option>`);
-            document.getElementById('studentSelect').innerHTML = '<option value="">Select Student</option>' + options.join('');
-        })
-        .catch(err => console.error("Could not load students:", err)); // Always good to have a backup!
+function loadStudents(){
+    fetch('/api/certificates/students')
+    .then(res => res.json())
+    .then(data => {
+        let html = '<option value="">Select Student</option>';
+        data.forEach(s => {
+            html += `<option value="${s.id}">${s.name}</option>`;
+        });
+        document.getElementById('studentSelect').innerHTML = html;
+    })
+    .catch(err => console.error(err));
+}
+
+/* LOAD TEMPLATES */
+function loadTemplates(){
+    fetch('/api/certificate-templates')
+    .then(res => res.json())
+    .then(data => {
+        let html = '<option value="">Select Template</option>';
+        data.forEach(t => {
+            html += `<option value="${t.id}">${t.name}</option>`;
+        });
+        document.getElementById('templateSelect').innerHTML = html;
+    })
+    .catch(err => console.error(err));
 }
 
 /* SUBMIT */
@@ -149,42 +167,54 @@ document.getElementById('form').addEventListener('submit', function(e){
         body: new FormData(this)
     })
     .then(res => res.json())
-    .then(() => location.reload());
+    .then(data => {
+        if(data.success){
+            location.reload();
+        }
+    })
+    .catch(err => console.error(err));
 });
 
-/* SELECT */
+/* SELECT ALL */
 document.getElementById('selectAll').addEventListener('change', function(){
     selected = [];
+
     document.querySelectorAll('.checkbox').forEach(cb=>{
         cb.checked = this.checked;
         if(this.checked) selected.push(cb.value);
     });
+
     toggleBtns();
 });
 
+/* SINGLE SELECT */
 document.querySelectorAll('.checkbox').forEach(cb=>{
     cb.addEventListener('change', function(){
         if(this.checked){
-            selected.push(this.value);
+            if(!selected.includes(this.value)){
+                selected.push(this.value);
+            }
         }else{
-            selected = selected.filter(i=>i!=this.value);
+            selected = selected.filter(i=>i != this.value);
         }
+
+        document.getElementById('selectAll').checked = false;
         toggleBtns();
     });
 });
 
 function toggleBtns(){
-    document.getElementById('printBtn').disabled = selected.length===0;
-    document.getElementById('emailBtn').disabled = selected.length===0;
+    document.getElementById('printBtn').disabled = selected.length === 0;
+    document.getElementById('emailBtn').disabled = selected.length === 0;
 }
 
 /* ACTIONS */
 function viewCert(id){
-    window.open(`/certificates/${id}`);
+    window.open(`/certificates/${id}`, '_blank');
 }
 
 function downloadCert(id){
-    window.open(`/certificates/${id}/download`);
+    window.open(`/certificates/${id}/download`, '_blank');
 }
 
 function deleteCert(id){
@@ -200,7 +230,7 @@ function deleteCert(id){
 }
 
 function openVerifyPage(){
-    window.open('/verify');
+    window.open('/verify', '_blank');
 }
 
 </script>

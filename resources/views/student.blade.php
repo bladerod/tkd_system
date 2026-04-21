@@ -60,15 +60,14 @@
                 </select>
             </div>
 
-                <div class="dropdown">
-                    <label for="instructor">Instructor</label>
-                    <select name="instructor" id="instructor">
-                        <option value="" disabled selected>-- Select instructor --</option>
-                        @foreach ($users->where('role', 'instructor') as $user)
-                            <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="dropdown">
+                <label for="instructor">Instructor</label>
+                <select name="instructor" id="instructor">
+                    <option value="" disabled selected>-- Select instructor --</option>
+                    @foreach ($users->where('role', 'instructor') as $user)
+                        <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
+                    @endforeach
+                </select>
             </div>
         </div> --}}
 
@@ -218,8 +217,8 @@ async function openModal(button) {
     modal.classList.remove("hidden");
     modal.style.display = "flex";
 
-    const studentId = button.getAttribute("data-id");
-    modal.dataset.studentId = studentId;
+            const studentId = button.getAttribute("data-id");
+            modal.dataset.studentId = studentId;
 
     // Loading UI
     document.getElementById("profileTab").innerHTML = `

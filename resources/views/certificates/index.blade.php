@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Certificates</title>
@@ -12,42 +13,43 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
 <body>
 
-@include("includes.navbar")
-@include("includes.sidebar")
+    @include("includes.navbar")
+    @include("includes.sidebar")
 
-<div class="main-content">
+    <div class="main-content">
 
-    <!-- HEADER -->
-    <h1 class="text-3xl font-bold mb-4">Certificates</h1>
+        <!-- HEADER -->
+        <h1 class="text-3xl font-bold mb-4">Certificates</h1>
 
-    <!-- ACTIONS -->
-    <div class="flex gap-3 mb-4">
-        <button onclick="openModal()" class="btn-action">
-            Generate Certificate
-        </button>
+        <!-- ACTIONS -->
+        <div class="flex gap-3 mb-4">
+            <button onclick="openModal()" class="btn-action">
+                Generate Certificate
+            </button>
 
         <button id="printBtn" disabled class="btn-action">Print</button>
         <button id="emailBtn" disabled class="btn-action">Email</button>
 
-        <button onclick="openVerifyPage()" class="btn-action">
-            Verify Link
-        </button>
-    </div>
+            <button onclick="openVerifyPage()" class="btn-action">
+                Verify Link
+            </button>
+        </div>
 
-    <!-- TABLE -->
-    <table class="w-full border">
-        <thead class="table-header">
-            <tr>
-                <th><input type="checkbox" id="selectAll"></th>
-                <th>Student</th>
-                <th>Type</th>
-                <th>Date</th>
-                <th>QR</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+        <!-- TABLE -->
+        <table class="w-full border">
+            <thead class="table-header">
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>Student</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>QR</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
         <tbody>
         @forelse ($certificates as $cert)
@@ -58,33 +60,33 @@
 
             <td>{{ $cert->student->first_name }} {{ $cert->student->last_name }}</td>
 
-            <td>{{ ucfirst($cert->certificate_type) }}</td>
+                        <td>{{ ucfirst($cert->certificate_type) }}</td>
 
-            <td>{{ \Carbon\Carbon::parse($cert->issued_date)->format('M d, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($cert->issued_date)->format('M d, Y') }}</td>
 
-            <td>{{ $cert->qr_code_value ? 'Yes' : 'No' }}</td>
+                        <td>{{ $cert->qr_code_value ? 'Yes' : 'No' }}</td>
 
-            <td class="flex gap-2">
-                <button onclick="viewCert({{ $cert->id }})">View</button>
-                <button onclick="downloadCert({{ $cert->id }})">Download</button>
-                <button onclick="deleteCert({{ $cert->id }})">Delete</button>
-            </td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="6" class="text-center">No certificates</td>
-        </tr>
-        @endforelse
-        </tbody>
-    </table>
+                        <td class="flex gap-2">
+                            <button onclick="viewCert({{ $cert->id }})">View</button>
+                            <button onclick="downloadCert({{ $cert->id }})">Download</button>
+                            <button onclick="deleteCert({{ $cert->id }})">Delete</button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No certificates</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
 
-</div>
+    </div>
 
 <!-- ================= MODAL ================= -->
 <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
 
-    <div style="background:white; padding:20px; width:400px;">
-        <h2 class="text-xl mb-3">Generate Certificate</h2>
+        <div style="background:white; padding:20px; width:400px;">
+            <h2 class="text-xl mb-3">Generate Certificate</h2>
 
         <form id="form">
 
@@ -111,10 +113,12 @@
     </div>
 </div>
 
-<!-- ================= JS ================= -->
-<script>
+    <!-- ================= JS ================= -->
+    <script src="//unpkg.com/alpinejs" defer></script>
+    @vite(['resources/js/navbarDrop.js'])
+    <script>
 
-let selected = [];
+        let selected = [];
 
 /* OPEN MODAL */
 function openModal(){
@@ -123,9 +127,9 @@ function openModal(){
     document.getElementById('modal').style.display = 'flex';
 }
 
-function closeModal(){
-    document.getElementById('modal').style.display = 'none';
-}
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
 
 /* LOAD STUDENTS */
 function loadStudents(){
@@ -155,9 +159,9 @@ function loadTemplates(){
     .catch(err => console.error(err));
 }
 
-/* SUBMIT */
-document.getElementById('form').addEventListener('submit', function(e){
-    e.preventDefault();
+        /* SUBMIT */
+        document.getElementById('form').addEventListener('submit', function (e) {
+            e.preventDefault();
 
     fetch('/api/certificates', {
         method:'POST',
@@ -217,23 +221,24 @@ function downloadCert(id){
     window.open(`/certificates/${id}/download`, '_blank');
 }
 
-function deleteCert(id){
-    if(!confirm('Delete certificate?')) return;
+        function deleteCert(id) {
+            if (!confirm('Delete certificate?')) return;
 
-    fetch(`/api/certificates/${id}`, {
-        method:'DELETE',
-        headers:{
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            fetch(`/api/certificates/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(() => location.reload());
         }
-    })
-    .then(()=>location.reload());
-}
 
 function openVerifyPage(){
     window.open('/verify', '_blank');
 }
 
-</script>
+    </script>
 
 </body>
+
 </html>

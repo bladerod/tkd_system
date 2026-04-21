@@ -59,10 +59,10 @@ window.openAddInvoiceModal = function () {
     const form = document.getElementById("addInvoiceForm");
     if (form) form.reset();
 
-    const classSelect = document.getElementById("classSelect");
-    if (classSelect) {
-        classSelect.value = "";
-        classSelect.dispatchEvent(new Event("change")); // Triggers the lock on the plan dropdown
+    const studentSelect = document.getElementById("studentSelect");
+    if (studentSelect) {
+        studentSelect.value = "";
+        studentSelect.dispatchEvent(new Event("change")); 
     }
 
     // Reset displays
@@ -549,6 +549,9 @@ function initBillingUI() {
     
     // STUDENT SELECTION (Parent & Penalty)
     const studentSelect = document.getElementById("studentSelect");
+    const classSelect = document.getElementById("classSelect");
+    const planSelect = document.getElementById("planSelect");
+    
     if (studentSelect) {
         studentSelect.addEventListener("change", function () {
             const selectedOption = this.options[this.selectedIndex];
@@ -567,9 +570,80 @@ function initBillingUI() {
         });
     }
 
-    // CLASS -> PLAN FILTERING
-    const classSelect = document.getElementById("classSelect");
-    const planSelect = document.getElementById("planSelect");
+    let allClassOptions = [];
+    if (classSelect) {
+        allClassOptions = Array.from(classSelect.options).map((opt) => opt.cloneNode(true));
+    }
+
+    if (studentSelect) {
+        studentSelect.addEventListener("change", function () {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            if (selectedOption && selectedOption.value) {
+                const studentCode = selectedOption.getAttribute("data-student-code") || "N/A";
+                const parent = selectedOption.getAttribute("data-parent") || "N/A";
+                
+                // Parse the JSON array of class IDs this student is enrolled in
+                let studentClassIds = [];
+                try {
+                    studentClassIds = JSON.parse(selectedOption.getAttribute("data-class-ids") || "[]");
+                } catch(e) {
+                    studentClassIds = [];
+                }
+
+                document.getElementById("studentCodeDisplay").textContent = studentCode;
+                document.getElementById("parentDisplay").textContent = parent;
+
+                if (typeof calculatePenalty === 'function') calculatePenalty(selectedOption.value);
+                
+                // Filter the Class Dropdown
+                if (classSelect) {
+                    classSelect.innerHTML = ""; 
+                    const defaultOption = document.createElement("option");
+                    defaultOption.value = "";
+                    defaultOption.text = "-- Select Class --";
+                    classSelect.appendChild(defaultOption);
+                    
+                    let matchCount = 0;
+                    allClassOptions.forEach((opt) => {
+                        // Keep the option if its value exists in the student's active class IDs array
+                        if (opt.value && studentClassIds.includes(parseInt(opt.value))) {
+                            classSelect.appendChild(opt.cloneNode(true));
+                            matchCount++;
+                        }
+                    });
+                    
+                    if (matchCount === 0) {
+                        defaultOption.text = "-- Student not enrolled in any classes --";
+                        classSelect.disabled = true;
+                        classSelect.classList.add("cursor-not-allowed", "bg-gray-100");
+                    } else {
+                        classSelect.disabled = false;
+                        classSelect.classList.remove("cursor-not-allowed", "bg-gray-100");
+                    }
+                    
+                    // Force change to cascade down to the Plan dropdown
+                    classSelect.dispatchEvent(new Event("change"));
+                }
+                
+            } else {
+                // If NO student is selected, reset everything and lock the Class dropdown
+                document.getElementById("studentCodeDisplay").textContent = "";
+                document.getElementById("parentDisplay").textContent = "";
+                
+                if (classSelect) {
+                    classSelect.innerHTML = "";
+                    const defaultOption = document.createElement("option");
+                    defaultOption.value = "";
+                    defaultOption.text = "-- Select a Student First --";
+                    classSelect.appendChild(defaultOption);
+                    classSelect.disabled = true;
+                    classSelect.classList.add("cursor-not-allowed", "bg-gray-100");
+                    classSelect.dispatchEvent(new Event("change"));
+                }
+            }
+        });
+    }
 
     if (classSelect && planSelect) {
         const allPlanOptions = Array.from(planSelect.options).map((opt) => opt.cloneNode(true));

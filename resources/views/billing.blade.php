@@ -237,11 +237,14 @@
                                         // Safely grab the parent directly from the Users table
                                         $parentUser = \App\Models\User::find($student->primary_parent_id);
                                         $parentName = $parentUser ? $parentUser->fname . ' ' . $parentUser->lname : 'N/A';
+                                        
+                                        // ✅ NEW: Pluck the active class IDs for this specific student and convert to JSON
+                                        $activeClassIds = $student->classes->where('status', 'active')->pluck('class_id')->toJson();
                                     @endphp
                                     <option value="{{ $student->id }}" 
                                             data-student-code="{{ $student->student_code }}" 
-                                            data-parent="{{ $parentName }}">
-                                        {{ $student->first_name }} {{ $student->last_name }} ({{ $student->student_code }})
+                                            data-parent="{{ $parentName }}"
+                                            data-class-ids="{{ $activeClassIds }}"> {{ $student->first_name }} {{ $student->last_name }} ({{ $student->student_code }})
                                     </option>
                                 @endforeach
                             </select>
@@ -257,9 +260,9 @@
                         
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Select Class *</label>
-                            <select id="classSelect" name="class_id" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                                <option value="">-- Select Class --</option>
+                            <select id="classSelect" name="class_id" required disabled
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] disabled:bg-gray-100 disabled:text-gray-500 cursor-not-allowed">
+                                <option value="">-- Select a Student First --</option>
                                 @foreach($classes as $class)
                                     <option value="{{ $class->id }}">{{ $class->class_name }}</option>
                                 @endforeach

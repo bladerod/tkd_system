@@ -1,9 +1,14 @@
-{{-- resources/views/settings/rolespermission.blade.php --}}
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>TrainNova | Roles & Permissions</title>
     @vite(['resources/css/app.css'])

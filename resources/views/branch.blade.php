@@ -2,6 +2,7 @@
     $canCreateBranch = auth()->user()->canCreate('classes');
     $canEditBranch = auth()->user()->canEdit('classes');
     $canDeleteBranch = auth()->user()->canDelete('classes');
+    $branding = \App\Models\Branding::first();
 @endphp
 
 <!DOCTYPE html>
@@ -10,6 +11,9 @@
     <meta charset="UTF-8">
     <title>TrainNova | Branch</title>
     @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css', 'resources/css/branch.css'])
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     <!-- Add Simple-Datatables CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">

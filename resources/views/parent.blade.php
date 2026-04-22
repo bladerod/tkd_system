@@ -1,8 +1,14 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Parent Management </title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/parent.css'])

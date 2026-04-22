@@ -2,12 +2,16 @@
     $canCreateInstructor = auth()->user()->canCreate('classes');
     $canEditInstructor = auth()->user()->canEdit('classes');
     $canDeleteInstructor = auth()->user()->canDelete('classes');
+    $branding = \App\Models\Branding::first();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>TrainNova | Instructor</title>
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     @vite(['resources/css/app.css', 'resources/css/instructor.css', 'resources/css/dashboard.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     @vite("resources/js/instructor.js")

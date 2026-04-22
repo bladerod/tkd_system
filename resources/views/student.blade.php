@@ -1,8 +1,15 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Students</title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/dashboard.css'])

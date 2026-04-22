@@ -1,8 +1,14 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="../assets/img/logo.png">
     <title>TrainNova | Login</title>
@@ -61,11 +67,16 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                     </button>
+                    
                 </div>
                 @error('email')
                     <p class="text-red-500 text-xs mt-1">Invalid email and/or password.</p>
                 @enderror
+                <div class="flex items-center justify-between mb-5 float-end">
+                    <a href="{{ route('password.request') }}" class="text-sm text-gray-500 hover:text-[#1C1C1D] transition-colors">Forgot password?</a>
+                </div>
             </div>
+            
             
             <button type="submit" 
                     class="w-full bg-[#1C1C1D] text-white py-2 px-4 rounded-md hover:bg-[#535353] transition duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1C1C1D] flex items-center justify-center"

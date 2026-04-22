@@ -112,13 +112,15 @@
         </form>
     </div>
 </div>
+    </div>
+</div>
 
-    <!-- ================= JS ================= -->
-    <script src="//unpkg.com/alpinejs" defer></script>
-    @vite(['resources/js/navbarDrop.js'])
-    <script>
+<!-- ================= JS ================= -->
+<script src="//unpkg.com/alpinejs" defer></script>
+@vite(['resources/js/navbarDrop.js'])
+<script>
 
-        let selected = [];
+let selected = [];
 
 /* OPEN MODAL */
 function openModal(){

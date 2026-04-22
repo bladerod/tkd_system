@@ -128,4 +128,149 @@ class ParentApiController extends Controller
             'data' => $attendance
         ]);
     }
+
+    public function myProfile(Request $request)
+{
+    $user = $request->user();
+
+    // Get parent record
+    $parent = \DB::table('parents')
+        ->where('user_id', $user->id)
+        ->first();
+
+    if (!$parent) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Parent profile not found'
+        ], 404);
+    }
+
+    // Get children via parent_students table
+    $children = \DB::table('parent_students')
+        ->where('parent_id', $parent->id)
+        ->join('students', 'parent_students.student_id', '=', 'students.id')
+        ->leftJoin('belt_levels', 'students.current_belt', '=', 'belt_levels.id')
+        ->select(
+            'students.id',
+            'students.first_name',
+            'students.last_name',
+            'students.status',
+            'belt_levels.name as belt_name'
+        )
+        ->get();
+
+    $childrenData = $children->map(function($child) {
+        $classStudent = \DB::table('class_students')
+            ->where('student_id', $child->id)
+            ->where('status', 'active')
+            ->first();
+
+        $nextClass = 'No class scheduled';
+        if ($classStudent) {
+            $schedule = \DB::table('class_schedules')
+                ->where('class_id', $classStudent->class_id)
+                ->first();
+            if ($schedule) {
+                $nextClass = ucfirst($schedule->day_of_week) . ' ' . $schedule->start_time;
+            }
+        }
+
+        return [
+            'id' => $child->id,
+            'name' => trim($child->first_name . ' ' . $child->last_name),
+            'belt' => $child->belt_name ?? 'No Belt',
+            'status' => $child->status ?? 'active',
+            'next_class' => $nextClass,
+            'balance' => '₱0',
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'name' => $user->fname,
+            'children' => $childrenData,
+            'alerts' => [],
+        ]
+    ]);
+}
+
+public function childProfile(Request $request, $childId)
+{
+    $user = $request->user();
+    $parent = \DB::table('parents')->where('user_id', $user->id)->first();
+
+    if (!$parent) {
+        return response()->json(['success' => false, 'message' => 'Parent not found'], 404);
+    }
+
+    // Verify child belongs to parent
+    $linked = \DB::table('parent_students')
+        ->where('parent_id', $parent->id)
+        ->where('student_id', $childId)
+        ->exists();
+
+    if (!$linked) {
+        return response()->json(['success' => false, 'message' => 'Child not found'], 404);
+    }
+
+    $student = \DB::table('students')
+        ->where('id', $childId)
+        ->first();
+
+    $belt = \DB::table('belt_levels')->where('id', $student->current_belt)->first();
+
+    $classStudent = \DB::table('class_students')
+        ->where('student_id', $childId)
+        ->where('status', 'active')
+        ->first();
+
+    $instructor = 'TBA';
+    $nextClass = 'No class scheduled';
+
+    if ($classStudent) {
+        $class = \DB::table('classes')->where('id', $classStudent->class_id)->first();
+        if ($class) {
+            $instructorRecord = \DB::table('instructors')->where('id', $class->primary_instructor_id)->first();
+            if ($instructorRecord) {
+                $instructorUser = \DB::table('users')->where('id', $instructorRecord->user_id)->first();
+                $instructor = $instructorUser ? trim($instructorUser->fname . ' ' . $instructorUser->lname) : 'TBA';
+            }
+            $schedule = \DB::table('class_schedules')->where('class_id', $class->id)->first();
+            if ($schedule) {
+                $nextClass = ucfirst($schedule->day_of_week) . ' ' . $schedule->start_time;
+            }
+        }
+    }
+
+    // Attendance stats
+    $totalClasses = \DB::table('attendance_logs')->where('student_id', $childId)->count();
+    $attended = \DB::table('attendance_logs')
+        ->where('student_id', $childId)
+        ->whereIn('attendance_status', ['present', 'late'])
+        ->count();
+
+    $attendancePercentage = $totalClasses > 0 ? round(($attended / $totalClasses) * 100, 1) : 0;
+
+    $joinDate = $student->join_date ? \Carbon\Carbon::parse($student->join_date) : null;
+    $monthsTraining = $joinDate ? $joinDate->diffInMonths(now()) : 0;
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $student->id,
+            'name' => trim($student->first_name . ' ' . $student->last_name),
+            'age' => $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->age : 0,
+            'belt' => $belt->name ?? 'No Belt',
+            'instructor' => $instructor,
+            'next_class' => $nextClass,
+            'member_since' => $joinDate ? $joinDate->format('F Y') : 'N/A',
+            'next_belt_test' => 'TBA',
+            'classes_per_week' => 2,
+            'attendance_percentage' => $attendancePercentage,
+            'months_training' => $monthsTraining,
+            'awards_count' => 0,
+        ]
+    ]);
+}
 }

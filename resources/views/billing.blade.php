@@ -35,29 +35,26 @@
                                 </div>
                                 <h1 class="text-3xl mb-4 text-4xl font-bold text-[#1C1C1D]">Invoices</h1>
 
-                                <!-- Action Buttons -->
-                                <div class="flex justify-end gap-3 mb-4">
-                                    <button onclick="generateMonthlyInvoices()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm">
-                                        <i class="fas fa-sync-alt"></i>
-                                        Generate Invoices
-                                    </button>
-                                    <button onclick="markOverdueInvoices()" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        Mark Overdue
-                                    </button>
-                                </div>
-
                                 <div class="bg-white rounded-xl shadow-sm">
                                     <div class="pb-0 bg-transparent">
                                         <div class="p-3 bg-[#1C1C1D] rounded-t-xl">
                                             <h6 class="text-gray-800 font-semibold text-xl text-white text-center">Invoices Log</h6>
                                         </div>
                                     </div>
-                                    {{-- <div class="flex justify-end p-3">
-                                        <button onclick="openPaymentModal()" class="bg-[#63ad35] p-3 rounded-xl hover:bg-[#71c93e] font-medium text-white">
-                                            Record Payment
+                                    <div class="flex justify-end gap-3 m-4">
+                                        <button onclick="openAddInvoiceModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                                            <i class="fas fa-plus"></i>
+                                            Add Invoice
                                         </button>
-                                    </div> --}}
+                                        <button onclick="generateMonthlyInvoices()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                                            <i class="fas fa-sync-alt"></i>
+                                            Generate Invoices
+                                        </button>
+                                        <button onclick="markOverdueInvoices()" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Mark Overdue
+                                        </button>
+                                    </div>
                                     <!-- Table Section -->
                                     <div class="bg-white rounded-b-xl shadow-sm border border-gray-100 overflow-hidden">
                                         <!-- Table -->
@@ -68,8 +65,9 @@
                                                     <tr>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Invoice#</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Student Name</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Class</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Parent</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Amount</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Due</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Action</th>
@@ -89,10 +87,35 @@
                                                             </div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            @if($invoice->student->parent->user)
-                                                                {{ $invoice->student->parent->user->fname }} {{ $invoice->student->parent->user->lname }}
+                                                            @php
+                                                                $classNames = [];
+                                                                if ($invoice->student) {
+                                                                    // Find all active class enrollments for this student
+                                                                    $activeEnrollments = $invoice->student->classes->where('status', 'active');
+                                                                    foreach($activeEnrollments as $enrollment) {
+                                                                        if ($enrollment->class) {
+                                                                            $classNames[] = $enrollment->class->class_name;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            @endphp
+                                                            
+                                                            @if(count($classNames) > 0)
+                                                                {{ implode(', ', $classNames) }}
                                                             @else
-                                                                N/A
+                                                                <span class="text-gray-400 italic">No Active Class</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                           @php
+                                                                // Safely fetch the parent directly from the Users table, just like we did in the modal
+                                                                $parentUser = $invoice->student ? \App\Models\User::find($invoice->student->primary_parent_id) : null;
+                                                            @endphp
+                                                            
+                                                            @if($parentUser)
+                                                                {{ $parentUser->fname }} {{ $parentUser->lname }}
+                                                            @else
+                                                                <span class="text-gray-400 italic">N/A</span>
                                                             @endif
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₱{{ number_format($invoice->total_due, 2) }}</td>
@@ -193,54 +216,160 @@
         </div>
     </div>
     
-    {{-- Payment Modal --}}
-    <div id="paymentModal" class="fixed inset-0 bg-gray-500 bg-opacity-90 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-lg bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Record Payment</h3>
+    {{-- Add Invoice Modal --}}
+    <div id="addInvoiceModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+        <div class="relative top-20 mx-auto border w-full max-w-2xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center sticky top-0 bg-[#1C1C1D] pb-2 p-3">
+                <i class="fas fa-plus text-white text-2xl pe-1"></i>
+                <h3 class="text-2xl  font-semibold text-white">Add New Invoice</h3>
             </div>
-            <form id="paymentForm">
-                <input type="hidden" id="invoiceId" name="invoice_id">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Invoice #</label>
-                    <p id="invoiceNoDisplay" class="text-gray-900 font-medium"></p>
+            <form id="addInvoiceForm">
+                <div class="grid grid-cols-2 gap-4 p-5">
+                    <!-- Left Column -->
+                    <div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Student *</label>
+                            <select id="studentSelect" name="student_id" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                                <option value="">-- Select Student --</option>
+                                @foreach($students as $student)
+                                    @php
+                                        // Safely grab the parent directly from the Users table
+                                        $parentUser = \App\Models\User::find($student->primary_parent_id);
+                                        $parentName = $parentUser ? $parentUser->fname . ' ' . $parentUser->lname : 'N/A';
+                                    @endphp
+                                    <option value="{{ $student->id }}" 
+                                            data-student-code="{{ $student->student_code }}" 
+                                            data-parent="{{ $parentName }}">
+                                        {{ $student->first_name }} {{ $student->last_name }} ({{ $student->student_code }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Student Code</label>
+                            <p id="studentCodeDisplay" class="text-gray-600 text-sm bg-gray-50 p-2 rounded-md"></p>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Parent/Guardian</label>
+                            <p id="parentDisplay" class="text-gray-600 text-sm bg-gray-50 p-2 rounded-md"></p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Class *</label>
+                            <select id="classSelect" name="class_id" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                                <option value="">-- Select Class --</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->class_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Plan/Subscription *</label>
+                            <select id="planSelect" name="plan_id" required disabled
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] disabled:bg-gray-100 disabled:text-gray-500 cursor-not-allowed">
+                                <option value="">-- Select a Class First --</option>
+                                @foreach($plans as $plan)
+                                    <option value="{{ $plan->id }}" 
+                                        data-class-id="{{ $plan->class_id }}"
+                                        data-monthly-price="{{ $plan->monthly_price }}" 
+                                        data-plan-name="{{ $plan->plan_name }}" 
+                                        data-billing-cycle="{{ $plan->billing_cycle }}">
+                                        {{ $plan->plan_name }} - ₱{{ number_format($plan->monthly_price, 2) }} ({{ ucfirst($plan->billing_cycle) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Plan Details</label>
+                            <div id="planDetails" class="text-gray-600 text-sm bg-gray-50 p-3 rounded-md hidden">
+                                <p><strong>Plan Name:</strong> <span id="planNameDisplay"></span></p>
+                                <p><strong>Billing Cycle:</strong> <span id="planBillingCycleDisplay"></span></p>
+                                <p><strong>Base Amount:</strong> ₱<span id="planAmountDisplay">0.00</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Discount Type</label>
+                            <select id="discountType" name="discount_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                                <option value="none" data-type="none" data-value="0" selected>No Discount</option>
+                                @foreach ($discounts as $discount)
+                                    <option value="{{ $discount->id }}" 
+                                            data-type="{{ $discount->type }}" 
+                                            data-value="{{ $discount->value }}">
+                                        {{ $discount->name }} ({{ $discount->type == 'percent' ? $discount->value.'%' : '₱'.$discount->value }})
+                                    </option>
+                                @endforeach
+                                <option value="custom" data-type="custom" data-value="0">Custom Discount</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4" id="customDiscountContainer" style="display: none;">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Custom Discount Amount (₱)</label>
+                            <input type="number" id="customDiscountAmount" name="custom_discount" step="0.01" value="0"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Applied Discount (₱)</label>
+                            <input type="number" id="invoiceDiscount" name="discount" step="0.01" readonly
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Base Amount (₱)</label>
+                            <input type="number" id="invoiceAmount" name="amount" step="0.01" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
+                                placeholder="Amount will auto-fill from plan">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Penalty (₱)</label>
+                            <input type="number" id="invoicePenalty" name="penalty" step="0.01" readonly
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none">
+                            <p class="text-xs text-gray-500 mt-1">Auto-calculated from billing rules for overdue invoices</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Total Due (₱)</label>
+                            <p id="totalDuePreview" class="text-2xl font-bold text-gray-900 bg-green-50 p-2 rounded-md">₱0.00</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
-                    <p id="studentNameDisplay" class="text-gray-900"></p>
+                
+                <!-- Full Width Section -->
+                <div class="grid grid-cols-3 gap-4 mt-4 px-5">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Billing Period Start *</label>
+                        <input type="date" id="billingPeriodStart" name="billing_period_start" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Billing Period End *</label>
+                        <input type="date" id="billingPeriodEnd" name="billing_period_end" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Due Date *</label>
+                        <input type="date" id="dueDate" name="due_date" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Due</label>
-                    <p id="totalDueDisplay" class="text-xl font-bold text-gray-900"></p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount to Pay</label>
-                    <input type="number" id="paymentAmount" name="amount" step="0.01" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                    <select id="paymentMethod" name="payment_method" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                        <option value="cash">Cash</option>
-                        <option value="gcash">GCash</option>
-                        <option value="card">Credit/Debit Card</option>
-                        <option value="bank">Bank Transfer</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Reference No. (Optional)</label>
-                    <input type="text" id="transactionReference" name="transaction_reference"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                </div>
-                <div class="flex gap-3 justify-end">
-                    <button type="button" onclick="closePaymentModal()"
+                
+                <div class="flex gap-3 justify-end sticky bottom-0 bg-white p-4 mt-2 border-t">
+                    <button type="button" onclick="closeAddInvoiceModal()"
                         class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
                         Cancel
                     </button>
                     <button type="submit"
-                        class="px-4 py-2 text-sm text-white bg-[#63ad35] rounded-md hover:bg-[#71c93e] transition-colors">
-                        Process Payment
+                        class="px-4 py-2 text-sm text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
+                        Create Invoice
                     </button>
                 </div>
             </form>

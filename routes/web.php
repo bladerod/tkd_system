@@ -16,12 +16,14 @@ use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use App\Models\BeltLevel;
 use App\Models\Classes;
 use App\Models\User;
+// use FontLib\Table\Type\name;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -37,7 +39,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/dashboard', [DashboardPopulateController::class, 'index'])->middleware('permission:dashboard,view')->name('dashboard.index');
     Route::post('/dashboard/student', [DashboardPopulateController::class, 'store'])->middleware('permission:students,create')->name('dashboard.student.store');
-    Route::post('/dashboard/parent',[ParentsController::class,'store'])->middleware('permission:parents,create')->name('parent.store');
+    Route::post('/dashboard/parent', [ParentsController::class, 'store'])->middleware('permission:parents,create')->name('parent.store');
+    Route::post('/dashboard/announcement', [DashboardPopulateController::class, 'announcement'])->middleware('permission:parents,create')->name('dashboard.announcement.store');
 
 
 
@@ -51,7 +54,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->middleware('permission:announcements,delete')->name('announcements.destroy');
 
     // PARENTS
-    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents', [ParentsController::class, 'index'])->name('parents.index');
+Route::get('/parents/{id}', [ParentsController::class, 'show']);
+Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
+Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
+Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
+Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
+Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
@@ -65,12 +74,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
     // STUDENTS
-    Route::post('/student', [StudentController::class,'store'])->name('student.create');
-Route::get('/students/{id}', [StudentController::class, 'show']);
-Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
-Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
-Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
-Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
+    Route::post('/student', [StudentController::class, 'store'])->name('student.create');
+    Route::get('/students/{id}', [StudentController::class, 'show']);
+    Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
+    Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
+    Route::get('/students/{id}/competition', [StudentController::class, 'competition']);
+    Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
 
@@ -86,15 +95,15 @@ Route::get('/students/{id}/certificates', [StudentController::class, 'certificat
     });
 
     // CHAT
-Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
 
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+        Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 
-    Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+        Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
 
-    Route::post('/chat/{id}/send', [ChatController::class, 'send'])->name('chat.send');
-Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.create');
-});
+        Route::post('/chat/{id}/send', [ChatController::class, 'send'])->name('chat.send');
+        Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.create');
+    });
 
     // OTHER PAGES
 
@@ -148,13 +157,25 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
         Route::post('/{invoiceId}/reminder', [InvoiceController::class, 'sendReminder'])->middleware('permission:billing,view')->name('reminder');
         Route::get('/{invoiceId}/receipt', [InvoiceController::class, 'generateReceipt'])->middleware('permission:billing,view')->name('receipt');
     });
+    Route::post('/billing/create-invoice', [InvoiceController::class, 'createInvoice'])->name('billing.create.invoice');
+    Route::post('/billing/get-discount', [InvoiceController::class, 'getDiscountAmount'])->name('billing.get.discount');
+    Route::post('/billing/get-penalty', [InvoiceController::class, 'getPenaltyAmount'])->name('billing.get.penalty');
+    Route::post('/billing/create-invoice', [InvoiceController::class, 'createInvoice'])->name('billing.create.invoice');
 
-   // BRANCHES
+    // Plans management
+    Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
+    Route::post('/plans/store', [PlanController::class, 'store'])->name('plans.store');
+    Route::get('/plans/{plan}/edit', [PlanController::class, 'edit'])->name('plans.edit');
+    Route::put('/plans/{plan}', [PlanController::class, 'update'])->name('plans.update');
+    Route::delete('/plans/{plan}', [PlanController::class, 'destroy'])->name('plans.destroy');
+
+
+    // BRANCHES
     Route::post('/branch/check', [BranchController::class, 'checkField'])->middleware('permission:branches,view')->name('branch.check');
-    Route::get('/branch', [BranchController::class,'index'])->middleware('permission:branches,view')->name('branch');
-    Route::post('/branch/store', [BranchController::class,'store'])->middleware('permission:branches,create')->name('branch.store');
-    Route::post('/branch/update/{id}', [BranchController::class,'update'])->middleware('permission:branches,edit')->name('branch.update');
-    Route::delete('/branch/delete/{id}', [BranchController::class,'destroy'])->middleware('permission:branches,delete')->name('branch.delete');
+    Route::get('/branch', [BranchController::class, 'index'])->middleware('permission:branches,view')->name('branch');
+    Route::post('/branch/store', [BranchController::class, 'store'])->middleware('permission:branches,create')->name('branch.store');
+    Route::post('/branch/update/{id}', [BranchController::class, 'update'])->middleware('permission:branches,edit')->name('branch.update');
+    Route::delete('/branch/delete/{id}', [BranchController::class, 'destroy'])->middleware('permission:branches,delete')->name('branch.delete');
 
     // REPORTS
     Route::prefix('reports')->middleware('permission:reports,view')->group(function () {
@@ -187,28 +208,28 @@ Route::post('/chat/create', [ChatController::class, 'create'])->name('chat.creat
     })->name('student');
 
 
-    Route::get('/certificates', [CertificateController::class,'index']);
+    Route::get('/certificates', [CertificateController::class, 'index']);
 
- /* CRUD */
-Route::post('/api/certificates', [CertificateController::class, 'store']);
-Route::delete('/api/certificates/{id}', [CertificateController::class, 'destroy']);
+    /* CRUD */
+    Route::post('/api/certificates', [CertificateController::class, 'store']);
+    Route::delete('/api/certificates/{id}', [CertificateController::class, 'destroy']);
 
-/* VIEW */
-Route::get('/certificates/{id}', [CertificateController::class, 'show']);
-Route::get('/certificates/{id}/download', [CertificateController::class, 'download']);
+    /* VIEW */
+    Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+    Route::get('/certificates/{id}/download', [CertificateController::class, 'download']);
 
-/* PREVIEW */
-Route::post('/certificates/preview', [CertificateController::class, 'preview']);
+    /* PREVIEW */
+    Route::post('/certificates/preview', [CertificateController::class, 'preview']);
 
-/* VERIFY */
-Route::get('/verify/{code}', [CertificateController::class, 'verify']);
-    Route::get('/templates', [CertificateController::class,'templates']);
-    Route::get('/templates/create', [CertificateController::class,'createTemplate']);
-    Route::post('/templates/store', [CertificateController::class,'storeTemplate']);
-    Route::get('/templates/{id}/editor', [CertificateController::class,'editor']);
-    Route::post('/templates/{id}/save-layout', [CertificateController::class,'saveLayout']);
-    Route::post('/templates/{id}/upload-image', [CertificateController::class,'uploadImage']);
-    Route::post('/templates/{id}/upload-bg', [CertificateController::class,'uploadBackground']);
+    /* VERIFY */
+    Route::get('/verify/{code}', [CertificateController::class, 'verify']);
+    Route::get('/templates', [CertificateController::class, 'templates']);
+    Route::get('/templates/create', [CertificateController::class, 'createTemplate']);
+    Route::post('/templates/store', [CertificateController::class, 'storeTemplate']);
+    Route::get('/templates/{id}/editor', [CertificateController::class, 'editor']);
+    Route::post('/templates/{id}/save-layout', [CertificateController::class, 'saveLayout']);
+    Route::post('/templates/{id}/upload-image', [CertificateController::class, 'uploadImage']);
+    Route::post('/templates/{id}/upload-bg', [CertificateController::class, 'uploadBackground']);
 
     Route::prefix('settings')->group(function () {
 
@@ -233,11 +254,13 @@ Route::get('/verify/{code}', [CertificateController::class, 'verify']);
         // Branding
         Route::get('/branding', [BrandingController::class, 'index'])->middleware('permission:settings,view')->name('settings.branding');
         Route::post('/branding/update', [BrandingController::class, 'update'])->middleware('permission:settings,edit')->name('settings.branding.update');
-        Route::get('/branding-rules', function () { return view('brandingrules'); })->middleware('permission:settings,view');
+        Route::get('/branding-rules', function () {
+            return view('brandingrules');
+        })->middleware('permission:settings,view');
 
         // Discounts
         Route::get('/discounts', [DiscountController::class, 'index'])->middleware('permission:settings,view')->name('discounts.index');
-        Route::post('/discounts',[DiscountController::class,'store'])->middleware('permission:settings,create')->name('discounts.store');
+        Route::post('/discounts', [DiscountController::class, 'store'])->middleware('permission:settings,create')->name('discounts.store');
         Route::get('/discounts/{id}', [DiscountController::class, 'show'])->middleware('permission:settings,view')->name('discounts.show');
         Route::put('/discounts/{id}', [DiscountController::class, 'update'])->middleware('permission:settings,edit')->name('discounts.update');
         Route::delete('/discounts/{id}', [DiscountController::class, 'destroy'])->middleware('permission:settings,delete')->name('discounts.destroy');
@@ -249,12 +272,16 @@ Route::get('/verify/{code}', [CertificateController::class, 'verify']);
             Route::post('/reset', [\App\Http\Controllers\RolePermissionController::class, 'reset'])->middleware('permission:settings,edit')->name('reset');
         });
 
-        Route::get('/device', function () { return view('device'); })->middleware('permission:settings,view');
-        Route::get('/integration', function () { return view('integration'); })->middleware('permission:settings,view');
+        Route::get('/device', function () {
+            return view('device');
+        })->middleware('permission:settings,view');
+        Route::get('/integration', function () {
+            return view('integration');
+        })->middleware('permission:settings,view');
     });
 
 
-    Route::get('/verify/{code}', [CertificateController::class,'verify']);
+    Route::get('/verify/{code}', [CertificateController::class, 'verify']);
     // USERNAME CHECK (for user management)
     Route::get('/check-username', function (Request $request) {
         $username = $request->query('username');

@@ -134,7 +134,7 @@
         <div class="modal-content modal-lg">
             <div class="modal-header">
                 <div class="flex items-center gap-4">
-                    <div class="avatar-circle large" id="modalAvatar">M</div>
+                    <div class="avatar-circle large" id="modalAvatar"></div>
                     <div>
                         <h2 id="modalParentName">Parent Profile</h2>
                         <p class="text-sm text-gray-500" id="modalParentContact">Loading...</p>
@@ -174,16 +174,14 @@
                     <div class="loading-spinner" id="childrenLoading">
                         {{-- <i class="fas fa-spinner fa-spin"></i> Loading children data... --}}
                     </div>
-                    <div id="childrenContent" class="hidden">
+                    <div id="childrenContent"  class=" mb-2 cursor-pointer hover:bg-gray-100">
                         <!-- Dynamic content loaded here -->
                     </div>
                 </div>
 
                 <!-- Family Billing Tab -->
                 <div id="billing" class="tab-pane">
-                    <div class="loading-spinner" id="billingLoading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading billing data...
-                    </div>
+
                     <div id="billingContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
@@ -191,9 +189,7 @@
 
                 <!-- Payments Tab -->
                 <div id="payments" class="tab-pane">
-                    <div class="loading-spinner" id="paymentsLoading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading payment history...
-                    </div>
+
                     <div id="paymentsContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
@@ -216,9 +212,7 @@
 
                 <!-- Activity Log Tab -->
                 <div id="activity" class="tab-pane">
-                    <div class="loading-spinner" id="activityLoading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading activity log...
-                    </div>
+
                     <div id="activityContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
@@ -226,9 +220,7 @@
 
                 <!-- Notifications Tab -->
                 <div id="notifications" class="tab-pane">
-                    <div class="loading-spinner" id="notificationsLoading">
-                        <i class="fas fa-spinner fa-spin"></i> Loading notifications...
-                    </div>
+
                     <div id="notificationsContent" class="hidden">
                         <!-- Dynamic content loaded here -->
                     </div>
@@ -317,7 +309,7 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
 
-  <script>
+<script>
 let currentParentId = null;
 
 // =========================
@@ -330,127 +322,58 @@ window.openModal = async function(parentId) {
     const modal = document.getElementById("parentModal");
     modal.style.display = "flex";
 
-    // RESET HEADER
-    document.getElementById("modalParentName").innerText = "Loading...";
-    document.getElementById("modalParentContact").innerText = "";
-
-    // ✅ RESET TABS PROPERLY
-    document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
-    document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
 
     document.querySelector('[data-tab="children"]').classList.add("active");
     document.getElementById("children").classList.add("active");
-
-    // RESET CHILDREN UI
-    document.getElementById("childrenLoading").style.display = "block";
-    document.getElementById("childrenContent").classList.add("hidden");
 
     try {
         const res = await fetch(`/parents/${parentId}`);
         const data = await res.json();
 
-        if (data.error) {
-            alert("Parent not found");
-            closeModal();
-            return;
-        }
-
-        // HEADER DATA
-        document.getElementById("modalParentName").innerText =
-            data.full_name || "No Name";
-
+        document.getElementById("modalParentName").innerText = data.full_name;
         document.getElementById("modalParentContact").innerText =
-            (data.email ?? "No email") + " • " +
-            (data.mobile ?? "No contact");
+            `${data.email} • ${data.mobile}`;
 
-        document.getElementById("modalAvatar").innerText =
-            (data.full_name || "P").charAt(0).toUpperCase();
-
-        // LOAD CHILDREN DEFAULT
         loadChildren(data.students);
 
     } catch (err) {
         console.error(err);
-        alert("Failed to load parent data");
     }
 };
 
 // =========================
-// CLOSE MODAL
-// =========================
-window.closeModal = function() {
-    document.getElementById("parentModal").style.display = "none";
-};
-
-// =========================
-// TAB SWITCHING (FIXED)
+// TAB SWITCH (FULLY WORKING)
 // =========================
 window.switchTab = function(tabName) {
 
-    // Update buttons
     document.querySelectorAll(".tab").forEach(tab => {
         tab.classList.remove("active");
-        if (tab.dataset.tab === tabName) {
-            tab.classList.add("active");
-        }
+        if (tab.dataset.tab === tabName) tab.classList.add("active");
     });
 
-    // Update content
-    document.querySelectorAll(".tab-pane").forEach(pane => {
-        pane.classList.remove("active");
-    });
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
 
-    const tabPane = document.getElementById(tabName);
+    const pane = document.getElementById(tabName);
+    if (!pane) return;
 
-    // ❗ IMPORTANT FIX: if tab content doesn't exist, stop
-    if (!tabPane) {
-        console.warn("Tab not found:", tabName);
-        return;
-    }
-
-    tabPane.classList.add("active");
+    pane.classList.add("active");
 
     if (!currentParentId) return;
 
-    // LOAD DATA BASED ON TAB
-    switch(tabName) {
-        case 'children':
-            loadChildrenData(currentParentId);
-            break;
-        case 'billing':
-            safeLoad(loadBillingData, currentParentId);
-            break;
-        case 'payments':
-            safeLoad(loadPaymentsData, currentParentId);
-            break;
-        case 'activity':
-            safeLoad(loadActivityData, currentParentId);
-            break;
-        case 'notifications':
-            safeLoad(loadNotificationsData, currentParentId);
-            break;
-    }
+    if (tabName === "billing") loadBilling(currentParentId);
+    if (tabName === "payments") loadPayments(currentParentId);
+    if (tabName === "chat") loadChat(currentParentId);
+    if (tabName === "activity") loadActivity(currentParentId);
+    if (tabName === "notifications") loadNotifications(currentParentId);
 };
 
 // =========================
-// SAFE FUNCTION CALL
-// =========================
-function safeLoad(fn, id) {
-    if (typeof fn === "function") {
-        fn(id);
-    } else {
-        console.warn("Function not implemented");
-    }
-}
-
-// =========================
-// CHILDREN DISPLAY
+// CHILDREN
 // =========================
 function loadChildren(students) {
     const container = document.getElementById("childrenContent");
-
-    document.getElementById("childrenLoading").style.display = "none";
-    container.classList.remove("hidden");
 
     if (!students || students.length === 0) {
         container.innerHTML = "<p>No children found</p>";
@@ -459,24 +382,18 @@ function loadChildren(students) {
 
     let html = "";
 
-    students.forEach((child, index) => {
-        html += `
-            <div
-                class="p-3 border rounded-lg mb-2 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition"
-                onclick="openStudentModal(${child.id})"
-            >
-                <div>
-                    <div class="font-semibold">
-                        ${child.first_name ?? ''} ${child.last_name ?? ''}
-                    </div>
-                    <div class="text-sm text-gray-500">
-                        Student ID: ${child.student_code ?? 'N/A'}
-                    </div>
-                </div>
+    students.forEach((c, i) => {
 
-                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                    Child ${index + 1}
-                </span>
+        const id        = c.id || c.student_id;
+        const firstName = c.first_name || c.student_name || '';
+        const lastName  = c.last_name || '';
+        const code      = c.student_code || 'N/A';
+
+        html += `
+            <div onclick="openStudentModal(${id})"
+                class="p-3 border rounded mb-2 cursor-pointer hover:bg-gray-100">
+                <div class="font-semibold">${firstName} ${lastName}</div>
+                <div class="text-sm text-gray-500">ID: ${code}</div>
             </div>
         `;
     });
@@ -485,60 +402,158 @@ function loadChildren(students) {
 }
 
 // =========================
-// CHILDREN API
+// BILLING
 // =========================
-async function loadChildrenData(parentId) {
-    document.getElementById("childrenLoading").style.display = "block";
+async function loadBilling(parentId) {
 
-    try {
-        const res = await fetch(`/parents/${parentId}/children`);
-        const data = await res.json();
+    const container = document.getElementById("billingContent");
+    container.innerHTML = "Loading...";
+    container.classList.remove("hidden");
 
-        loadChildren(data.students);
+    const res = await fetch(`/parents/${parentId}/billing`);
+    const data = await res.json();
 
-    } catch (err) {
-        console.error(err);
+    if (!data.length) {
+        container.innerHTML = "No billing records";
+        return;
     }
+
+    let html = `
+        <table class="min-w-full">
+        <tr><th>Date</th><th>Student</th><th>Amount</th><th>Status</th></tr>
+    `;
+
+    data.forEach(b => {
+        html += `
+            <tr>
+                <td>${new Date(b.created_at).toLocaleDateString()}</td>
+                <td>${b.student_name ?? 'N/A'}</td>
+                <td>₱${b.amount}</td>
+                <td>${b.status}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+    container.innerHTML = html;
 }
 
 // =========================
-// OPTIONAL TABS (SAFE)
+// PAYMENTS
 // =========================
-async function loadBillingData(parentId) {
-    const el = document.getElementById("billingContent");
-    if (!el) return;
+async function loadPayments(parentId) {
 
-    el.innerHTML = "Billing data loading...";
-}
+    const container = document.getElementById("paymentsContent");
+    container.innerHTML = "Loading...";
+    container.classList.remove("hidden");
 
-async function loadPaymentsData(parentId) {
-    const el = document.getElementById("paymentsContent");
-    if (!el) return;
+    const res = await fetch(`/parents/${parentId}/payments`);
+    const data = await res.json();
 
-    el.innerHTML = "Payments data loading...";
-}
+    if (!data.length) {
+        container.innerHTML = "No payments found";
+        return;
+    }
 
-async function loadActivityData(parentId) {
-    const el = document.getElementById("activityContent");
-    if (!el) return;
+    let html = "";
 
-    el.innerHTML = "Activity loading...";
-}
+    data.forEach(p => {
+        html += `
+            <div class="p-3 border mb-2 rounded">
+                <div><b>₱${p.amount}</b></div>
+                <div>${new Date(p.created_at).toLocaleDateString()}</div>
+                <div class="text-sm text-gray-500">${p.method}</div>
+            </div>
+        `;
+    });
 
-async function loadNotificationsData(parentId) {
-    const el = document.getElementById("notificationsContent");
-    if (!el) return;
-
-    el.innerHTML = "Notifications loading...";
+    container.innerHTML = html;
 }
 
 // =========================
-// CLICK OUTSIDE CLOSE
+// CHAT
 // =========================
-window.onclick = function(e) {
-    const modal = document.getElementById("parentModal");
-    if (e.target === modal) closeModal();
+async function loadChat(parentId) {
+
+    const container = document.getElementById("chatMessages");
+    container.innerHTML = "Loading...";
+
+    const res = await fetch(`/parents/${parentId}/chat`);
+    const data = await res.json();
+
+    let html = "";
+
+    data.forEach(m => {
+        html += `
+            <div class="mb-2">
+                <b>${m.sender}</b>: ${m.message}
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// =========================
+// ACTIVITY
+// =========================
+async function loadActivity(parentId) {
+
+    const container = document.getElementById("activityContent");
+    container.innerHTML = "Loading...";
+    container.classList.remove("hidden");
+
+    const res = await fetch(`/parents/${parentId}/activity`);
+    const data = await res.json();
+
+    let html = "";
+
+    data.forEach(a => {
+        html += `
+            <div class="border-b p-2">
+                ${a.description}
+                <div class="text-xs text-gray-500">${a.created_at}</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// =========================
+// NOTIFICATIONS
+// =========================
+async function loadNotifications(parentId) {
+
+    const container = document.getElementById("notificationsContent");
+    container.innerHTML = "Loading...";
+    container.classList.remove("hidden");
+
+    const res = await fetch(`/parents/${parentId}/notifications`);
+    const data = await res.json();
+
+    let html = "";
+
+    data.forEach(n => {
+        html += `
+            <div class="border-b p-2">
+                ${n.message}
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// =========================
+// CLOSE
+// =========================
+window.closeModal = function() {
+    document.getElementById("parentModal").style.display = "none";
 };
+</script>
+<script>
+
 // =========================
 // OPEN STUDENT MODAL (FIXED)
 // =========================

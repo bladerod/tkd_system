@@ -402,7 +402,11 @@ async function loadBillingData(studentId) {
                 <tr>
                     <td>${new Date(b.created_at).toLocaleDateString()}</td>
                     <td>₱${b.amount}</td>
-                    <td>${b.status}</td>
+                    <td>
+    <span class="status_pay ${b.status.toLowerCase()}">
+        ${b.status}
+    </span>
+</td>
                 </tr>
             `;
         });

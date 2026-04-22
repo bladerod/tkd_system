@@ -32,14 +32,13 @@ class Parents extends Model
     /**
      * Get the user associated with the parent.
      */
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
+public function students() {
+    return $this->hasMany(Student::class, 'primary_parent_id', 'user_id');
+}
 
-    public function students()
-    {
-        return $this->belongsToMany(Student::class,'parent_students');
-    }
+public function user()
+{
+    return $this->belongsTo(\App\Models\User::class);
+}
 
 }

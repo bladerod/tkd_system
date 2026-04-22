@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\AttendanceLog;
 use App\Models\BeltLevel;
 use App\Models\Branch;
+use App\Models\Classes;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -34,6 +38,7 @@ class DashboardPopulateController extends Controller
         $parents = User::where('role', 'parent')->get();
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
+        $classes = Classes::all();
 
         $outstandingBalance = DB::table('invoices')
             ->whereIn('status', ['pending', 'overdue'])
@@ -161,7 +166,7 @@ class DashboardPopulateController extends Controller
 
         return view('dashboard', compact(
             'branches', 'beltlevels', 'parents', 'students', 'todayAttendance', 
-            'enrolleesChartData', 'heatmapData', 'timeLabels', 'maxHeatmapCount', 'revenueChartData', 'outstandingBalance'
+            'enrolleesChartData', 'heatmapData', 'timeLabels', 'maxHeatmapCount', 'revenueChartData', 'outstandingBalance', 'classes'
         ));
     }
 
@@ -248,5 +253,74 @@ class DashboardPopulateController extends Controller
         }
 
         return redirect()->back()->with('success', 'Student successfully added!');
+    }
+    public function announcement(Request $request)
+    {
+        $validate = $request->validate([
+            'title' => ['required', 'string', 'max:200', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
+            'message' => ['required', 'string', 'regex:/^[^<>]+$/'],
+            'target_type' => 'required|in:all,class,belt,branch',
+            'class_id' => 'nullable|exists:classes,id',
+            'belt_level' => 'nullable|string',
+            'branch_id' => 'nullable|exists:branches,id',
+            'channel' => 'required|array',
+            'channel.*' => 'in:App,SMS,Email',
+            'expire_date' => 'required|date|after_or_equal:today',
+            'created_by_user_id' => 'required|exists:users,id',
+        ]);
+
+        // Additional conditional validation
+        if ($request->target_type === 'class' && !$request->filled('class_id')) {
+            return redirect()->back()
+                ->with('error', 'Please select a class when targeting by Class.')
+                ->withInput();
+        }
+
+        if ($request->target_type === 'branch' && !$request->filled('branch_id')) {
+            return redirect()->back()
+                ->with('error', 'Please select a branch when targeting by Branch.')
+                ->withInput();
+        }
+
+        if ($request->target_type === 'belt' && !$request->filled('belt_level')) {
+            return redirect()->back()
+                ->with('error', 'Please select a belt level when targeting by Belt.')
+                ->withInput();
+        }
+        // Convert channel array to comma-separated string
+        $channelString = implode(',', $request->channel);
+
+        $data = [
+            'created_by_user_id' => $request->created_by_user_id,
+            'target_type' => $request->target_type,
+            'title' => $this->sanitizeInput($request->title),
+            'message' => $this->sanitizeInput($request->message),
+            'channel' => $channelString,
+            'publish_date' => Carbon::now(),
+            'expire_date' => $request->expire_date,
+        ];
+
+        // Add conditional fields based on target type
+        if ($request->target_type === 'class') {
+            $data['class_id'] = $request->class_id;
+            $data['belt_level'] = null;
+            $data['branch_id'] = null;
+        } elseif ($request->target_type === 'belt') {
+            $data['belt_level'] = $request->belt_level;
+            $data['class_id'] = null;
+            $data['branch_id'] = null;
+        } elseif ($request->target_type === 'branch') {
+            $data['branch_id'] = $request->branch_id;
+            $data['class_id'] = null;
+            $data['belt_level'] = null;
+        } else { // all
+            $data['class_id'] = null;
+            $data['belt_level'] = null;
+            $data['branch_id'] = null;
+        }
+        
+
+        $announcement = Announcement::create($data);
+        return redirect()->back()->with('success', 'The message has been successfully created.');
     }
 }

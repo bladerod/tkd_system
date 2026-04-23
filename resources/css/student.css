@@ -289,3 +289,34 @@ Modal Background
     padding: 0.5rem !important;
     margin: 0 0.5rem !important;
 }
+.status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Paid */
+.status_pay.paid {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Overdue */
+.status_pay.overdue {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Pending */
+.status_pay.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Void */
+.status_pay.void {
+    background-color: #e2e3e5;
+    color: #383d41;
+}

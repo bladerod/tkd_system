@@ -20,7 +20,7 @@ class CertificateController extends Controller
         $branches = Branch::all();
         $students = Student::all();
         return view('certificates.index', compact('certificates', 'students', 'branches'));
-        
+
     }
 
     /* ================= API ================= */

@@ -200,6 +200,7 @@
 
 <div id="certificatesTab" class="tab-content hidden"></div>
     </div>
+</div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
@@ -408,7 +409,11 @@ async function loadBillingData(studentId) {
                 <tr>
                     <td>${new Date(b.created_at).toLocaleDateString()}</td>
                     <td>₱${b.amount}</td>
-                    <td>${b.status}</td>
+                    <td>
+    <span class="status_pay ${b.status.toLowerCase()}">
+        ${b.status}
+    </span>
+</td>
                 </tr>
             `;
         });

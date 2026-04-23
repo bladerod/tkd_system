@@ -27,27 +27,35 @@ class ParentsController extends Controller
     /**
      * Display a listing of parents.
      */
-    public function index()
-    {
-        $parents = Parents::with(['parent.user', 'students'])->get();
+public function index()
+{
+    $parents = Parents::with(['user', 'students'])->get();
 
-        $students = Student::select('id', 'student_name', 'student_code')
-                        ->where('status', 'active')
-                        ->get();
+    $parentList = $parents->map(function ($p) {
 
-        $users = User::where('role', 'parent')
-                    ->orWhereDoesntHave('parent')
-                    ->get();
+        // ✅ avoid null crash if user missing
+        $user = $p->user;
 
-        $branches = Branch::all();
+        return [
 
-        return view('parent', compact(
-            'parents',
-            'students',
-            'users',
-            'branches'
-        ));
-    }
+            'id' => $user->id, // <- this is what your modal should use
+            'user_id' => $user->id,
+
+            'name' => trim(($user->fname ?? '') . ' ' . ($user->lname ?? '')),
+            'email' => $user->email ?? '',
+            'mobile' => $user->mobile ?? '',
+
+            'children_count' => $p->students ? $p->students->count() : 0,
+
+            'total_balance' => 0,
+
+            'status' => $user->status ?? 0,
+            'id_verified_flag' => $p->id_verified_flag ?? 0
+        ];
+    });
+
+    return view('parent', compact('parentList'));
+}
 
     /**
      * Store a newly created parent.
@@ -183,25 +191,22 @@ class ParentsController extends Controller
      */
 public function show($id)
 {
-    try {
-        $parent = User::with('students')
-            ->where('role', 'parent')
-            ->where('id', $id) // ✅ FIX HERE
-            ->firstOrFail();
+    $parent = Parents::with(['user', 'students'])
+        ->where('user_id', $id)
+        ->first();
 
-        return response()->json([
-            'id' => $parent->id,
-            'full_name' => $parent->fname . ' ' . $parent->lname,
-            'email' => $parent->email,
-            'mobile' => $parent->mobile,
-            'students' => $parent->students,
-            'children_count' => $parent->students->count(),
-            'profile' => $parent->photo_url
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Parent not found'], 404);
+    if (!$parent) {
+        return response()->json(['error' => 'Not found'], 404);
     }
+
+    return response()->json([
+        'id' => $parent->id,
+        'full_name' => $parent->user->fname . ' ' . $parent->user->lname,
+        'email' => $parent->user->email,
+        'mobile' => $parent->user->mobile,
+        'students' => $parent->students,
+        'relationship_note' => $parent->relationship_note,
+    ]);
 }
 
     /**
@@ -296,4 +301,67 @@ public function show($id)
                 ->with('error', 'Failed to delete parent.');
         }
     }
+
+    public function getChildrenDetails($id)
+{
+    $parent = Parents::with('students')
+        ->where('user_id', $id)
+        ->first();
+
+    return response()->json([
+        'students' => $parent ? $parent->students : []
+    ]);
+}
+
+// =========================
+// BILLING
+// =========================
+public function billing($id)
+{
+    return DB::table('invoices')
+        ->join('students', 'students.id', '=', 'invoices.student_id')
+        ->where('students.primary_parent_id', $id)
+        ->select('invoices.*', 'students.first_name as student_name')
+        ->get();
+}
+
+// =========================
+// PAYMENTS
+// =========================
+public function payments($id)
+{
+    return DB::table('payments')
+        ->where('parent_id', $id)
+        ->get();
+}
+
+// =========================
+// CHAT
+// =========================
+public function chat($id)
+{
+    return DB::table('chat_messages')
+        ->where('sender_user_id', $id)
+        ->get();
+}
+
+// =========================
+// ACTIVITY
+// =========================
+public function activity($id)
+{
+    return DB::table('activity_logs')
+        ->where('parent_id', $id)
+        ->get();
+}
+
+// =========================
+// NOTIFICATIONS
+// =========================
+public function notifications($id)
+{
+    return DB::table('notifications')
+        ->where('user_id', $id)
+        ->get();
+}
 }

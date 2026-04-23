@@ -65,7 +65,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->middleware('permission:announcements,delete')->name('announcements.destroy');
 
     // PARENTS
-    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents', [ParentsController::class, 'index'])->name('parents.index');
+Route::get('/parents/{id}', [ParentsController::class, 'show']);
+Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
+Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
+Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
+Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
+Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));

@@ -1044,6 +1044,22 @@ DROP TABLE IF EXISTS `parentviews`;
  `status` tinyint(1) 
 )*/;
 
+/*Table structure for table `paymentsview` */
+
+DROP TABLE IF EXISTS `paymentsview`;
+
+/*!50001 DROP VIEW IF EXISTS `paymentsview` */;
+/*!50001 DROP TABLE IF EXISTS `paymentsview` */;
+
+/*!50001 CREATE TABLE  `paymentsview`(
+ `amount` decimal(12,2) ,
+ `created_at` timestamp ,
+ `payment_method` enum('cash','gcash','card','bank') ,
+ `parent_id` int(11) ,
+ `student_id` int(11) ,
+ `subscription_id` int(11) 
+)*/;
+
 /*Table structure for table `student_overview` */
 
 DROP TABLE IF EXISTS `student_overview`;
@@ -1059,6 +1075,9 @@ DROP TABLE IF EXISTS `student_overview`;
  `belt_id` bigint(20) unsigned ,
  `current_belt` varchar(255) ,
  `status` enum('active','inactive','suspended') ,
+ `join_date` date ,
+ `gender` enum('male','female','other') ,
+ `birthdate` date ,
  `parent_name` varchar(301) ,
  `balance` decimal(32,2) ,
  `attendance` decimal(24,0) 
@@ -1181,12 +1200,19 @@ DROP TABLE IF EXISTS `vw_revenue_reports`;
 
 /*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `parentviews` AS select `p`.`id` AS `id`,concat(`u`.`fname`,' ',`u`.`lname`) AS `name`,`u`.`mobile` AS `mobile`,`u`.`status` AS `status` from (`parents` `p` join `users` `u` on(`p`.`user_id` = `u`.`id`)) */;
 
+/*View structure for view paymentsview */
+
+/*!50001 DROP TABLE IF EXISTS `paymentsview` */;
+/*!50001 DROP VIEW IF EXISTS `paymentsview` */;
+
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `paymentsview` AS select `p`.`amount` AS `amount`,`p`.`created_at` AS `created_at`,`p`.`payment_method` AS `payment_method`,`i`.`parent_id` AS `parent_id`,`i`.`student_id` AS `student_id`,`i`.`subscription_id` AS `subscription_id` from (`payments` `p` join `invoices` `i` on(`p`.`invoice_id` = `i`.`id`)) */;
+
 /*View structure for view student_overview */
 
 /*!50001 DROP TABLE IF EXISTS `student_overview` */;
 /*!50001 DROP VIEW IF EXISTS `student_overview` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `student_overview` AS select `s`.`id` AS `id`,`s`.`student_code` AS `student_code`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `student_name`,`s`.`branch_id` AS `branch_id`,`b`.`id` AS `belt_id`,`b`.`name` AS `current_belt`,`s`.`status` AS `status`,concat(`u`.`fname`,' ',`u`.`lname`) AS `parent_name`,ifnull((select sum(`i`.`total_due`) from `invoices` `i` where `i`.`student_id` = `s`.`id` and `i`.`status` <> 'paid'),0) AS `balance`,ifnull(round((select count(`al`.`id`) from `attendance_logs` `al` where `al`.`student_id` = `s`.`id`) / nullif((select count(`cs`.`id`) from (`class_sessions` `cs` join `class_students` `cls` on(`cs`.`class_id` = `cls`.`class_id`)) where `cls`.`student_id` = `s`.`id`),0) * 100,0),0) AS `attendance` from ((`students` `s` left join `belt_levels` `b` on(`s`.`current_belt` = `b`.`id`)) left join `users` `u` on(`s`.`primary_parent_id` = `u`.`id`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `student_overview` AS select `s`.`id` AS `id`,`s`.`student_code` AS `student_code`,concat(`s`.`first_name`,' ',`s`.`last_name`) AS `student_name`,`s`.`branch_id` AS `branch_id`,`b`.`id` AS `belt_id`,`b`.`name` AS `current_belt`,`s`.`status` AS `status`,`s`.`join_date` AS `join_date`,`s`.`gender` AS `gender`,`s`.`birthdate` AS `birthdate`,concat(`u`.`fname`,' ',`u`.`lname`) AS `parent_name`,ifnull((select sum(`i`.`total_due`) from `invoices` `i` where `i`.`student_id` = `s`.`id` and `i`.`status` <> 'paid'),0) AS `balance`,ifnull(round((select count(`al`.`id`) from `attendance_logs` `al` where `al`.`student_id` = `s`.`id`) / nullif((select count(`cs`.`id`) from (`class_sessions` `cs` join `class_students` `cls` on(`cs`.`class_id` = `cls`.`class_id`)) where `cls`.`student_id` = `s`.`id`),0) * 100,0),0) AS `attendance` from ((`students` `s` left join `belt_levels` `b` on(`s`.`current_belt` = `b`.`id`)) left join `users` `u` on(`s`.`primary_parent_id` = `u`.`id`)) */;
 
 /*View structure for view vwattendancelog */
 

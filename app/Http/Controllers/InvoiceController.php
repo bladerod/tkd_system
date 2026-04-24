@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\BillingRules;
+use App\Models\Classes;
 use App\Models\Discount;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Student;
 use App\Models\StudentSubscription;
-use App\Models\Classes;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -374,11 +376,11 @@ class InvoiceController extends Controller
      * Process payment for an invoice
      */
     public function processPayment(Request $request, $invoiceId)
-    {
+    {   
         $request->validate([
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|in:cash,check,bank_transfer,credit_card',
-            'transaction_reference' => 'nullable|string'
+            'transaction_reference' => 'nullable|string',
         ]);
         
         DB::beginTransaction();
@@ -400,6 +402,7 @@ class InvoiceController extends Controller
                 'payment_method' => $request->payment_method,
                 'transaction_reference' => $request->transaction_reference,
                 'paid_at' => Carbon::now(),
+                'paid_by_user_id' => Auth::id(),
                 'status' => 'completed'
             ]);
             

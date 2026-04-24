@@ -330,7 +330,7 @@ public function billing($id)
 // =========================
 public function payments($id)
 {
-    return DB::table('payments')
+    return DB::table('paymentsview')
         ->where('parent_id', $id)
         ->get();
 }

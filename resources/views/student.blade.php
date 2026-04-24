@@ -100,7 +100,11 @@
                                 </span>
                             </td>
                             <td>{{ $student->parent_name }}</td>
-                            <td class="balance paid">{{ $student->balance }}</td>
+                            <td >
+                                <span class="{{ $student->balance > 0 ? 'text-red-600 font-semibold' : 'text-green-600' }}">
+                                    Php {{ number_format($student->balance, 2) }}
+                                </span>
+                            </td>
                             <td>{{ $student->attendance }}%</td>
                             <td>
                                 <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
@@ -176,11 +180,11 @@
                 <table class="attendance-table min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray uppercase">Date</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray uppercase">Check In</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray uppercase">Check Out</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray uppercase">Status</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray uppercase">Method</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray uppercase text-center">Date</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray uppercase text-center">Check In</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray uppercase text-center">Check Out</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray uppercase text-center">Status</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray uppercase text-center">Method</th>
                         </tr>
                     </thead>
                     <tbody id="attendanceTableBody" class="bg-white divide-y divide-gray-200"></tbody>
@@ -242,9 +246,14 @@ async function openModal(button) {
 
         document.getElementById("profileTab").innerHTML = `
             <div class="grid grid-cols-2 gap-4 text-sm">
-                <div><strong>Name:</strong> ${fullName}</div>
+                <div><strong>Name:</strong> <span class="capitalize">${fullName}</span></div>
                 <div><strong>Belt:</strong> ${data.current_belt ?? 'N/A'}</div>
-                <div><strong>Status:</strong> ${data.status ?? 'N/A'}</div>
+                <div>
+  <strong>Status:</strong>
+  <span class="status ${data.status === 'active' ? 'active' : 'inactive'}">
+    ${data.status ?? 'N/A'}
+  </span>
+</div>
                 <div><strong>Parent:</strong> ${data.parent_name ?? 'N/A'}</div>
                 <div>
   <strong>Birthdate:</strong>
@@ -256,7 +265,7 @@ async function openModal(button) {
       })
     : 'N/A'}
 </div>
-                <div><strong>Gender:</strong> ${data.gender ?? 'N/A'}</div>
+                <div><strong>Gender:</strong> <span class="capitalize">${data.gender ?? 'N/A'}</span></div>
          <div>
   <strong>Join Date:</strong>
   ${data.join_date
@@ -289,6 +298,8 @@ function closeModal() {
 }
 
 function switchTab(button) {
+    const studentId = document.getElementById("studentModal").dataset.studentId;
+
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     button.classList.add("active");
 
@@ -303,12 +314,24 @@ function switchTab(button) {
     tab.classList.remove("hidden");
     tab.classList.add("block");
 
-    const studentId = document.getElementById("studentModal").dataset.studentId;
+    // ✅ DEBUG LOG
+    console.log("Switching to:", button.dataset.tab, "Student ID:", studentId);
 
-    if (button.dataset.tab === "attendance") loadAttendanceData(studentId);
-    if (button.dataset.tab === "billing") loadBillingData(studentId);
-    if (button.dataset.tab === "competition") loadCompetitionData(studentId);
-    if (button.dataset.tab === "certificates") loadCertificatesData(studentId);
+    // ✅ LOAD DATA
+    switch (button.dataset.tab) {
+        case "attendance":
+            loadAttendanceData(studentId);
+            break;
+        case "billing":
+            loadBillingData(studentId);
+            break;
+        case "competition":
+            loadCompetitionData(studentId);
+            break;
+        case "certificates":
+            loadCertificatesData(studentId);
+            break;
+    }
 }
 
 async function loadAttendanceData(studentId) {
@@ -337,11 +360,11 @@ async function loadAttendanceData(studentId) {
             logs.forEach(log => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${log.checkin_time ? new Date(log.checkin_time).toLocaleDateString() : '-'}</td>
-                        <td>${log.checkin_time ? new Date(log.checkin_time).toLocaleTimeString() : '-'}</td>
-                        <td>${log.checkout_time ? new Date(log.checkout_time).toLocaleTimeString() : '-'}</td>
-                        <td class="${getStatusColor(log.attendance_status)}">${log.attendance_status ?? '-'}</td>
-                        <td>${log.method ?? 'Manual'}</td>
+                        <td class="text-center">${log.checkin_time ? new Date(log.checkin_time).toLocaleDateString() : '-'}</td>
+                        <td class="text-center">${log.checkin_time ? new Date(log.checkin_time).toLocaleTimeString() : '-'}</td>
+                        <td class="text-center">${log.checkout_time ? new Date(log.checkout_time).toLocaleTimeString() : '-'}</td>
+                        <td class="text-center ${getStatusColor(log.attendance_status)}">${log.attendance_status ?? '-'}</td>
+                        <td class="text-center">${log.method ?? 'Manual'}</td>
                     </tr>
                 `;
             });
@@ -400,9 +423,9 @@ async function loadBillingData(studentId) {
         data.forEach(b => {
             html += `
                 <tr>
-                    <td>${new Date(b.created_at).toLocaleDateString()}</td>
-                    <td>₱${b.amount}</td>
-                    <td>
+                    <td class="text-center">${new Date(b.created_at).toLocaleDateString()}</td>
+<td class="text-center">Php ${Number(b.amount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+<td class="text-center">
     <span class="status_pay ${b.status.toLowerCase()}">
         ${b.status}
     </span>
@@ -421,13 +444,20 @@ async function loadBillingData(studentId) {
 
 async function loadCompetitionData(studentId) {
     const tab = document.getElementById("competitionTab");
-    tab.innerHTML = "Loading competition...";
+
+    tab.innerHTML = "<p>Loading competition...</p>";
 
     try {
         const res = await fetch(`/students/${studentId}/competition`);
-        const data = await res.json();
 
-        if (!data.length) {
+        if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("Competition data:", data); // ✅ DEBUG
+
+        if (!Array.isArray(data) || data.length === 0) {
             tab.innerHTML = "<p>No competition history</p>";
             return;
         }
@@ -436,20 +466,20 @@ async function loadCompetitionData(studentId) {
 
         data.forEach(c => {
             html += `
-    <div class="p-4 bg-white rounded shadow mb-2">
-        <div class="font-bold text-lg">${c.competition_name}</div>
-        <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
-        <div class="text-sm">Instructor: ${c.instructor_name}</div>
-        <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
-    </div>
-`;
+                <div class="p-4 bg-white rounded shadow mb-2">
+                    <div class="font-bold text-lg">${c.competition_name ?? 'No name'}</div>
+                    <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
+                    <div class="text-sm">Instructor: ${c.instructor_name ?? 'N/A'}</div>
+                    <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
+                </div>
+            `;
         });
 
         tab.innerHTML = html;
 
     } catch (err) {
-        console.error(err);
-        tab.innerHTML = "Failed to load competition";
+        console.error("COMPETITION ERROR:", err);
+        tab.innerHTML = "<p class='text-red-500'>Failed to load competition</p>";
     }
 }
 async function loadCertificatesData(studentId) {

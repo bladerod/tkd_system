@@ -78,7 +78,7 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
     Route::get('/students/{id}', [StudentController::class, 'show']);
     Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{id}/competition', [StudentController::class, 'competition']);
+    Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
     Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);

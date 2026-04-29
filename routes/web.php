@@ -197,7 +197,7 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
     });
 
-    Route::get('/student', function () {
+    Route::get('/student', function (\Illuminate\Http\Request $request) {
         $beltlevels = BeltLevel::all();
         $users = User::all();
         $classes = Classes::all();

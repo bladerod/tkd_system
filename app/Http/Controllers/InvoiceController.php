@@ -22,11 +22,40 @@ class InvoiceController extends Controller
     /**
      * Display invoices page
      */
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::with(['student.parent.user', 'payments'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // 1. Get filter parameters
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+        $classId = $request->input('class_id');
+
+        // 2. Start the query
+        $query = Invoice::with(['student.parent.user', 'payments']);
+
+        // 3. Apply Filters
+        if ($fromDate && $toDate) {
+            // Filtering by Due Date
+            $query->whereBetween('due_date', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $query->where('due_date', '>=', $fromDate);
+        } elseif ($toDate) {
+            $query->where('due_date', '<=', $toDate);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($classId) {
+            // Filter invoices where the student is enrolled in a specific active class
+            $query->whereHas('student.classes', function ($q) use ($classId) {
+                $q->where('class_id', $classId)->where('status', 'active');
+            });
+        }
+
+        // 4. Execute Query
+        $invoices = $query->orderBy('created_at', 'desc')->get();
         
         $students = Student::with('parent.user')
             ->where('status', 'active')
@@ -39,7 +68,7 @@ class InvoiceController extends Controller
             ->get();
         $classes = Classes::where('status', 'active')->orderBy('class_name')->get();
         
-        return view('billing', compact('invoices', 'students', 'plans', 'discounts', 'classes'));
+        return view('billing', compact('invoices', 'students', 'plans', 'discounts', 'classes', 'fromDate', 'toDate', 'status', 'classId'));
     }
 
     /**

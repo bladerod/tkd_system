@@ -40,6 +40,7 @@ class StudentController extends Controller
                     'belt' => $student->current_belt ?? 'white',
                     'status' => $student->status ?? 'active',
                     'photo' => $student->photo_url,
+                    'join_date' => $student->join_date,
                     'parent_name' => $student->primaryParent?->user?->name ?? 'N/A',
                     // 'balance' => $this->calculateBalance($student),
                     // 'attendance_rate' => $this->calculateAttendanceRate($student),
@@ -274,7 +275,7 @@ public function certificates($id)
     //     ]);
     // }
 
-public function competitions($studentId)
+public function competitions($id)
 {
     $entries = DB::table('competition_entries as ce')
         ->leftJoin('competitions as c', 'ce.competition_id', '=', 'c.id')
@@ -286,7 +287,7 @@ public function competitions($studentId)
             'c.date as competition_date',
             DB::raw("CONCAT(u.fname, ' ', u.lname) as instructor_name")
         )
-        ->where('ce.student_id', $studentId)
+        ->where('ce.student_id', $id)
         ->orderBy('c.date', 'desc')
         ->get();
 
@@ -318,4 +319,46 @@ public function competitions($studentId)
 
     //     return response()->json($attendance);
     // }
+
+    public function filter(Request $request)
+{
+    $query = DB::table('student_overview');
+
+    // ✅ BELT FILTER (FIXED)
+    if ($request->belt) {
+        $beltName = DB::table('belt_levels')
+            ->where('belt_id', $request->belt)
+            ->value('name');
+
+        if ($beltName) {
+            $query->where('current_belt', $beltName);
+        }
+    }
+
+    // ✅ DATE RANGE FILTER (SAFE)
+    if ($request->from_date) {
+        $query->whereRaw("DATE(join_date) >= ?", [$request->from_date]);
+    }
+
+    if ($request->to_date) {
+        $query->whereRaw("DATE(join_date) <= ?", [$request->to_date]);
+    }
+
+    // ✅ SORTING (SAFE)
+    $allowedSorts = [
+        'student_name',
+        'current_belt',
+        'status',
+        'parent_name',
+        'balance',
+        'attendance',
+        'join_date'
+    ];
+
+    if ($request->sort_by && in_array($request->sort_by, $allowedSorts)) {
+        $query->orderBy($request->sort_by, $request->sort_dir ?? 'asc');
+    }
+
+    return response()->json($query->get());
+}
 }

@@ -334,15 +334,15 @@ class ParentsController extends Controller
             ->get();
     }
 
-    // =========================
-    // PAYMENTS
-    // =========================
-    public function payments($id)
-    {
-        return DB::table('payments')
-            ->where('parent_id', $id)
-            ->get();
-    }
+// =========================
+// PAYMENTS
+// =========================
+public function payments($id)
+{
+    return DB::table('paymentsview')
+        ->where('parent_id', $id)
+        ->get();
+}
 
     // =========================
     // CHAT

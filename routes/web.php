@@ -87,9 +87,10 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
     // STUDENTS
     Route::post('/student', [StudentController::class, 'store'])->name('student.create');
     Route::get('/students/{id}', [StudentController::class, 'show']);
+    Route::get('/students/filter', [StudentController::class, 'filter']);
     Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{id}/competition', [StudentController::class, 'competition']);
+    Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
     Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
@@ -201,31 +202,20 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         $users = User::all();
         $classes = Classes::all();
 
-
-       $status = $request->input('status');
-        $belt = $request->input('belt');
-
-        $query = DB::table('student_overview')
-            ->select(
-                'id',
-                'student_code',
-                'student_name',
-                'current_belt',
-                'status',
-                'parent_name',
-                'balance',
-                'attendance'
-            );
-
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        if ($belt) {
-            $query->where('current_belt', $belt);
-        }
-
-        $vwstudents = $query->orderBy('student_name', 'asc')->get();
+        // CHANGE THIS: Use the DB facade to pull from the view
+        $vwstudents = DB::table('student_overview')
+        ->orderBy('student_name', 'asc')
+        ->select(
+            'id',
+            'student_code',
+            'student_name',
+            'current_belt',
+            'status',
+            'parent_name',
+            'balance',
+            'attendance',
+            'join_date'
+        )->get();
 
         return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
     })->name('student');

@@ -99,17 +99,43 @@
                         <!-- Users Table -->
                         <div class="overflow-x-auto bg-white rounded-b-lg border border-gray-200">
                             <table id="parentTable" class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Children</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Balance</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Verified</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
+                               <thead class="bg-gray-50">
+    <tr>
+        <th onclick="sortTable(0)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Name ⬍
+        </th>
+
+        <th onclick="sortTable(1)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Children ⬍
+        </th>
+
+        <th onclick="sortTable(2)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Contact ⬍
+        </th>
+
+        <th onclick="sortTable(3)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Total Balance ⬍
+        </th>
+
+        <th onclick="sortTable(4)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Status ⬍
+        </th>
+
+        <th onclick="sortTable(5)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            ID Verified ⬍
+        </th>
+
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+        </th>
+    </tr>
+</thead>
 
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse ($parentList as $parent)
@@ -133,7 +159,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="text-sm {{ $parent['total_balance'] > 0 ? 'text-red-600 font-semibold' : 'text-green-600' }}">
-                                                    ₱{{ number_format($parent['total_balance'], 2) }}
+                                                    Php {{ number_format($parent['total_balance'], 2) }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
@@ -473,10 +499,10 @@ async function loadBilling(parentId) {
     data.forEach(b => {
         html += `
             <tr>
-                <td>${new Date(b.created_at).toLocaleDateString()}</td>
-                <td>${b.student_name ?? 'N/A'}</td>
-                <td>₱${b.amount}</td>
-                <td>${b.status}</td>
+                <td class="text-center">${new Date(b.created_at).toLocaleDateString()}</td>
+                <td class="text-center capitalize">${b.student_name ?? 'N/A'}</td>
+                <td class="text-center">Php ${Number(b.amount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td class="text-center"><span class="status_pay ${b.status.toLowerCase()} capitalize">${b.status}</span></td>
             </tr>
         `;
     });
@@ -507,9 +533,15 @@ async function loadPayments(parentId) {
     data.forEach(p => {
         html += `
             <div class="p-3 border mb-2 rounded">
-                <div><b>₱${p.amount}</b></div>
-                <div>${new Date(p.created_at).toLocaleDateString()}</div>
-                <div class="text-sm text-gray-500">${p.method}</div>
+                <div><b>Php ${Number(p.amount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b></div>
+                <div>
+  ${new Date(p.created_at).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  })}
+</div>
+                <div class="text-sm text-gray-500 capitalize">${p.payment_method}</div>
             </div>
         `;
     });
@@ -653,9 +685,14 @@ async function loadStudentProfile(studentId) {
 
         tab.innerHTML = `
             <div class="grid grid-cols-2 gap-4 text-sm">
-                <div><strong>Name:</strong> ${fullName}</div>
+                <div><strong>Name:</strong> <span class="capitalize">${fullName}</span></div>
                 <div><strong>Belt:</strong> ${data.current_belt ?? 'N/A'}</div>
-                <div><strong>Status:</strong> ${data.status ?? 'N/A'}</div>
+                <div>
+  <strong>Status:</strong>
+  <span class="status ${data.status === 'active' ? 'active' : 'inactive'}">
+    ${data.status ?? 'N/A'}
+  </span>
+</div>
                 <div><strong>Parent:</strong> ${data.parent_name ?? 'N/A'}</div>
                 <div>
   <strong>Birthdate:</strong>
@@ -667,7 +704,7 @@ async function loadStudentProfile(studentId) {
       })
     : 'N/A'}
 </div>
-                <div><strong>Gender:</strong> ${data.gender ?? 'N/A'}</div>
+                <div><strong>Gender:</strong> <span class="capitalize">${data.gender ?? 'N/A'}</span></div>
          <div>
   <strong>Join Date:</strong>
   ${data.join_date
@@ -728,7 +765,7 @@ async function loadAttendance(studentId) {
         logs.forEach(log => {
             tbody.innerHTML += `
                 <tr>
-                    <td>${new Date(log.checkin_time).toLocaleDateString()}</td>
+                    <td class="text-center">${new Date(log.checkin_time).toLocaleDateString()}</td>
                     <td>${new Date(log.checkin_time).toLocaleTimeString()}</td>
                     <td>${log.checkout_time ? new Date(log.checkout_time).toLocaleTimeString() : '-'}</td>
                     <td class="${getStatusColor(log.attendance_status)}">${log.attendance_status ?? '-'}</td>
@@ -767,11 +804,11 @@ async function loadCompetitionData(studentId) {
         data.forEach(c => {
             html += `
     <div class="p-4 bg-white rounded shadow mb-2">
-        <div class="font-bold text-lg">${c.competition_name}</div>
-        <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
-        <div class="text-sm">Instructor: ${c.instructor_name}</div>
-        <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
-    </div>
+                    <div class="font-bold text-lg">${c.competition_name ?? 'No name'}</div>
+                    <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
+                    <div class="text-sm">Instructor: ${c.instructor_name ?? 'N/A'}</div>
+                    <div class="mt-1 font-semibold ">Result: <span class="capitalize">${c.result ?? 'Pending'}</span></div>
+                </div>
 `;
         });
 
@@ -811,9 +848,9 @@ async function loadBillingData(studentId) {
         data.forEach(b => {
             html += `
                 <tr>
-                    <td>${new Date(b.created_at).toLocaleDateString()}</td>
-                    <td>₱${b.amount}</td>
-                    <td>${b.status}</td>
+                    <td class="text-center">${new Date(b.created_at).toLocaleDateString()}</td>
+                    <td class="text-center">Php ${Number(b.amount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="text-center status_pay ${b.status.toLowerCase()} capitalize">${b.status}</td>
                 </tr>
             `;
         });
@@ -902,6 +939,55 @@ function getStatusColor(status) {
     }
 }
 
+window.onclick = function(e) {
+    const modal = document.getElementById("studentModal");
+    if (e.target === modal) closeStudentModal();
+};
+window.onclick = function(e) {
+    const modal = document.getElementById("parentModal");
+    if (e.target === modal) closeModal();
+};
+
+let sortDirections = {};
+
+function sortTable(columnIndex) {
+
+    const table = document.getElementById("parentTable");
+    const tbody = table.querySelector("tbody");
+
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    // toggle asc/desc
+    sortDirections[columnIndex] = !sortDirections[columnIndex];
+
+    const ascending = sortDirections[columnIndex];
+
+    rows.sort((a, b) => {
+
+        let aText = a.children[columnIndex].innerText.trim().toLowerCase();
+        let bText = b.children[columnIndex].innerText.trim().toLowerCase();
+
+        // remove php and commas for money sorting
+        aText = aText.replace(/php|,/gi, '').trim();
+        bText = bText.replace(/php|,/gi, '').trim();
+
+        // numeric sort
+        if (!isNaN(aText) && !isNaN(bText)) {
+            return ascending
+                ? Number(aText) - Number(bText)
+                : Number(bText) - Number(aText);
+        }
+
+        // text sort
+        return ascending
+            ? aText.localeCompare(bText)
+            : bText.localeCompare(aText);
+    });
+
+    tbody.innerHTML = "";
+
+    rows.forEach(row => tbody.appendChild(row));
+}
 </script>
     @vite("resources/js/parents.js")
     @vite(['resources/js/navbarDrop.js'])

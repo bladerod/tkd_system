@@ -1,7 +1,13 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Integrations</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -56,57 +62,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Sender Name</label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="TrainNova Academy">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Enable SMS Notifications</label>
-                                            <div class="flex items-center mt-2">
-                                                <label class="relative inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox" class="sr-only peer" checked>
-                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1C1C1D]"></div>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div> --}}
-
-                                    <!-- Email Integration -->
-                                    <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3 mt-6">Email Integration</h2>
-                                    <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
-
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">SMTP Host</label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="smtp.gmail.com">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">SMTP Port</label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="587">
-                                        </div>
-                                    </div>
-
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Email Address</label>
-                                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="academy@TrainNova.com">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Email Password</label>
-                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                        </div>
-                                    </div>
-
-                                    {{-- <div class="mb-6">
-                                        <label class="block text-sm text-gray-600 mb-1">Enable Email Notifications</label>
-                                        <div class="flex items-center mt-2">
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer" checked>
-                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1C1C1D]"></div>
-                                            </label>
-                                        </div>
-                                    </div> --}}
 
                                     <!-- Payment Gateway -->
                                     <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3 mt-6">Payment Gateway</h2>
@@ -138,41 +93,6 @@
                                             <input type="url" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" value="https://api.TrainNova.com/webhook">
                                         </div>
                                     </div>
-
-                                    {{-- <div class="mb-6">
-                                        <label class="block text-sm text-gray-600 mb-1">Enable Online Payments</label>
-                                        <div class="flex items-center mt-2">
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" class="sr-only peer" checked>
-                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1C1C1D]"></div>
-                                            </label>
-                                        </div>
-                                    </div> --}}
-
-                                    {{-- <!-- Cloud Storage -->
-                                    <h2 class="text-xl font-semibold text-[#1C1C1D] mb-3 mt-6">Cloud Storage (Optional)</h2>
-                                    <hr style="border: solid 1px gray; opacity: 20%; margin-bottom: 20px;">
-
-                                    <div class="grid grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Storage Provider</label>
-                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                                <option>AWS S3</option>
-                                                <option>Google Cloud</option>
-                                                <option>Azure</option>
-                                                <option>DigitalOcean</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600 mb-1">Access Key</label>
-                                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none">
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-6">
-                                        <label class="block text-sm text-gray-600 mb-1">Bucket Name</label>
-                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="TrainNova-attendance-records">
-                                    </div> --}}
 
                                     <!-- Buttons -->
                                     <div class="flex items-center justify-end gap-3 pt-6">

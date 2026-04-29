@@ -1,7 +1,13 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt - {{ $invoice->invoice_no }}</title>
     @vite(['resources/css/app.css'])

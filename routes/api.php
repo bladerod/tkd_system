@@ -9,10 +9,12 @@ use App\Http\Controllers\Api\StudentApiController;
 use App\Http\Controllers\Api\ClassApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\AnnouncementApiController;
+use App\Http\Controllers\Api\BillingApiController;
 use App\Http\Controllers\Api\ParentApiController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\Api\EvaluationApiController;
 
 
 // Public routes (no token needed)
@@ -71,13 +73,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/announcements/{id}/dismiss', [AnnouncementApiController::class, 'dismiss']);
 
-    // Students
-    // Route::prefix('students')->group(function () {
-    //     Route::get('/', [StudentApiController::class, 'index']);
-    //     Route::get('/{id}', [StudentApiController::class, 'show']);
-    //     Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
-    //     Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
-    // });
+    //for billing
+    Route::get('/student/billing', [BillingApiController::class, 'studentBilling']);
+    Route::get('/parent/billing/{studentId}', [BillingApiController::class, 'parentBilling']);
+    Route::post('/invoices/{id}/upload-proof', [BillingApiController::class, 'uploadProof']);
+
+    // Evaluation
+    Route::get('/instructor/evaluation/students', [EvaluationApiController::class, 'getStudents']);
+    Route::get('/instructor/evaluation/skills/{belt}', [EvaluationApiController::class, 'getSkillsByBelt']);
+    Route::post('/instructor/evaluation/save', [EvaluationApiController::class, 'saveEvaluation']);
+    Route::get('/instructor/evaluation/history/{studentId}', [EvaluationApiController::class, 'getHistory']);
+    
+    //Student progress
+    Route::get('/student/progress', [EvaluationApiController::class, 'studentProgress']);
+    Route::get('/instructor/evaluation/latest/{studentId}', [EvaluationApiController::class, 'getLatestEvaluation']);
 
     // Announcements
     Route::get('/announcements', [AnnouncementApiController::class, 'index']);
@@ -106,8 +115,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 
 
-Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
+    Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
+
+    //belt promotions
+    Route::get('/instructor/belt-promotion/candidates', [EvaluationApiController::class, 'getBeltPromotionCandidates']);
+    Route::post('/instructor/belt-promotion/approve', [EvaluationApiController::class, 'approvePromotion']);
 
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);

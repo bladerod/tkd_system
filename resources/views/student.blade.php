@@ -1,8 +1,15 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Students</title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/dashboard.css'])
@@ -34,56 +41,60 @@
                 Student List
             </div>
 
-        {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
-            <div class="dropdown">
-                <label for="belt">Belt</label>
-                <select name="belt" id="belt">
-                    <option value="" disabled selected>-- Select a belt --</option>
-                    @foreach ($beltlevels as $belt)
-                        <option value="{{ $belt->id }}">{{ $belt->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+        <div class="grid grid-cols-5 gap-4 px-4 pt-4">
 
-        <div class="content-card mb-6">
-            <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
-                Student List
-            </div>
+    <!-- BELT -->
+    <div class="dropdown">
+        <label for="belt">Belt</label>
+        <select id="belt">
+            <option value="">All</option>
+            @foreach ($beltlevels as $belt)
+                <option value="{{ $belt->id }}">{{ $belt->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
-            <div class="dropdown">
-                <label for="class">Class</label>
-                <select name="class" id="class">
-                    <option value="" disabled selected>-- Select class --</option>
-                    @foreach ($classes as $class)
-                        <option value="{{ $class->id }}">{{ $class->class_name }}</option>
-                    @endforeach
-                </select>
-            </div>
+    <!-- FROM DATE -->
+    <div class="dropdown">
+        <label for="from_date">From Date</label>
+        <input type="date" id="from_date" class="border rounded px-2 py-1 w-full">
+    </div>
 
-            <div class="dropdown">
-                <label for="instructor">Instructor</label>
-                <select name="instructor" id="instructor">
-                    <option value="" disabled selected>-- Select instructor --</option>
-                    @foreach ($users->where('role', 'instructor') as $user)
-                        <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div> --}}
+    <!-- TO DATE -->
+    <div class="dropdown">
+        <label for="to_date">To Date</label>
+        <input type="date" id="to_date" class="border rounded px-2 py-1 w-full">
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="flex items-end gap-2 col-span-2">
+        <button onclick="applyFilters()"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Apply
+        </button>
+
+        <button onclick="resetFilters()"
+            class="bg-gray-500 text-white px-4 py-2 rounded">
+            Reset
+        </button>
+    </div>
+
+</div>
 
         <div class="mt-2">
             <div class="table-content overflow-x-auto">
                 <table id="studentTable" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th>Name</th>
-                            <th>Belt</th>
-                            <th>Status</th>
-                            <th>Parent</th>
-                            <th>Balance</th>
-                            <th>Attendance</th>
-                            <th>Actions</th>
-                        </tr>
+    <th onclick="sortTable('student_name')">Name ⬍</th>
+    <th onclick="sortTable('current_belt')">Belt ⬍</th>
+    <th onclick="sortTable('status')">Status ⬍</th>
+    <th onclick="sortTable('parent_name')">Parent ⬍</th>
+    <th onclick="sortTable('balance')">Balance ⬍</th>
+    <th onclick="sortTable('attendance')">Attendance ⬍</th>
+    <th onclick="sortTable('join_date')">Enrolled Date ⬍</th>
+    <th>Actions</th>
+</tr>
                     </thead>
                     <tbody>
                         @foreach ($vwstudents as $student)
@@ -106,6 +117,7 @@
                                 </span>
                             </td>
                             <td>{{ $student->attendance }}%</td>
+                            <td>{{ $student->join_date }}</td>
                             <td>
                                 <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
                                         onclick="openModal(this)"
@@ -204,6 +216,80 @@
 @vite('resources/js/student.js')
 @vite('resources/js/navbarDrop.js')
 <script>
+
+let currentSort = {
+    column: null,
+    direction: 'asc'
+};
+
+function applyFilters() {
+    const belt = document.getElementById("belt").value;
+    const from = document.getElementById("from_date").value;
+    const to = document.getElementById("to_date").value;
+
+    fetchData(belt, from, to);
+}
+
+function resetFilters() {
+    document.getElementById("belt").value = "";
+    document.getElementById("from_date").value = "";
+    document.getElementById("to_date").value = "";
+
+    fetchData();
+}
+
+function sortTable(column) {
+    if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSort.column = column;
+        currentSort.direction = 'asc';
+    }
+
+    applyFilters();
+}
+
+function fetchData(belt = '', from = '', to = '') {
+    const params = new URLSearchParams({
+        belt: belt,
+        from_date: from,
+        to_date: to,
+        sort_by: currentSort.column,
+        sort_dir: currentSort.direction
+    });
+
+    fetch(`/students/filter?${params.toString()}`)
+    .then(res => res.json())
+    .then(data => {
+        console.log("FILTER RESULT:", data); // 👈 ADD THIS
+        renderTable(data);
+    });
+}
+
+function renderTable(students) {
+    const tbody = document.querySelector("#studentTable tbody");
+    tbody.innerHTML = "";
+
+    students.forEach(student => {
+        tbody.innerHTML += `
+        <tr>
+            <td>${student.student_name ?? 'NO NAME'}</td>
+            <td>${student.current_belt}</td>
+            <td>${student.status}</td>
+            <td>${student.parent_name}</td>
+            <td>Php ${parseFloat(student.balance).toFixed(2)}</td>
+            <td>${student.attendance}%</td>
+            <td>${student.join_date ?? '-'}</td>
+            <td>
+                <button class="bg-blue-500 text-white px-2 py-1 rounded"
+                    onclick="openModalById(${student.id})">
+                    View
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+}
 
     function getStatusColor(status) {
     const s = status ? status.toLowerCase() : '';

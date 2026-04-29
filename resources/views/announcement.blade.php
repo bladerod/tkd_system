@@ -2,6 +2,7 @@
     $canCreateAnnouncement = auth()->user()->canCreate('classes');
     $canEditAnnouncement = auth()->user()->canEdit('classes');
     $canDeleteAnnouncement = auth()->user()->canDelete('classes');
+    $branding = \App\Models\Branding::first();
 @endphp
 
 <!DOCTYPE html>
@@ -10,6 +11,9 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Announcements</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>

@@ -1,8 +1,14 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Parent Management </title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/parent.css'])
@@ -52,17 +58,43 @@
                         <!-- Users Table -->
                         <div class="overflow-x-auto bg-white rounded-b-lg border border-gray-200">
                             <table id="parentTable" class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Children</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Balance</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Verified</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
+                               <thead class="bg-gray-50">
+    <tr>
+        <th onclick="sortTable(0)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Name ⬍
+        </th>
+
+        <th onclick="sortTable(1)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Children ⬍
+        </th>
+
+        <th onclick="sortTable(2)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Contact ⬍
+        </th>
+
+        <th onclick="sortTable(3)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Total Balance ⬍
+        </th>
+
+        <th onclick="sortTable(4)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            Status ⬍
+        </th>
+
+        <th onclick="sortTable(5)"
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+            ID Verified ⬍
+        </th>
+
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+        </th>
+    </tr>
+</thead>
 
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse ($parentList as $parent)
@@ -734,7 +766,7 @@ async function loadCompetitionData(studentId) {
                     <div class="font-bold text-lg">${c.competition_name ?? 'No name'}</div>
                     <div class="text-sm text-gray-500">${new Date(c.competition_date).toDateString()}</div>
                     <div class="text-sm">Instructor: ${c.instructor_name ?? 'N/A'}</div>
-                    <div class="mt-1 font-semibold">Result: ${c.result ?? 'Pending'}</div>
+                    <div class="mt-1 font-semibold ">Result: <span class="capitalize">${c.result ?? 'Pending'}</span></div>
                 </div>
 `;
         });
@@ -874,6 +906,47 @@ window.onclick = function(e) {
     const modal = document.getElementById("parentModal");
     if (e.target === modal) closeModal();
 };
+
+let sortDirections = {};
+
+function sortTable(columnIndex) {
+
+    const table = document.getElementById("parentTable");
+    const tbody = table.querySelector("tbody");
+
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    // toggle asc/desc
+    sortDirections[columnIndex] = !sortDirections[columnIndex];
+
+    const ascending = sortDirections[columnIndex];
+
+    rows.sort((a, b) => {
+
+        let aText = a.children[columnIndex].innerText.trim().toLowerCase();
+        let bText = b.children[columnIndex].innerText.trim().toLowerCase();
+
+        // remove php and commas for money sorting
+        aText = aText.replace(/php|,/gi, '').trim();
+        bText = bText.replace(/php|,/gi, '').trim();
+
+        // numeric sort
+        if (!isNaN(aText) && !isNaN(bText)) {
+            return ascending
+                ? Number(aText) - Number(bText)
+                : Number(bText) - Number(aText);
+        }
+
+        // text sort
+        return ascending
+            ? aText.localeCompare(bText)
+            : bText.localeCompare(aText);
+    });
+
+    tbody.innerHTML = "";
+
+    rows.forEach(row => tbody.appendChild(row));
+}
 </script>
     @vite("resources/js/parents.js")
     @vite(['resources/js/navbarDrop.js'])

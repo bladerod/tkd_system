@@ -9,6 +9,9 @@ use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AnnouncementEmail;
+use App\Models\Student;
 use Carbon\Carbon;
 
 class AnnouncementController extends Controller
@@ -151,6 +154,79 @@ class AnnouncementController extends Controller
 
             // Create announcement
             $announcement = Announcement::create($data);
+
+            // --- EMAIL INTEGRATION START ---
+            if (in_array('Email', $request->channel)) {
+                $emails = [];
+
+                switch ($request->target_type) {
+                    case 'all':
+                        // Fetch all active students and parents
+                        $emails = User::whereIn('role', ['student', 'parent'])
+                            ->whereNotNull('email')
+                            ->pluck('email')
+                            ->toArray();
+                        break;
+
+                    case 'class':
+                        // Find students in this specific class
+                        $studentIds = DB::table('class_students')
+                            ->where('class_id', $request->class_id)
+                            ->pluck('student_id');
+                        
+                        // Get the students to find their user_id and primary_parent_id
+                        $students = Student::whereIn('id', $studentIds)->get();
+                        
+                        // Merge student accounts and parent accounts
+                        $targetUserIds = array_merge(
+                            $students->pluck('user_id')->toArray(), 
+                            $students->pluck('primary_parent_id')->toArray()
+                        );
+                        
+                        $emails = User::whereIn('id', $targetUserIds)
+                            ->whereNotNull('email')
+                            ->pluck('email')
+                            ->toArray();
+                        break;
+
+                    case 'belt':
+                        // Find students with this specific belt
+                        $students = Student::where('current_belt', $request->belt_level)->get();
+                        
+                        $targetUserIds = array_merge(
+                            $students->pluck('user_id')->toArray(), 
+                            $students->pluck('primary_parent_id')->toArray()
+                        );
+                        
+                        $emails = User::whereIn('id', $targetUserIds)
+                            ->whereNotNull('email')
+                            ->pluck('email')
+                            ->toArray();
+                        break;
+
+                    case 'branch':
+                        // Find users tied to this specific branch
+                        $emails = User::where('branch_id', $request->branch_id)
+                            ->whereIn('role', ['student', 'parent'])
+                            ->whereNotNull('email')
+                            ->pluck('email')
+                            ->toArray();
+                        break;
+                }
+
+                // Clean the array: remove nulls and duplicate emails
+                $emails = array_unique(array_filter($emails));
+
+                // Send the email if the list isn't empty
+                if (!empty($emails)) {
+                    // We use BCC (Blind Carbon Copy) so parents/students don't see each other's email addresses!
+                    Mail::bcc($emails)->send(new AnnouncementEmail($request->title, $request->message));
+                }
+            }
+            // --- EMAIL INTEGRATION END ---
+
+
+
 
             DB::commit();
 

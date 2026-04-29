@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 
@@ -27,7 +28,7 @@
 
 <div class="main-content parents-page">
     <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 mt-1">
+    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 mt-7">
         <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
         <span>/</span>
         <span class="text-[#1C1C1D] font-medium">Parents</span>
@@ -48,12 +49,52 @@
                         </div>
                     </div>
                     <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
-                        {{-- <!-- ADD BUTTON -->
-                        <div class="flex justify-end items-center m-3">
-                            <button onclick="openAddModal()" class="btn-primary bg-green-800 p-3 rounded-xl text-white hover:bg-green-600 font-bold">
-                                <i class="fas fa-plus"></i> Add Parent
-                            </button>
-                        </div> --}}
+                        <form method="GET" action="{{ route('parents.index') }}" class="p-4 mx-4 mt-4 ">
+                            <div class="flex items-center gap-2 mb-4">
+                                <h1 class="font-semibold text-gray-700">Filter Options</h1>
+                            </div>
+                            
+                            <div class="grid grid-cols-12 gap-4 items-end">
+                                <div class="col-span-3">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Account Status</label>
+                                    <select name="status" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                        <option value="">All Statuses</option>
+                                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-span-3">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">ID Verification</label>
+                                    <select name="verification" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                        <option value="">All Types</option>
+                                        <option value="1" {{ request('verification') === '1' ? 'selected' : '' }}>Verified</option>
+                                        <option value="0" {{ request('verification') === '0' ? 'selected' : '' }}>Pending</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-span-4">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Quick Search</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="jqSearchInput" placeholder="Search name, contact..." class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                        <button type="button" id="jqSearchBtn" class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-gray-900 transition-all duration-200 font-medium text-sm">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-span-2">
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-3 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm flex items-center justify-center gap-2">
+                                            Filter
+                                        </button>
+                                        <a href="{{ route('parents.index') }}" class="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
+                                            Clear
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
 
                         <!-- Users Table -->
                         <div class="overflow-x-auto bg-white rounded-b-lg border border-gray-200">

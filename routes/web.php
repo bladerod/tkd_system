@@ -197,7 +197,7 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
     });
 
-    Route::get('/student', function () {
+    Route::get('/student', function (\Illuminate\Http\Request $request) {
         $beltlevels = BeltLevel::all();
         $users = User::all();
         $classes = Classes::all();
@@ -256,6 +256,12 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
             Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users,delete')->name('destroy');
         });
 
+        // Skill Checklist
+        Route::get('/skill-checklist', [\App\Http\Controllers\SkillChecklistController::class, 'index'])->middleware('permission:settings,view')->name('settings.skill-checklist');
+        Route::post('/skill-checklist', [\App\Http\Controllers\SkillChecklistController::class, 'store'])->middleware('permission:settings,create')->name('settings.skill-checklist.store');
+        Route::put('/skill-checklist/{id}', [\App\Http\Controllers\SkillChecklistController::class, 'update'])->middleware('permission:settings,edit')->name('settings.skill-checklist.update');
+        Route::delete('/skill-checklist/{id}', [\App\Http\Controllers\SkillChecklistController::class, 'destroy'])->middleware('permission:settings,delete')->name('settings.skill-checklist.destroy');
+
         // Billing Rules
         Route::get('/billing-rules', [BillingRulesController::class, 'index'])->middleware('permission:settings,view');
         Route::post('/billing-rules', [BillingRulesController::class, 'update'])->middleware('permission:settings,edit');
@@ -270,6 +276,9 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         Route::get('/branding-rules', function () {
             return view('brandingrules');
         })->middleware('permission:settings,view');
+
+        Route::post('billing/{invoiceId}/approve-proof', [InvoiceController::class, 'approveProof'])->name('billing.approve.proof');
+        Route::post('billing/{invoiceId}/reject-proof', [InvoiceController::class, 'rejectProof'])->name('billing.reject.proof');
 
         // Discounts
         Route::get('/discounts', [DiscountController::class, 'index'])->middleware('permission:settings,view')->name('discounts.index');

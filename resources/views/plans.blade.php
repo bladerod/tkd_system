@@ -135,7 +135,7 @@
                                                         </td>
                                                         
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm font-bold text-gray-900">
+                                                            <div class="text-sm font-bold text-gray-900 text-right">
                                                                 ₱{{ number_format($plan->monthly_price ?? 0, 2) }}
                                                             </div>
                                                         </td>
@@ -315,7 +315,7 @@
                             </label>
                             <input type="number" name="monthly_price" id="monthly_price" step="0.01" min="0" required
                                 value="0.00" placeholder="0.00"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 text-right focus:ring-[#1C1C1D]">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_monthly_price"></div>
                         </div>
 
@@ -481,7 +481,7 @@
                             </label>
                             <input type="number" name="monthly_price" id="edit_monthly_price" step="0.01" min="0"
                                 value="0.00" placeholder="0.00"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] text-right">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_monthly_price"></div>
                         </div>
                         

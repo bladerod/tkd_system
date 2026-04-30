@@ -127,26 +127,26 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody class="bg-white divide-y divide-gray-200">
-                                                    @forelse($invoices as $invoice)
+                                                    @forelse($billings as $billing)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-150" 
-                                                        data-invoice-id="{{ $invoice->id }}" 
-                                                        data-invoice-no="{{ $invoice->invoice_no }}" 
-                                                        data-student-name="{{ $invoice->student->first_name }} {{ $invoice->student->last_name }}" 
-                                                        data-total-due="{{ $invoice->total_due }}" 
-                                                        data-status="{{ $invoice->status }}">
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $invoice->invoice_no }}</td>
+                                                        data-invoice-id="{{ $billing->id }}" 
+                                                        data-invoice-no="{{ $billing->invoice_no }}" 
+                                                        data-student-name="{{ $billing->student->first_name }} {{ $billing->student->last_name }}" 
+                                                        data-total-due="{{ $billing->total_due }}" 
+                                                        data-status="{{ $billing->status }}">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $billing->invoice_no }}</td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center">
                                                                 <div class="ml-3">
-                                                                    <p class="text-sm font-medium text-gray-800">{{ $invoice->student->first_name }} {{ $invoice->student->last_name }}</p>
+                                                                    <p class="text-sm font-medium text-gray-800">{{ $billing->student->first_name }} {{ $billing->student->last_name }}</p>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             @php
                                                                 $classNames = [];
-                                                                if ($invoice->student) {
-                                                                    $activeEnrollments = $invoice->student->classes->where('status', 'active');
+                                                                if ($billing->student) {
+                                                                    $activeEnrollments = $billing->student->classes->where('status', 'active');
                                                                     foreach($activeEnrollments as $enrollment) {
                                                                         if ($enrollment->class) {
                                                                             $classNames[] = $enrollment->class->class_name;
@@ -162,7 +162,7 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             @php
-                                                                $parentUser = $invoice->student ? \App\Models\User::find($invoice->student->primary_parent_id) : null;
+                                                                $parentUser = $billing->student ? \App\Models\User::find($billing->student->primary_parent_id) : null;
                                                             @endphp
                                                             @if($parentUser)
                                                                 {{ $parentUser->fname }} {{ $parentUser->lname }}
@@ -172,10 +172,10 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             <div class="text-right">
-                                                                ₱{{ number_format($invoice->total_due, 2) }}
+                                                                ₱{{ number_format($billing->total_due, 2) }}
                                                             </div>
                                                         </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($invoice->due_date)->format('F j, Y') }}</td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($billing->due_date)->format('F j, Y') }}</td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             @php
                                                                 $statusColors = [
@@ -186,22 +186,22 @@
                                                                     'void' => 'bg-gray-100 text-gray-800',
                                                                     'pending_verification' => 'bg-purple-100 text-purple-800',
                                                                 ];
-                                                                $statusColor = $statusColors[$invoice->status] ?? 'bg-gray-100 text-gray-800';
-                                                                $statusText = $invoice->status === 'pending_verification' ? 'Awaiting Approval' : ucfirst($invoice->status);
+                                                                $statusColor = $statusColors[$billing->status] ?? 'bg-gray-100 text-gray-800';
+                                                                $statusText = $billing->status === 'pending_verification' ? 'Awaiting Approval' : ucfirst($billing->status);
                                                             @endphp
                                                             <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusColor }}">{{ $statusText }}</span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap items-center">
                                                             <div class="flex gap-2">
-                                                                <button onclick="generateReceipt({{ $invoice->id }})" class="bg-[#72A0C1] p-2 rounded-xl hover:bg-[#5f8bad] transition-colors" title="Generate Receipt">
+                                                                <button onclick="generateReceipt({{ $billing->id }})" class="bg-[#72A0C1] p-2 rounded-xl hover:bg-[#5f8bad] transition-colors" title="Generate Receipt">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                                     </svg>
                                                                 </button>
 
                                                                 {{-- View Proof button — lalabas lang kung pending_verification --}}
-                                                                @if($invoice->status == 'pending_verification')
-                                                                <button onclick="viewPaymentProof({{ $invoice->id }}, '{{ $invoice->payment_proof }}')" 
+                                                                @if($billing->status == 'pending_verification')
+                                                                <button onclick="viewPaymentProof({{ $billing->id }}, '{{ $billing->payment_proof }}')" 
                                                                     class="bg-purple-600 p-2 rounded-xl hover:bg-purple-700 transition-colors" 
                                                                     title="View Payment Proof">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,8 +211,8 @@
                                                                 </button>
                                                                 @endif
 
-                                                                @if($invoice->status != 'paid' && $invoice->status != 'pending_verification')
-                                                                <button type="button" onclick="processPayment({{ $invoice->id }}, '{{ $invoice->invoice_no }}', '{{ addslashes($invoice->student->first_name . ' ' . $invoice->student->last_name) }}', {{ max(0, $invoice->total_due - $invoice->payments->sum('amount')) }})" 
+                                                                @if($billing->status != 'paid' && $billing->status != 'pending_verification')
+                                                                <button type="button" onclick="processPayment({{ $billing->id }}, '{{ $billing->invoice_no }}', '{{ addslashes($billing->student->first_name . ' ' . $billing->student->last_name) }}', {{ max(0, $billing->total_due - $billing->payments->sum('amount')) }})" 
                                                                     class="bg-[#63ad35] p-2 rounded-xl hover:bg-[#71c93e] transition-colors" title="Record Payment">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
@@ -220,7 +220,7 @@
                                                                 </button>
                                                                 @endif
 
-                                                                <button onclick="sendReminder({{ $invoice->id }})" class="bg-[#0096FF] p-2 rounded-xl hover:bg-[#007acc] transition-colors" title="Send Reminder">
+                                                                <button onclick="sendReminder({{ $billing->id }})" class="bg-[#0096FF] p-2 rounded-xl hover:bg-[#007acc] transition-colors" title="Send Reminder">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                                                                     </svg>
@@ -248,38 +248,38 @@
                                             <h1 class="text-xl font-bold mb-5">Invoices View</h1>
                                             <div class="grid grid-cols-2 gap-4 justify-between border-1 border-dashed rounded-xl p-2 mb-2">
                                                 <p>Total Invoices</p>
-                                                <p class="text-right font-semibold">{{ $invoices->count() }}</p>
+                                                <p class="text-right font-semibold">{{ $billings->count() }}</p>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4 border-1 border-dashed rounded-xl p-2 mb-2">
                                                 <p>Total Amount</p>
-                                                <p class="text-right font-semibold">₱{{ number_format($invoices->sum('total_due'), 2) }}</p>
+                                                <p class="text-right font-semibold">₱{{ number_format($billings->sum('total_due'), 2) }}</p>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4 border-1 border-dashed rounded-xl p-2 mb-2">
                                                 <p>Total Paid</p>
-                                                <p class="text-right font-semibold text-green-600">₱{{ number_format($invoices->sum(function($inv) { return $inv->payments->sum('amount'); }), 2) }}</p>
+                                                <p class="text-right font-semibold text-green-600">₱{{ number_format($billings->sum(function($inv) { return $inv->payments->sum('amount'); }), 2) }}</p>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4 border-1 border-dashed rounded-xl p-2 mb-2">
                                                 <p>Outstanding Balance</p>
-                                                <p class="text-right font-semibold text-red-600">₱{{ number_format($invoices->sum('total_due') - $invoices->sum(function($inv) { return $inv->payments->sum('amount'); }), 2) }}</p>
+                                                <p class="text-right font-semibold text-red-600">₱{{ number_format($billings->sum('total_due') - $billings->sum(function($inv) { return $inv->payments->sum('amount'); }), 2) }}</p>
                                             </div>
                                         </div>
                                         <div>
-                                            <h1 class="text-xl font-bold mb-5">Plan Setup</h1>
-                                            <div style="border-bottom: solid #000 1px;" class="grid grid-cols-2 gap-4 p-2 mb-2">
+                                            {{-- <h1 class="text-xl font-bold mb-5">Plan Setup</h1> --}}
+                                            <div style="border-bottom: solid #000 1px;" class="grid grid-cols-2 gap-4 p-2 mb-2 pt-13">
                                                 <p>Pending Invoices</p>
-                                                <p class="text-right font-semibold text-yellow-600">{{ $invoices->where('status', 'pending')->count() }}</p>
+                                                <p class="text-right font-semibold text-yellow-600">{{ $billings->where('status', 'pending')->count() }}</p>
                                             </div>
                                             <div style="border-bottom: solid #000 1px;" class="grid grid-cols-2 gap-4 p-2 mb-2">
                                                 <p>Awaiting Approval</p>
-                                                <p class="text-right font-semibold text-purple-600">{{ $invoices->where('status', 'pending_verification')->count() }}</p>
+                                                <p class="text-right font-semibold text-purple-600">{{ $billings->where('status', 'pending_verification')->count() }}</p>
                                             </div>
                                             <div style="border-bottom: solid #000 1px;" class="grid grid-cols-2 gap-4 p-2 mb-2">
                                                 <p>Overdue Invoices</p>
-                                                <p class="text-right font-semibold text-red-600">{{ $invoices->where('status', 'overdue')->count() }}</p>
+                                                <p class="text-right font-semibold text-red-600">{{ $billings->where('status', 'overdue')->count() }}</p>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4 p-2 mb-2">
                                                 <p>Paid Invoices</p>
-                                                <p class="text-right font-semibold text-green-600">{{ $invoices->where('status', 'paid')->count() }}</p>
+                                                <p class="text-right font-semibold text-green-600">{{ $billings->where('status', 'paid')->count() }}</p>
                                             </div>
                                         </div>
                                     </div>

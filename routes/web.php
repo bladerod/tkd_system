@@ -207,6 +207,7 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         ->orderBy('student_name', 'asc')
         ->select(
             'id',
+            'branch_name',
             'student_code',
             'student_name',
             'current_belt',

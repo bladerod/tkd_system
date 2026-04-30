@@ -46,7 +46,79 @@
                     </div>
                 </div>
                 <div class="" style="border-top: 1px solid rgba(0, 0, 0, 0.1);">
-                    <!-- ADD BUTTON -->
+
+
+                    <form method="GET" action="{{ route('instructor.index') }}" class="p-4 mx-4 mt-4 ">
+                            <div class="flex items-center gap-2 mb-4">
+                                <h1 class="font-semibold text-gray-700">Filter Options</h1>
+                            </div>
+
+                            <div class="grid grid-cols-12 gap-4 items-end">
+                                <div class="col-span-3">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Account Status</label>
+                                    <select name="status" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                        <option value="">All Statuses</option>
+                                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+<div class="col-span-3">
+    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Role</label>
+    <select name="verification" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        <option value="">All Types</option>
+
+        {{-- Pull unique levels from the instructors collection --}}
+        @foreach($instructors->pluck('certification_level')->unique() as $level)
+            @if($level) {{-- Ensure the value isn't null --}}
+                <option value="{{ $level }}" {{ request('verification') == $level ? 'selected' : '' }}>
+                    {{ $level }}
+                </option>
+            @endif
+        @endforeach
+    </select>
+</div>
+
+
+
+                                <div class="col-span-4">
+                                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Quick Search</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="jqSearchInput" placeholder="Search name, contact..." class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                        <button type="button" id="jqSearchBtn" class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-gray-900 transition-all duration-200 font-medium text-sm">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-span-2">
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-3 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm flex items-center justify-center gap-2">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
+                                        <a href="{{ route('instructor.index') }}" class="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
+                                            Clear
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Row 2: Date Range --}}
+    <div class="grid grid-cols-12 gap-4 items-end">
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Hired Date From</label>
+            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        </div>
+
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Hired Date To</label>
+            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        </div>
+    </div>
+                        </form>
+
+<!-- ADD BUTTON -->
                     <div class="m-3 flex justify-end ">
                         <button
                             @if ($canCreateInstructor)
@@ -58,7 +130,6 @@
                             <i class="fa fa-plus mr-2"></i>Add Instructor
                         </button>
                     </div>
-
                     <!-- Users Table -->
                     <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
                         <table id="instructorTable" class="min-w-full divide-y divide-gray-200 p-3">

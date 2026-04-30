@@ -2,8 +2,7 @@
 
 return [
 
-    // ✅ This must be at the TOP LEVEL, not inside 'pusher'
-    'default' => env('BROADCAST_DRIVER', 'pusher'),
+    'default' => env('BROADCAST_CONNECTION', 'null'),
 
     'connections' => [
 

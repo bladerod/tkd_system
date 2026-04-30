@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class InstructorController extends Controller
-{   
+{
     public function sanitizeInput($value)
     {
         if(is_string($value)){
@@ -19,10 +19,11 @@ class InstructorController extends Controller
         }
         return $value;
     }
-    public function index()
-    {
-        $branches = Branch::all();
-        $instructors = Instructor::with('user')
+    public function index(Request $request)
+{
+    $branches = Branch::all();
+
+    $query = Instructor::with('user')
         ->select(
             'id',
             'user_id',
@@ -36,13 +37,44 @@ class InstructorController extends Controller
             'certification_level',
             'specialization',
             'bio',
-            'status'
+            'status',
+            'created_at'
         )
-        ->orderByDesc('id')
-        ->get();
+        ->orderByDesc('id');
+
+    // Status filter
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Certification level filter
+    if ($request->filled('verification')) {
+        $query->where('certification_level', $request->verification);
+    }
+
+    // Quick search by name, email, or contact
+    if ($request->filled('search')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('fname', 'like', '%' . $request->search . '%')
+              ->orWhere('lname', 'like', '%' . $request->search . '%')
+              ->orWhere('email', 'like', '%' . $request->search . '%')
+              ->orWhere('contact', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Date range filter
+    if ($request->filled('date_from')) {
+        $query->whereDate('hire_date', '>=', $request->date_from);
+    }
+
+    if ($request->filled('date_to')) {
+        $query->whereDate('hire_date', '<=', $request->date_to);
+    }
+
+    $instructors = $query->get();
 
     return view('instructor', compact('instructors', 'branches'));
-    }
+}
 
     public function store(Request $request)
     {
@@ -74,7 +106,7 @@ class InstructorController extends Controller
                 'contact' => preg_replace('/[^\d+]/', '', $this->sanitizeInput($request->contact)),
                 'specialization' => $this->sanitizeInput($request->specialization),
                 'bio' => $this->sanitizeInput($request->bio),
-            ]; 
+            ];
 
             $photoPath = $request->hasFile('photo') ? $request->file('photo')->store('instructors', 'public') : null;
 
@@ -127,7 +159,7 @@ class InstructorController extends Controller
             DB::beginTransaction();
 
             $request->validate([
-                'branch_id' => 'required', 
+                'branch_id' => 'required',
                 'fname' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'lname' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'email' => 'required|email|unique:instructors,email,'.$id,
@@ -150,7 +182,7 @@ class InstructorController extends Controller
                 'contact' => preg_replace('/[^\d+]/', '', $this->sanitizeInput($request->contact)),
                 'specialization' => $this->sanitizeInput($request->specialization),
                 'bio' => $this->sanitizeInput($request->bio),
-            ]; 
+            ];
 
             $instructor = Instructor::findOrFail($id);
 

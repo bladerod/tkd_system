@@ -53,7 +53,7 @@
                             <div class="flex items-center gap-2 mb-4">
                                 <h1 class="font-semibold text-gray-700">Filter Options</h1>
                             </div>
-                            
+
                             <div class="grid grid-cols-12 gap-4 items-end">
                                 <div class="col-span-3">
                                     <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Account Status</label>
@@ -72,7 +72,9 @@
                                         <option value="0" {{ request('verification') === '0' ? 'selected' : '' }}>Pending</option>
                                     </select>
                                 </div>
-                                
+
+
+
                                 <div class="col-span-4">
                                     <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Quick Search</label>
                                     <div class="flex gap-2">
@@ -86,7 +88,7 @@
                                 <div class="col-span-2">
                                     <div class="flex gap-2">
                                         <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-3 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm flex items-center justify-center gap-2">
-                                            Filter
+                                            <i class="fas fa-filter"></i> Filter
                                         </button>
                                         <a href="{{ route('parents.index') }}" class="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
                                             Clear
@@ -94,6 +96,21 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Row 2: Date Range --}}
+    <div class="grid grid-cols-12 gap-4 items-end">
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Enrolled Date From</label>
+            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        </div>
+
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Enrolled Date To</label>
+            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        </div>
+    </div>
                         </form>
 
                         <!-- Users Table -->
@@ -988,6 +1005,21 @@ function sortTable(columnIndex) {
 
     rows.forEach(row => tbody.appendChild(row));
 }
+
+document.getElementById('jqSearchBtn').addEventListener('click', function () {
+        const val = document.getElementById('jqSearchInput').value;
+        document.getElementById('hiddenSearch').value = val;
+        this.closest('form').submit();
+    });
+
+    // Also trigger search on Enter key
+    document.getElementById('jqSearchInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('hiddenSearch').value = this.value;
+            this.closest('form').submit();
+        }
+    });
 </script>
     @vite("resources/js/parents.js")
     @vite(['resources/js/navbarDrop.js'])

@@ -58,52 +58,75 @@
                 <h6 class="text-gray-800 font-semibold text-xl text-white text-center">Branch List</h6>
             </div>
         </div>
-        
-        <!-- FILTER SECTION -->
+
         <div class="p-4 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <div class="flex gap-3">
-                    <!-- SEARCH INPUT (will be replaced by DataTable search) -->
-                    <div class="relative">
-                        <input type="text" id="branchSearch" placeholder="Search branches..." 
-                            class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
-                    </div>
-                    
-                    <!-- CITY FILTER -->
-                    <select id="cityFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                        <option value="">All Cities</option>
-                        @php
-                            $uniqueCities = $branches->unique('city')->pluck('city')->filter();
-                        @endphp
-                        @foreach($uniqueCities as $city)
-                            <option value="{{ $city }}">{{ $city }}</option>
-                        @endforeach
-                    </select>
-                    
-                    <!-- STATUS FILTER -->
-                    <select id="statusFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+    <form method="GET" action="{{ route('branch') }}">
+    <div class="grid grid-cols-12 gap-3 items-end">
+
+        {{-- Quick Search (Reduced from 4 to 3) --}}
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Search</label>
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" id="jqSearchInput" value="{{ request('search') }}"
+                        placeholder="Search..."
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
+                    <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
                 </div>
-                
-                <!-- ADD BUTTON -->
-                <button 
-                    @if ($canCreateBranch)
-                        @click="openAdd()"
-                    @endif
-                    class="bg-[#1C1C1D] text-white px-4 py-2 rounded-lg
-                    @if (!$canCreateBranch)
-                        hidden
-                    @endif
-                      hover:bg-[#2f2f2f] transition-colors flex items-center gap-2">
-                    <i class="fa fa-plus"></i> Add Branch
+                <button type="button" id="jqSearchBtn"
+                    class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-all text-sm">
+                    <i class="fas fa-search"></i>
                 </button>
+                <input type="hidden" name="search" id="hiddenSearch" value="{{ request('search') }}">
             </div>
         </div>
-        
+
+        {{-- City Filter (Reduced from 3 to 2) --}}
+        <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">City</label>
+            <select name="city" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] bg-white">
+                <option value="">All Cities</option>
+                @php $uniqueCities = $branches->unique('city')->pluck('city')->filter(); @endphp
+                @foreach($uniqueCities as $city)
+                    <option value="{{ $city }}" {{ request('city') == $city ? 'selected' : '' }}>{{ $city }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Status Filter (Reduced from 3 to 2) --}}
+        <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+            <select name="status" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#1C1C1D] bg-white">
+                <option value="">All Status</option>
+                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+        </div>
+
+        {{-- Filter & Clear Buttons (Increased from 2 to 5) --}}
+        <div class="col-span-5 flex gap-2">
+            <button type="submit"
+                class="w-full bg-[#1C1C1D] text-white py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-colors text-sm font-medium">
+                <i class="fas fa-filter mr-2"></i> Apply Filter
+            </button>
+            <a href="{{ route('branch') }}"
+                class="w-full text-center py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+                Clear All
+            </a>
+        </div>
+
+    </div>
+</form>
+
+</div>
+{{-- Add Button --}}
+            <button
+                @if ($canCreateBranch) @click="openAdd()" @endif
+                class="bg-[#1C1C1D] text-white px-4 py-2 rounded-lg hover:bg-[#2f2f2f] transition-colors flex items-center gap-2
+                @if (!$canCreateBranch) hidden @endif">
+                <i class="fa fa-plus"></i> Add Branch
+            </button>
+
         <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
             <table id="branchTable" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -120,7 +143,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($branches as $branch)
-                    <tr class="hover:bg-gray-50 transition-colors duration-150" 
+                    <tr class="hover:bg-gray-50 transition-colors duration-150"
                         data-name="{{ $branch->name }}"
                         data-code="{{ $branch->code }}"
                         data-city="{{ $branch->city }}"
@@ -153,7 +176,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-3">
                                 <!-- EDIT -->
-                                <button 
+                                <button
                                 @if ($canEditBranch)
                                     @click.prevent="openEdit({
                                         id: '{{ $branch->id }}',
@@ -175,7 +198,7 @@
                                 </button>
 
                                 {{-- <!-- DELETE -->
-                                <button onclick="confirmDelete('{{ $branch->id }}', '{{ addslashes($branch->name) }}')" 
+                                <button onclick="confirmDelete('{{ $branch->id }}', '{{ addslashes($branch->name) }}')"
                                     class="bg-red-500 hover:bg-red-600 p-2.5 rounded-lg text-white transition-colors">
                                     <i class="fa-regular fa-trash-can"></i>
                                 </button> --}}
@@ -213,7 +236,7 @@
                             </ul>
                         </div>
                     @endif
-                    
+
                     <!-- NAME + CODE -->
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
@@ -322,7 +345,7 @@
                     </div>
                 </form>
             </div>
-            
+
         </div>
     </div>
 
@@ -350,17 +373,17 @@ window.confirmDelete = function(branchId, branchName) {
             form.method = 'POST';
             form.action = `/branch/delete/${branchId}`;
             form.style.display = 'none';
-            
+
             const csrfToken = document.createElement('input');
             csrfToken.type = 'hidden';
             csrfToken.name = '_token';
             csrfToken.value = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-            
+
             const methodField = document.createElement('input');
             methodField.type = 'hidden';
             methodField.name = '_method';
             methodField.value = 'DELETE';
-            
+
             form.appendChild(csrfToken);
             form.appendChild(methodField);
             document.body.appendChild(form);
@@ -372,11 +395,11 @@ window.confirmDelete = function(branchId, branchName) {
 function initializeBranchDataTable() {
     const branchTable = document.getElementById('branchTable');
     if (!branchTable) return;
-    
+
     const tbody = branchTable.querySelector('tbody');
     const rows = tbody ? tbody.querySelectorAll('tr') : [];
     const hasData = rows.length > 0 && !rows[0].querySelector('td[colspan]');
-    
+
     if (hasData && typeof simpleDatatables !== 'undefined') {
         try {
             branchDataTable = new simpleDatatables.DataTable(branchTable, {
@@ -392,9 +415,9 @@ function initializeBranchDataTable() {
                     noResults: "No results match your search query"
                 }
             });
-            
+
             console.log('Branch DataTable initialized successfully');
-            
+
             // Add custom filters
             setupCustomFilters();
         } catch (error) {
@@ -407,13 +430,13 @@ function setupCustomFilters() {
     const cityFilter = document.getElementById('cityFilter');
     const statusFilter = document.getElementById('statusFilter');
     const customSearch = document.getElementById('branchSearch');
-    
+
     if (cityFilter) {
         cityFilter.addEventListener('change', function() {
             if (branchDataTable) {
                 const selectedCity = this.value;
                 branchDataTable.search('');
-                
+
                 if (selectedCity) {
                     const rows = branchDataTable.data.data;
                     const filteredData = rows.filter(row => {
@@ -426,13 +449,13 @@ function setupCustomFilters() {
             }
         });
     }
-    
+
     if (statusFilter) {
         statusFilter.addEventListener('change', function() {
             if (branchDataTable) {
                 const selectedStatus = this.value;
                 branchDataTable.search('');
-                
+
                 if (selectedStatus) {
                     const rows = branchDataTable.data.data;
                     const filteredData = rows.filter(row => {
@@ -446,7 +469,7 @@ function setupCustomFilters() {
             }
         });
     }
-    
+
     if (customSearch) {
         customSearch.addEventListener('input', function() {
             if (branchDataTable) {
@@ -493,7 +516,7 @@ window.branchModal = function(checkUrl) {
         closeModal() {
             this.showModal = false;
         },
-        
+
         submitForm() {
             // Check if there are any errors
             const hasErrors = Object.values(this.errors).some(error => error === true);
@@ -543,6 +566,19 @@ window.branchModal = function(checkUrl) {
 document.addEventListener('DOMContentLoaded', function() {
     initializeBranchDataTable();
 });
+
+ document.getElementById('jqSearchBtn').addEventListener('click', function () {
+        document.getElementById('hiddenSearch').value = document.getElementById('jqSearchInput').value;
+        this.closest('form').submit();
+    });
+
+    document.getElementById('jqSearchInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('hiddenSearch').value = this.value;
+            this.closest('form').submit();
+        }
+    });
 </script>
 </body>
 </html>

@@ -77,7 +77,7 @@ function initializeDataTable() {
             const dataTable = new simpleDatatables.DataTable(instructorTable, {
                 perPage: 10,
                 perPageSelect: [5, 10, 25, 50, 100],
-                searchable: true,
+                searchable: false,
                 sortable: true,
                 labels: {
                     placeholder: "Search...",
@@ -152,3 +152,18 @@ document.addEventListener('keydown', function(event) {
         }
     }
 });
+
+document.getElementById('jqSearchBtn').addEventListener('click', function () {
+        const val = document.getElementById('jqSearchInput').value;
+        document.getElementById('hiddenSearch').value = val;
+        this.closest('form').submit();
+    });
+
+    // Also trigger search on Enter key
+    document.getElementById('jqSearchInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('hiddenSearch').value = this.value;
+            this.closest('form').submit();
+        }
+    });

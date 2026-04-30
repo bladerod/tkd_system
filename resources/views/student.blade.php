@@ -43,55 +43,73 @@
             </div>
 
         <form method="GET" action="{{ route('student') }}" class="mb-4 p-4 mx-4 mt-4">
-            <div class="flex items-center gap-2 mb-4">
-                <h1 class="font-semibold text-gray-700">Filter Options</h1>
-            </div>
-            
-            <div class="grid grid-cols-12 gap-4 items-end">
-                <div class="col-span-3">
-                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Status</label>
-                    <select name="status" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
-                        <option value="">All Statuses</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                        <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
-                    </select>
-                </div>
+    <div class="flex items-center gap-2 mb-4">
+        <h1 class="font-semibold text-gray-700">Filter Options</h1>
+    </div>
 
-                <div class="col-span-3">
-                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Belt Level</label>
-                    <select name="belt" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
-                        <option value="">All Belts</option>
-                        @foreach ($beltlevels as $belt)
-                            <option value="{{ $belt->name }}" {{ request('belt') == $belt->name ? 'selected' : '' }}>
-                                {{ $belt->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                
-                <div class="col-span-4">
-                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Quick Search</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="jqSearchInput" placeholder="Search student name..." class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
-                        <button type="button" id="jqSearchBtn" class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-gray-900 transition-all duration-200 font-medium text-sm">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
+    {{-- Row 1: Status, Belt, Search, Buttons --}}
+    <div class="grid grid-cols-12 gap-4 items-end mb-4">
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+            <select name="status" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                <option value="">All Statuses</option>
+                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+        </div>
 
-                <div class="col-span-2">
-                    <div class="flex gap-2">
-                        <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-3 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm flex items-center justify-center gap-2">
-                            Filter
-                        </button>
-                        <a href="{{ route('student') }}" class="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
-                            Clear
-                        </a>
-                    </div>
-                </div>
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Belt Level</label>
+            <select name="belt" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                <option value="">All Belts</option>
+                @foreach ($beltlevels as $belt)
+                    <option value="{{ $belt->name }}" {{ request('belt') == $belt->name ? 'selected' : '' }}>
+                        {{ $belt->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-span-4">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Quick Search</label>
+            <div class="flex gap-2">
+                <input type="text" id="jqSearchInput" value="{{ request('search') }}" placeholder="Search student name..."
+                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                <button type="button" id="jqSearchBtn" class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-gray-900 transition-all duration-200 font-medium text-sm">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
-        </form>
+            <input type="hidden" name="search" id="hiddenSearch" value="{{ request('search') }}">
+        </div>
+
+        <div class="col-span-2">
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-3 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <a href="{{ route('student') }}" class="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
+                    Clear
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- Row 2: Date Range --}}
+    <div class="grid grid-cols-12 gap-4 items-end">
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Enrolled Date From</label>
+            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        </div>
+
+        <div class="col-span-3">
+            <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Enrolled Date To</label>
+            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+        </div>
+    </div>
+</form>
+
 
         <div class="mt-2">
             <div class="table-content overflow-x-auto">
@@ -616,6 +634,23 @@ window.onclick = function(e) {
     const modal = document.getElementById("studentModal");
     if (e.target === modal) closeModal();
 };
+
+document.getElementById('jqSearchBtn').addEventListener('click', function () {
+        const val = document.getElementById('jqSearchInput').value;
+        document.getElementById('hiddenSearch').value = val;
+        this.closest('form').submit();
+    });
+
+    // Also trigger search on Enter key
+    document.getElementById('jqSearchInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('hiddenSearch').value = this.value;
+            this.closest('form').submit();
+        }
+    });
+
+
 </script>
 </body>
 

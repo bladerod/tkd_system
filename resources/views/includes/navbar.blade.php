@@ -15,20 +15,7 @@
                     @endif
                 </div>
             </div>
-            <!-- Left side - Search bar -->
-            <div class="flex items-center flex-1 md:mr-4">
-                <div class="relative w-full max-w-md">
-                    <input type="text" class="w-full pl-4 pr-12 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-white-500 focus:border-transparent" placeholder="Search..." aria-label="Search">
-                    <button class="absolute right-0 top-0 h-full px-3 hover:text-black-600 transition" type="button">
-                        <i class="fa fa-search text-xl icon" aria-hidden="true"></i>
-                    </button>
-                    {{-- <wa-icon style="color: aliceblue;" name="bell"></wa-icon> --}}
-                </div>
-                    <button class="" type="button">
-                        <i class="fa-solid fa-bell text-white ms-3 text-2xl icon"></i>
-                    </button>
-                
-            </div>
+            
             
             <!-- Right side - User Profile Dropdown -->
             <div class="flex items-center space-x-4">

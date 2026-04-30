@@ -62,7 +62,7 @@ class ChatController extends Controller
             'is_seen' => false
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        broadcast(new MessageSent($message));
 
         return redirect()->route('chat.show', $id);
     }

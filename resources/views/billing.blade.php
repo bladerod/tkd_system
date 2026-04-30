@@ -14,26 +14,19 @@
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @vite(['resources/css/dashboard.css'])
     @vite(['resources/css/billing.css'])
-    <!-- Add Simple-Datatables CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
-    <!-- SweetAlert2 for notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
-    <!-- navbar -->
     @include("includes.navbar")
-    <!-- Sidebar -->
     @include('includes.sidebar')
-    <!-- Main Content -->
     <div class="container-fluid m-0">
         <div class="row">
-             <main class="ml-64 p-6"> 
-                <!-- Main Content -->
+            <main class="ml-64 p-6">
                 <div class="container-fluid m-0">
                     <div class="row">
-                        <main class=""> 
+                        <main class="">
                             <div class="container-fluid">
-                                <!-- Breadcrumb -->
                                 <div class="flex gap-2 text-sm text-gray-500 mb-6">
                                     <a href="/dashboard" class="hover:text-[#1C1C1D]">Dashboard</a>
                                     <span>/</span>
@@ -119,10 +112,8 @@
                                     </form>
                                     <!-- Table Section -->
                                     <div class="bg-white rounded-b-xl shadow-sm border border-gray-100 overflow-hidden">
-                                        <!-- Table -->
                                         <div class="overflow-x-auto">
                                             <table id="invoiceTable" class="min-w-full divide-y divide-gray-200">
-                                                <!-- Table Head -->
                                                 <thead class="bg-gray-50">
                                                     <tr>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Invoice#</th>
@@ -135,11 +126,14 @@
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Action</th>
                                                     </tr>
                                                 </thead>
-                                                
-                                                <!-- Table Body -->
                                                 <tbody class="bg-white divide-y divide-gray-200">
                                                     @forelse($invoices as $invoice)
-                                                    <tr class="hover:bg-gray-50 transition-colors duration-150" data-invoice-id="{{ $invoice->id }}" data-invoice-no="{{ $invoice->invoice_no }}" data-student-name="{{ $invoice->student->first_name }} {{ $invoice->student->last_name }}" data-total-due="{{ $invoice->total_due }}" data-status="{{ $invoice->status }}">
+                                                    <tr class="hover:bg-gray-50 transition-colors duration-150" 
+                                                        data-invoice-id="{{ $invoice->id }}" 
+                                                        data-invoice-no="{{ $invoice->invoice_no }}" 
+                                                        data-student-name="{{ $invoice->student->first_name }} {{ $invoice->student->last_name }}" 
+                                                        data-total-due="{{ $invoice->total_due }}" 
+                                                        data-status="{{ $invoice->status }}">
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $invoice->invoice_no }}</td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center">
@@ -152,7 +146,6 @@
                                                             @php
                                                                 $classNames = [];
                                                                 if ($invoice->student) {
-                                                                    // Find all active class enrollments for this student
                                                                     $activeEnrollments = $invoice->student->classes->where('status', 'active');
                                                                     foreach($activeEnrollments as $enrollment) {
                                                                         if ($enrollment->class) {
@@ -161,7 +154,6 @@
                                                                     }
                                                                 }
                                                             @endphp
-                                                            
                                                             @if(count($classNames) > 0)
                                                                 {{ implode(', ', $classNames) }}
                                                             @else
@@ -169,11 +161,9 @@
                                                             @endif
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                           @php
-                                                                // Safely fetch the parent directly from the Users table, just like we did in the modal
+                                                            @php
                                                                 $parentUser = $invoice->student ? \App\Models\User::find($invoice->student->primary_parent_id) : null;
                                                             @endphp
-                                                            
                                                             @if($parentUser)
                                                                 {{ $parentUser->fname }} {{ $parentUser->lname }}
                                                             @else
@@ -193,28 +183,44 @@
                                                                     'paid' => 'bg-green-100 text-green-800',
                                                                     'overdue' => 'bg-red-100 text-red-800',
                                                                     'partial' => 'bg-blue-100 text-blue-800',
-                                                                    'void' => 'bg-gray-100 text-gray-800'
+                                                                    'void' => 'bg-gray-100 text-gray-800',
+                                                                    'pending_verification' => 'bg-purple-100 text-purple-800',
                                                                 ];
                                                                 $statusColor = $statusColors[$invoice->status] ?? 'bg-gray-100 text-gray-800';
-                                                                $statusText = ucfirst($invoice->status);
+                                                                $statusText = $invoice->status === 'pending_verification' ? 'Awaiting Approval' : ucfirst($invoice->status);
                                                             @endphp
                                                             <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusColor }}">{{ $statusText }}</span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap items-center">
                                                             <div class="flex gap-2">
-                                                                <button onclick="generateReceipt({{ $invoice->id }})" class="bg-[#72A0C1] p-2 rounded-xl hover:bg-[#5f8bad] transition-colors" title="generate receipt">
+                                                                <button onclick="generateReceipt({{ $invoice->id }})" class="bg-[#72A0C1] p-2 rounded-xl hover:bg-[#5f8bad] transition-colors" title="Generate Receipt">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                                     </svg>
                                                                 </button>
-                                                                @if($invoice->status != 'paid')
-                                                                <button type="button" onclick="processPayment({{ $invoice->id }}, '{{ $invoice->invoice_no }}', '{{ addslashes($invoice->student->first_name . ' ' . $invoice->student->last_name) }}', {{ max(0, $invoice->total_due - $invoice->payments->sum('amount')) }})" class="bg-[#63ad35] p-2 rounded-xl hover:bg-[#71c93e] transition-colors" title="record payment">
+
+                                                                {{-- View Proof button — lalabas lang kung pending_verification --}}
+                                                                @if($invoice->status == 'pending_verification')
+                                                                <button onclick="viewPaymentProof({{ $invoice->id }}, '{{ $invoice->payment_proof }}')" 
+                                                                    class="bg-purple-600 p-2 rounded-xl hover:bg-purple-700 transition-colors" 
+                                                                    title="View Payment Proof">
+                                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                                    </svg>
+                                                                </button>
+                                                                @endif
+
+                                                                @if($invoice->status != 'paid' && $invoice->status != 'pending_verification')
+                                                                <button type="button" onclick="processPayment({{ $invoice->id }}, '{{ $invoice->invoice_no }}', '{{ addslashes($invoice->student->first_name . ' ' . $invoice->student->last_name) }}', {{ max(0, $invoice->total_due - $invoice->payments->sum('amount')) }})" 
+                                                                    class="bg-[#63ad35] p-2 rounded-xl hover:bg-[#71c93e] transition-colors" title="Record Payment">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                                                     </svg>
                                                                 </button>
                                                                 @endif
-                                                                <button onclick="sendReminder({{ $invoice->id }})" class="bg-[#0096FF] p-2 rounded-xl hover:bg-[#007acc] transition-colors" title="send reminder">
+
+                                                                <button onclick="sendReminder({{ $invoice->id }})" class="bg-[#0096FF] p-2 rounded-xl hover:bg-[#007acc] transition-colors" title="Send Reminder">
                                                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                                                                     </svg>
@@ -224,7 +230,7 @@
                                                     </tr>
                                                     @empty
                                                     <tr>
-                                                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                                                             <i class="fas fa-inbox text-4xl mb-2"></i>
                                                             <p>No invoices found</p>
                                                         </td>
@@ -264,6 +270,10 @@
                                                 <p class="text-right font-semibold text-yellow-600">{{ $invoices->where('status', 'pending')->count() }}</p>
                                             </div>
                                             <div style="border-bottom: solid #000 1px;" class="grid grid-cols-2 gap-4 p-2 mb-2">
+                                                <p>Awaiting Approval</p>
+                                                <p class="text-right font-semibold text-purple-600">{{ $invoices->where('status', 'pending_verification')->count() }}</p>
+                                            </div>
+                                            <div style="border-bottom: solid #000 1px;" class="grid grid-cols-2 gap-4 p-2 mb-2">
                                                 <p>Overdue Invoices</p>
                                                 <p class="text-right font-semibold text-red-600">{{ $invoices->where('status', 'overdue')->count() }}</p>
                                             </div>
@@ -281,17 +291,16 @@
             </main>
         </div>
     </div>
-    
+
     {{-- Add Invoice Modal --}}
     <div id="addInvoiceModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
         <div class="relative top-20 mx-auto border w-full max-w-2xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto">
             <div class="flex items-center sticky top-0 bg-[#1C1C1D] pb-2 p-3">
                 <i class="fas fa-plus text-white text-2xl pe-1"></i>
-                <h3 class="text-2xl  font-semibold text-white">Add New Invoice</h3>
+                <h3 class="text-2xl font-semibold text-white">Add New Invoice</h3>
             </div>
             <form id="addInvoiceForm">
                 <div class="grid grid-cols-2 gap-4 p-5">
-                    <!-- Left Column -->
                     <div>
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Select Student *</label>
@@ -300,17 +309,15 @@
                                 <option value="">-- Select Student --</option>
                                 @foreach($students as $student)
                                     @php
-                                        // Safely grab the parent directly from the Users table
                                         $parentUser = \App\Models\User::find($student->primary_parent_id);
                                         $parentName = $parentUser ? $parentUser->fname . ' ' . $parentUser->lname : 'N/A';
-                                        
-                                        // ✅ NEW: Pluck the active class IDs for this specific student and convert to JSON
                                         $activeClassIds = $student->classes->where('status', 'active')->pluck('class_id')->toJson();
                                     @endphp
                                     <option value="{{ $student->id }}" 
                                             data-student-code="{{ $student->student_code }}" 
                                             data-parent="{{ $parentName }}"
-                                            data-class-ids="{{ $activeClassIds }}"> {{ $student->first_name }} {{ $student->last_name }} ({{ $student->student_code }})
+                                            data-class-ids="{{ $activeClassIds }}">
+                                        {{ $student->first_name }} {{ $student->last_name }} ({{ $student->student_code }})
                                     </option>
                                 @endforeach
                             </select>
@@ -323,7 +330,6 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Parent/Guardian</label>
                             <p id="parentDisplay" class="text-gray-600 text-sm bg-gray-50 p-2 rounded-md"></p>
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Select Class *</label>
                             <select id="classSelect" name="class_id" required disabled
@@ -334,7 +340,6 @@
                                 @endforeach
                             </select>
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Select Plan/Subscription *</label>
                             <select id="planSelect" name="plan_id" required disabled
@@ -351,7 +356,6 @@
                                 @endforeach
                             </select>
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Plan Details</label>
                             <div id="planDetails" class="text-gray-600 text-sm bg-gray-50 p-3 rounded-md hidden">
@@ -361,8 +365,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Right Column -->
                     <div>
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Discount Type</label>
@@ -378,41 +380,34 @@
                                 <option value="custom" data-type="custom" data-value="0">Custom Discount</option>
                             </select>
                         </div>
-                        
                         <div class="mb-4" id="customDiscountContainer" style="display: none;">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Custom Discount Amount (₱)</label>
                             <input type="number" id="customDiscountAmount" name="custom_discount" step="0.01" value="0"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Applied Discount (₱)</label>
                             <input type="number" id="invoiceDiscount" name="discount" step="0.01" readonly
                                 class="w-full px-3 py-2 border text-right border-gray-300 rounded-md bg-gray-100 focus:outline-none">
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Base Amount (₱)</label>
                             <input type="number" id="invoiceAmount" name="amount" step="0.01" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]"
                                 placeholder="Amount will auto-fill from plan">
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Penalty (₱)</label>
                             <input type="number" id="invoicePenalty" name="penalty" step="0.01" readonly
                                 class="w-full px-3 text-right py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none">
                             <p class="text-xs text-gray-500 mt-1">Auto-calculated from billing rules for overdue invoices</p>
                         </div>
-                        
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Total Due (₱)</label>
                             <p id="totalDuePreview" class="text-2xl font-bold text-gray-900 bg-green-50 p-2  text-right rounded-md">₱0.00</p>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Full Width Section -->
                 <div class="grid grid-cols-3 gap-4 mt-4 px-5">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Billing Period Start *</label>
@@ -430,7 +425,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1C1C1D]">
                     </div>
                 </div>
-                
                 <div class="flex gap-3 justify-end sticky bottom-0 bg-white p-4 mt-2 border-t">
                     <button type="button" onclick="closeAddInvoiceModal()"
                         class="px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
@@ -445,12 +439,120 @@
         </div>
     </div>
 
+    {{-- Payment Proof Modal --}}
+    <div id="paymentProofModal" class="fixed inset-0 bg-black/40 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto border w-full max-w-lg shadow-lg rounded-lg bg-white">
+            <div class="flex items-center justify-between bg-[#1C1C1D] p-4 rounded-t-lg">
+                <h3 class="text-xl font-semibold text-white">Payment Proof</h3>
+                <button onclick="closeProofModal()" class="text-white hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="proofImageContainer" class="mb-4">
+                    <img id="proofImage" src="" alt="Payment Proof" class="w-full rounded-lg border border-gray-200">
+                </div>
+                <div class="flex gap-3 justify-end">
+                    <button onclick="rejectPayment()"
+                        class="px-4 py-2 text-sm text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                    <button onclick="approvePayment()"
+                        class="px-4 py-2 text-sm text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors flex items-center gap-2">
+                        <i class="fas fa-check"></i> Approve Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
-    {{-- @vite(['resources/js/app.js']) --}}
     @vite(['resources/js/billing.js'])
     @vite(['resources/js/navbarDrop.js'])
+
+    <script>
+        let currentProofInvoiceId = null;
+
+        function viewPaymentProof(invoiceId, proofPath) {
+            currentProofInvoiceId = invoiceId;
+            const baseUrl = '{{ asset("storage") }}/';
+            document.getElementById('proofImage').src = baseUrl + proofPath;
+            document.getElementById('paymentProofModal').classList.remove('hidden');
+        }
+
+        function closeProofModal() {
+            document.getElementById('paymentProofModal').classList.add('hidden');
+            currentProofInvoiceId = null;
+        }
+
+        function approvePayment() {
+            if (!currentProofInvoiceId) return;
+            Swal.fire({
+                title: 'Approve Payment?',
+                text: 'This will mark the invoice as Paid.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Approve',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/settings/billing/${currentProofInvoiceId}/approve-proof`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Approved!', 'Payment has been approved.', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function rejectPayment() {
+            if (!currentProofInvoiceId) return;
+            Swal.fire({
+                title: 'Reject Payment?',
+                text: 'This will set the invoice back to Pending.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Reject',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/settings/billing/${currentProofInvoiceId}/reject-proof`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Rejected', 'Payment has been rejected.', 'info')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 </body>
 </html>

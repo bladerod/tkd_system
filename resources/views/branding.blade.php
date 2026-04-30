@@ -119,10 +119,6 @@
 
                                             <!-- Buttons -->
                                             <div class="flex items-center justify-end gap-3 pt-6">
-                                                <a href="{{ route('settings.branding') }}" 
-                                                   class="px-8 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                                                    Cancel
-                                                </a>
                                                 <button type="submit" 
                                                         class="px-8 py-2 text-sm text-white bg-[#1C1C1D] rounded-md hover:bg-[#2f2f2f] transition-colors">
                                                     Save

@@ -120,32 +120,32 @@
     <tr>
         <th onclick="sortTable(0)"
             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-            Name ⬍
+            Name  
         </th>
 
         <th onclick="sortTable(1)"
             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-            Children ⬍
+            Children  
         </th>
 
         <th onclick="sortTable(2)"
             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-            Contact ⬍
+            Contact  
         </th>
 
         <th onclick="sortTable(3)"
             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-            Total Balance ⬍
+            Total Balance  
         </th>
 
         <th onclick="sortTable(4)"
             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-            Status ⬍
+            Status  
         </th>
 
         <th onclick="sortTable(5)"
             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-            ID Verified ⬍
+            ID Verified  
         </th>
 
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

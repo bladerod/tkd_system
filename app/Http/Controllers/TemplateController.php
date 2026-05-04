@@ -33,22 +33,19 @@ class TemplateController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'       => 'required|string|max:255',
-            'type'       => 'required|in:Promotion,Dan,Competition,Participation',
-            'belt_level' => 'nullable|in:White,Yellow,Orange,Green,Blue,Purple,Red,Black',
-            'status'     => 'nullable|in:active,draft',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:promotion,competition,dan,achievement',
         ]);
 
         $template = CertificateTemplate::create([
-            'name'       => $request->name,
-            'type'       => $request->type,
-            'belt_level' => $request->belt_level,
-            'status'     => $request->status ?? 'draft',
-            'layout'     => json_encode(['objects' => []]),
+            'name' => $request->name,
+            'type' => $request->type,
+            'status' => 'draft', // Optional, if you have a status column
+            'layout' => json_encode(['objects' => []]), // Empty canvas layout
         ]);
 
-        return redirect()->route('templates.editor', $template->id)
-                         ->with('success', 'Template created. Start designing!');
+        // Redirect straight into the editor!
+        return redirect()->route('templates.editor', $template->id);
     }
 
     /* ══════════════════════════════════════════
@@ -105,7 +102,7 @@ class TemplateController extends Controller
             ]);
         }
 
-        return view('template.preview', compact('template'));
+        return view('template.preview', compact('template')); // ERROR HERE
     }
 
     /* ══════════════════════════════════════════

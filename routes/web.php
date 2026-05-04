@@ -41,7 +41,7 @@ Route::middleware(['guest'])->group(function () {
     Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('reset-password', [ForgotPasswordController::class, 'updatePassword'])->name('password.update');
 
-    Route::get('/reset-password', function(){
+    Route::get('/reset-password', function () {
         return view('announcementAttendance');
     });
 });
@@ -67,12 +67,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // PARENTS
     Route::get('/parents', [ParentsController::class, 'index'])->name('parents.index');
-Route::get('/parents/{id}', [ParentsController::class, 'show']);
-Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
-Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
-Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
-Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
-Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
+    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
+    Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
+    Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
+    Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
+    Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
@@ -198,54 +198,54 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
     });
 
-   Route::get('/student', function (\Illuminate\Http\Request $request) {
-    $beltlevels = BeltLevel::all();
-    $users = User::all();
-    $classes = Classes::all();
+    Route::get('/student', function (\Illuminate\Http\Request $request) {
+        $beltlevels = BeltLevel::all();
+        $users = User::all();
+        $classes = Classes::all();
 
-    $query = DB::table('student_overview')
-        ->orderBy('student_name', 'asc')
-        ->select(
-            'id',
-            'branch_name',
-            'student_code',
-            'student_name',
-            'current_belt',
-            'status',
-            'parent_name',
-            'balance',
-            'attendance',
-            'join_date'
-        );
+        $query = DB::table('student_overview')
+            ->orderBy('student_name', 'asc')
+            ->select(
+                'id',
+                'branch_name',
+                'student_code',
+                'student_name',
+                'current_belt',
+                'status',
+                'parent_name',
+                'balance',
+                'attendance',
+                'join_date'
+            );
 
-    // Status filter
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
-    // Belt filter
-    if ($request->filled('belt')) {
-        $query->where('current_belt', $request->belt);
-    }
+        // Belt filter
+        if ($request->filled('belt')) {
+            $query->where('current_belt', $request->belt);
+        }
 
-    // Quick search
-    if ($request->filled('search')) {
-        $query->where('student_name', 'like', '%' . $request->search . '%')
-      ->orWhere('parent_name', 'like', '%' . $request->search . '%');
-    }
-// Date From filter
-if ($request->filled('date_from')) {
-    $query->whereDate('join_date', '>=', $request->date_from);
-}
+        // Quick search
+        if ($request->filled('search')) {
+            $query->where('student_name', 'like', '%' . $request->search . '%')
+                ->orWhere('parent_name', 'like', '%' . $request->search . '%');
+        }
+        // Date From filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('join_date', '>=', $request->date_from);
+        }
 
-// Date To filter
-if ($request->filled('date_to')) {
-    $query->whereDate('join_date', '<=', $request->date_to);
-}
-    $vwstudents = $query->get();
+        // Date To filter
+        if ($request->filled('date_to')) {
+            $query->whereDate('join_date', '<=', $request->date_to);
+        }
+        $vwstudents = $query->get();
 
-    return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
-})->name('student');
+        return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
+    })->name('student');
 
     Route::get('/certificates', [CertificateController::class, 'index']);
 
@@ -343,33 +343,29 @@ if ($request->filled('date_to')) {
 
     Route::prefix('templates')->name('templates.')->group(function () {
 
-    // ── List all templates
-    Route::get('/',          [TemplateController::class, 'index'])   ->name('index');
+        // ── List all templates
+        Route::get('/',          [TemplateController::class, 'index'])->name('index');
 
-    // ── Create form + store
-    Route::get('/create',    [TemplateController::class, 'create'])  ->name('create');
-    Route::post('/',         [TemplateController::class, 'store'])   ->name('store');
+        // ── Create form + store
+        Route::get('/create',    [TemplateController::class, 'create'])->name('create');
+        Route::post('/',         [TemplateController::class, 'store'])->name('store');
 
-    // ── Canvas editor
-    Route::get('/{id}/editor',      [TemplateController::class, 'editor'])      ->name('editor');
+        // ── Canvas editor
+        Route::get('/{id}/editor',      [TemplateController::class, 'editor'])->name('editor');
 
-    // ── Save layout (Ajax POST from editor)
-    Route::post('/{id}/save-layout', [TemplateController::class, 'saveLayout']) ->name('saveLayout');
+        // ── Save layout (Ajax POST from editor)
+        Route::post('/{id}/save-layout', [TemplateController::class, 'saveLayout'])->name('saveLayout');
 
-    // ── Preview (web view or JSON if ?Accept=application/json)
-    Route::get('/{id}/preview',     [TemplateController::class, 'preview'])     ->name('preview');
+        // ── Preview (web view or JSON if ?Accept=application/json)
+        Route::get('/{id}/preview',[TemplateController::class, 'preview'])->name('preview');
 
-    // ── Clone / duplicate
-    Route::post('/{id}/clone',      [TemplateController::class, 'clone'])       ->name('clone');
+        // ── Clone / duplicate
+        Route::post('/{id}/clone',      [TemplateController::class, 'clone'])->name('clone');
 
-    // ── Upload image asset for a template's canvas
-    Route::post('/{id}/upload-image', [TemplateController::class, 'uploadImage'])->name('uploadImage');
+        // ── Upload image asset for a template's canvas
+        Route::post('/{id}/upload-image', [TemplateController::class, 'uploadImage'])->name('uploadImage');
 
-    // ── Delete
-    Route::delete('/{id}',          [TemplateController::class, 'destroy'])     ->name('destroy');
-
+        // ── Delete
+        Route::delete('/{id}',          [TemplateController::class, 'destroy'])->name('destroy');
+    });
 });
-
-});
-
-

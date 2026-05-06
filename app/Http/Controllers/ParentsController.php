@@ -16,37 +16,55 @@ class ParentsController extends Controller
 
     public function sanitizeInput($value)
     {
-        if(is_string($value))
-        {
+        if (is_string($value)) {
             $value = trim($value);
             $value = strip_tags($value);
             $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
         return $value;
     }
+    
     /**
      * Display a listing of parents.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $parents = Parents::with(['parent.user', 'students'])->get();
+        $status = $request->input('status');
+        $verification = $request->input('verification');
 
-        $students = Student::select('id', 'student_name', 'student_code')
-                        ->where('status', 'active')
-                        ->get();
+        $query = Parents::with(['user', 'students']);
 
-        $users = User::where('role', 'parent')
-                    ->orWhereDoesntHave('parent')
-                    ->get();
+        // Filter by user account status
+        if ($status !== null && $status !== '') {
+            $query->whereHas('user', function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
 
-        $branches = Branch::all();
+        // Filter by ID Verification
+        if ($verification !== null && $verification !== '') {
+            $query->where('id_verified_flag', $verification);
+        }
 
-        return view('parent', compact(
-            'parents',
-            'students',
-            'users',
-            'branches'
-        ));
+        $parents = $query->get();
+
+        $parentList = $parents->map(function ($p) {
+            $user = $p->user;
+
+            return [
+                'id' => $user->id,
+                'user_id' => $user->id,
+                'name' => trim(($user->fname ?? '') . ' ' . ($user->lname ?? '')),
+                'email' => $user->email ?? '',
+                'mobile' => $user->mobile ?? '',
+                'children_count' => $p->students ? $p->students->count() : 0,
+                'total_balance' => 0,
+                'status' => $user->status ?? 0,
+                'id_verified_flag' => $p->id_verified_flag ?? 0
+            ];
+        });
+
+        return view('parent', compact('parentList'));
     }
 
     /**
@@ -166,7 +184,6 @@ class ParentsController extends Controller
 
             return redirect()->route('dashboard.index')
                 ->with('success', $message);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to create parent: ' . $e->getMessage());
@@ -181,28 +198,25 @@ class ParentsController extends Controller
     /**
      * Display the specified parent.
      */
-public function show($id)
-{
-    try {
-        $parent = User::with('students')
-            ->where('role', 'parent')
-            ->where('id', $id) // ✅ FIX HERE
-            ->firstOrFail();
+    public function show($id)
+    {
+        $parent = Parents::with(['user', 'students'])
+            ->where('user_id', $id)
+            ->first();
+
+        if (!$parent) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
 
         return response()->json([
             'id' => $parent->id,
-            'full_name' => $parent->fname . ' ' . $parent->lname,
-            'email' => $parent->email,
-            'mobile' => $parent->mobile,
+            'full_name' => $parent->user->fname . ' ' . $parent->user->lname,
+            'email' => $parent->user->email,
+            'mobile' => $parent->user->mobile,
             'students' => $parent->students,
-            'children_count' => $parent->students->count(),
-            'profile' => $parent->photo_url
+            'relationship_note' => $parent->relationship_note,
         ]);
-
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Parent not found'], 404);
     }
-}
 
     /**
      * Update the specified parent.
@@ -295,5 +309,68 @@ public function show($id)
             return redirect()->route('parents.index')
                 ->with('error', 'Failed to delete parent.');
         }
+    }
+
+    public function getChildrenDetails($id)
+    {
+        $parent = Parents::with('students')
+            ->where('user_id', $id)
+            ->first();
+
+        return response()->json([
+            'students' => $parent ? $parent->students : []
+        ]);
+    }
+
+    // =========================
+    // BILLING
+    // =========================
+    public function billing($id)
+    {
+        return DB::table('invoices')
+            ->join('students', 'students.id', '=', 'invoices.student_id')
+            ->where('students.primary_parent_id', $id)
+            ->select('invoices.*', 'students.first_name as student_name')
+            ->get();
+    }
+
+    // =========================
+    // PAYMENTS
+    // =========================
+    public function payments($id)
+    {
+        return DB::table('payments')
+            ->where('parent_id', $id)
+            ->get();
+    }
+
+    // =========================
+    // CHAT
+    // =========================
+    public function chat($id)
+    {
+        return DB::table('chat_messages')
+            ->where('sender_user_id', $id)
+            ->get();
+    }
+
+    // =========================
+    // ACTIVITY
+    // =========================
+    public function activity($id)
+    {
+        return DB::table('activity_logs')
+            ->where('parent_id', $id)
+            ->get();
+    }
+
+    // =========================
+    // NOTIFICATIONS
+    // =========================
+    public function notifications($id)
+    {
+        return DB::table('notifications')
+            ->where('user_id', $id)
+            ->get();
     }
 }

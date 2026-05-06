@@ -20,6 +20,7 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Models\BeltLevel;
 use App\Models\Classes;
 use App\Models\User;
@@ -32,6 +33,16 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['guest'])->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+
+    // Password Reset Routes
+    Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('reset-password', [ForgotPasswordController::class, 'updatePassword'])->name('password.update');
+
+    Route::get('/reset-password', function(){
+        return view('announcementAttendance');
+    });
 });
 
 // Auth routes
@@ -54,7 +65,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/announcement/{id}', [AnnouncementController::class, 'destroy'])->middleware('permission:announcements,delete')->name('announcements.destroy');
 
     // PARENTS
-    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents', [ParentsController::class, 'index'])->name('parents.index');
+Route::get('/parents/{id}', [ParentsController::class, 'show']);
+Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
+Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
+Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
+Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
+Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
@@ -179,14 +196,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/instructor', [ReportController::class, 'instructor'])->name('reports.instructor');
     });
 
-    Route::get('/student', function () {
+    Route::get('/student', function (\Illuminate\Http\Request $request) {
         $beltlevels = BeltLevel::all();
         $users = User::all();
         $classes = Classes::all();
 
 
-        $vwstudents = DB::table('student_overview')
-            ->orderBy('student_name', 'asc')
+       $status = $request->input('status');
+        $belt = $request->input('belt');
+
+        $query = DB::table('student_overview')
             ->select(
                 'id',
                 'student_code',
@@ -196,7 +215,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
                 'parent_name',
                 'balance',
                 'attendance'
-            )->get();
+            );
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($belt) {
+            $query->where('current_belt', $belt);
+        }
+
+        $vwstudents = $query->orderBy('student_name', 'asc')->get();
 
         return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
     })->name('student');

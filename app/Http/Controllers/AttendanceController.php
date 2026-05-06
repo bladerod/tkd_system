@@ -17,15 +17,15 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         // Get filter parameters
-        $fromDate = $request->get('from_date', now()->format('Y-m-d'));
-        $toDate = $request->get('to_date', now()->format('Y-m-d'));
-        $classId = $request->get('class_id');
-        $instructorId = $request->get('instructor_id');
-        $deviceId = $request->get('device_id');
-        $branches = Branch::where('status','active')->get();
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $classId = $request->input('class_id');
+        $instructorId = $request->input('instructor_id');
+        $deviceId = $request->input('device_id');
+        $branches = Branch::where('status', 'active')->get();
 
-        // Build query with relationships
-        $query = VwAttendanceLog::all();
+        // FIX 1: Use query() to build the query before executing it
+        $query = VwAttendanceLog::query();
 
         $classes = Classes::all();
         $instructors = Instructor::all();
@@ -35,25 +35,29 @@ class AttendanceController extends Controller
             $query->whereBetween('checkin_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
         }
 
-        // Apply other filters
+        // FIX 2: VwAttendanceLog is a View without foreign keys. 
+        // We find the name associated with the ID and filter the view by that name.
         if ($classId) {
-            $query->whereHas('classSession', function($q) use ($classId) {
-                $q->where('class_id', $classId);
-            });
+            $targetClass = Classes::find($classId);
+            if ($targetClass) {
+                $query->where('class_name', $targetClass->class_name);
+            }
         }
 
         if ($instructorId) {
-            $query->whereHas('classSession', function($q) use ($instructorId) {
-                $q->where('instructor_id', $instructorId);
-            });
+            $instructor = Instructor::find($instructorId);
+            if ($instructor) {
+                $instructorName = $instructor->fname . ' ' . $instructor->lname;
+                $query->where('instructor_name', $instructorName);
+            }
         }
 
         if ($deviceId) {
             $query->where('device_id', $deviceId);
         }
 
-        // Get attendance logs
-        $attendanceLogs = VwAttendanceLog::all();
+        // FIX 3: Execute the filtered query (Do NOT use ::all() here)
+        $attendanceLogs = $query->get();
 
         // Get summary statistics
         $totalToday = AttendanceLog::whereDate('checkin_time', today())->count();
@@ -67,9 +71,9 @@ class AttendanceController extends Controller
         $classSessions = ClassSession::with('class')->where('session_date', '>=', now()->subDays(30))->orderBy('session_date', 'desc')->get();
 
         return view('attendance', compact(
-            'attendanceLogs', 
+            'attendanceLogs',
             'branches',
-            'classes', 
+            'classes',
             'instructors',
             'fromDate',
             'toDate',
@@ -102,15 +106,15 @@ class AttendanceController extends Controller
         try {
             // Get the class session to determine checkout time
             $classSession = ClassSession::findOrFail($validated['class_session_id']);
-            
+
             // Default checkout time is 1 hour after checkin if not specified
             $checkinTime = \Carbon\Carbon::parse($validated['checkin_time']);
             $checkoutTime = clone $checkinTime;
             $checkoutTime->addHour(); // Default 1 hour session
-            
+
             // Determine if student is late (checkin after class start time)
             $attendanceStatus = $validated['attendance_status'];
-            
+
             // Create attendance log
             AttendanceLog::create([
                 'student_id' => $validated['student_id'],
@@ -126,7 +130,6 @@ class AttendanceController extends Controller
             ]);
 
             return redirect()->route('attendance.index')->with('success', 'Manual attendance added successfully!');
-            
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to add attendance: ' . $e->getMessage());
         }
@@ -134,57 +137,116 @@ class AttendanceController extends Controller
 
     public function exportCsv(Request $request)
     {
-        $attendanceLogs = AttendanceLog::with(['student', 'classSession.class'])
-            ->when($request->from_date, function($query) use ($request) {
-                return $query->whereDate('checkin_time', '>=', $request->from_date);
-            })
-            ->when($request->to_date, function($query) use ($request) {
-                return $query->whereDate('checkin_time', '<=', $request->to_date);
-            })
-            ->get();
+        $query = VwAttendanceLog::query();
+
+        // Apply filters properly to the CSV export as well
+        if ($request->from_date && $request->to_date) {
+            $query->whereBetween('checkin_time', [$request->from_date . ' 00:00:00', $request->to_date . ' 23:59:59']);
+        }
+
+        if ($request->class_id) {
+            $targetClass = Classes::find($request->class_id);
+            if ($targetClass) {
+                $query->where('class_name', $targetClass->class_name);
+            }
+        }
+
+        if ($request->instructor_id) {
+            $instructor = Instructor::find($request->instructor_id);
+            if ($instructor) {
+                $instructorName = $instructor->fname . ' ' . $instructor->lname;
+                $query->where('instructor_name', $instructorName);
+            }
+        }
+
+        if ($request->device_id) {
+            $query->where('device_id', $request->device_id);
+        }
+
+        $attendanceLogs = $query->get();
 
         $filename = 'attendance_' . date('Y-m-d_His') . '.csv';
-        
-        $handle = fopen('php://output', 'w');
-        
-        // Add CSV headers
-        fputcsv($handle, ['ID', 'Student Name', 'Student Code', 'Class', 'Check-in Time', 'Check-out Time', 'Method', 'Status']);
-        
-        foreach ($attendanceLogs as $log) {
-            fputcsv($handle, [
-                $log->id,
-                $log->student_name ?? ($log->student->first_name . ' ' . $log->student->last_name ?? 'N/A'),
-                $log->student_code ?? ($log->student->student_code ?? 'N/A'),
-                $log->class_name ?? ($log->classSession->class->class_name ?? 'N/A'),
-                $log->checkin_time,
-                $log->checkout_time,
-                $log->method,
-                $log->attendance_status,
-            ]);
-        }
-        
-        fclose($handle);
-        
-        return response()->stream(function() use ($attendanceLogs) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['ID', 'Student Name', 'Student Code', 'Class', 'Check-in Time', 'Check-out Time', 'Method', 'Status']);
-            
-            foreach ($attendanceLogs as $log) {
-                fputcsv($handle, [
-                    $log->id,
-                    $log->student_name ?? ($log->student->first_name . ' ' . $log->student->last_name ?? 'N/A'),
-                    $log->student_code ?? ($log->student->student_code ?? 'N/A'),
-                    $log->class_name ?? ($log->classSession->class->class_name ?? 'N/A'),
-                    $log->checkin_time,
-                    $log->checkout_time,
-                    $log->method,
-                    $log->attendance_status,
-                ]);
-            }
-            fclose($handle);
-        }, 200, [
+
+        $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        ];
+
+        $callback = function () use ($attendanceLogs) {
+            $handle = fopen('php://output', 'w');
+
+            // Add UTF-8 BOM for Excel compatibility
+            fputs($handle, "\xEF\xBB\xBF");
+
+            // Cleaned up headers
+            fputcsv($handle, [
+                'ID',
+                'Student Name',
+                'Student Code',
+                'Class',
+                'Instructor',
+                'Branch',
+                'Date',
+                'Check-in Time',
+                'Check-out Time',
+                'Method',
+                'Status',
+                'Confidence Score'
+            ]);
+
+            foreach ($attendanceLogs as $log) {
+                $attendanceDate = 'N/A';
+                $checkinTime = 'N/A';
+                $checkoutTime = 'N/A';
+
+                // Safe parsing for Check-in
+                if (!empty($log->checkin_time)) {
+                    $checkinStr = (string)$log->checkin_time;
+                    // Ignore null, 0000, or negative years
+                    if (strpos($checkinStr, '0000') === false && strpos($checkinStr, '-0001') === false) {
+                        try {
+                            $date = \Carbon\Carbon::parse($checkinStr);
+                            if ($date->year > 1970) {
+                                $attendanceDate = $date->format('m/d/Y'); // E.g., Mar 10, 2026
+                                $checkinTime = $date->format('h:i A');     // E.g., 08:00 AM
+                            }
+                        } catch (\Exception $e) {}
+                    }
+                }
+
+                // Safe parsing for Check-out
+                if (!empty($log->checkout_time)) {
+                    $checkoutStr = (string)$log->checkout_time;
+                    // Ignore null, 0000, or negative years
+                    if (strpos($checkoutStr, '0000') === false && strpos($checkoutStr, '-0001') === false) {
+                        try {
+                            $date = \Carbon\Carbon::parse($checkoutStr);
+                            if ($date->year > 1970) {
+                                $checkoutTime = $date->format('h:i A'); // E.g., 09:30 AM
+                            }
+                        } catch (\Exception $e) {}
+                    }
+                }
+
+                fputcsv($handle, [
+                    $log->id,
+                    $log->student_name ?? 'N/A',
+                    $log->student_code ?? 'N/A',
+                    $log->class_name ?? 'N/A',
+                    $log->instructor_name ?? 'N/A',
+                    $log->branch ?? 'N/A',
+                    $attendanceDate,
+                    $checkinTime,
+                    $checkoutTime,
+                    $log->method ?? 'N/A',
+                    $log->attendance_status ?? 'N/A',
+                    $log->confidence_score ?? 'N/A'
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

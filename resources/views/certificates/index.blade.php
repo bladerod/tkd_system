@@ -30,13 +30,8 @@
                 Generate Certificate
             </button>
 
-            <button onclick="printSelected()" id="printBtn" disabled class="btn-action">
-                Print
-            </button>
-
-            <button onclick="emailSelected()" id="emailBtn" disabled class="btn-action">
-                Email
-            </button>
+        <button id="printBtn" disabled class="btn-action">Print</button>
+        <button id="emailBtn" disabled class="btn-action">Email</button>
 
             <button onclick="openVerifyPage()" class="btn-action">
                 Verify Link
@@ -56,14 +51,14 @@
                 </tr>
             </thead>
 
-            <tbody id="tableBody">
-                @forelse ($certificates as $cert)
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="checkbox" value="{{ $cert->id }}">
-                        </td>
+        <tbody>
+        @forelse ($certificates as $cert)
+        <tr>
+            <td>
+                <input type="checkbox" class="checkbox" value="{{ $cert->id }}">
+            </td>
 
-                        <td>{{ $cert->student->fname }} {{ $cert->student->lname }}</td>
+            <td>{{ $cert->student->first_name }} {{ $cert->student->last_name }}</td>
 
                         <td>{{ ucfirst($cert->certificate_type) }}</td>
 
@@ -87,81 +82,11 @@
 
     </div>
 
-    <!-- ================= MODAL ================= -->
-    <div id="modal"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-        <div style="background:white; padding:20px; width:400px;">
-            <h2 class="text-xl mb-3">Generate Certificate</h2>
-
-            <form id="form">
-                <select name="branch" id="branch" class="w-full border p-2 mb-2" required>
-                        <option disabled selected value="">Select Branch</option>
-                    @foreach ($branches as $branch)
-                        <option value="{{$branch->id}}">{{ $branch->name }} {{ $branch->code }}</option>
-                    @endforeach
-                </select>
-
-                <select name="student_id" id="studentSelect" class="w-full border p-2 mb-2" required>
-                        <option disabled selected value="promotion">Select Student</option>
-                    @foreach ($students as $student)
-                        <option value="{{$student->id}}">{{ $student->first_name }} {{ $student->last_name }}</option>
-                    @endforeach
-                </select>
-
-        <button id="printBtn" disabled class="btn-action">Print</button>
-        <button id="emailBtn" disabled class="btn-action">Email</button>
-
-                <textarea name="description" placeholder="Description" class="w-full border p-2 mb-2"></textarea>
-
-    <!-- TABLE -->
-    <table class="w-full border">
-        <thead class="table-header">
-            <tr>
-                <th><input type="checkbox" id="selectAll"></th>
-                <th>Student</th>
-                <th>Type</th>
-                <th>Date</th>
-                <th>QR</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-        @forelse ($certificates as $cert)
-        <tr>
-            <td>
-                <input type="checkbox" class="checkbox" value="{{ $cert->id }}">
-            </td>
-
-            <td>{{ $cert->student->first_name }} {{ $cert->student->last_name }}</td>
-
-            <td>{{ ucfirst($cert->certificate_type) }}</td>
-
-            <td>{{ \Carbon\Carbon::parse($cert->issued_date)->format('M d, Y') }}</td>
-
-            <td>{{ $cert->qr_code_value ? 'Yes' : 'No' }}</td>
-
-            <td class="flex gap-2">
-                <button onclick="viewCert({{ $cert->id }})">View</button>
-                <button onclick="downloadCert({{ $cert->id }})">Download</button>
-                <button onclick="deleteCert({{ $cert->id }})">Delete</button>
-            </td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="6" class="text-center">No certificates</td>
-        </tr>
-        @endforelse
-        </tbody>
-    </table>
-
-</div>
-
 <!-- ================= MODAL ================= -->
 <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
 
-    <div style="background:white; padding:20px; width:400px;">
-        <h2 class="text-xl mb-3">Generate Certificate</h2>
+        <div style="background:white; padding:20px; width:400px;">
+            <h2 class="text-xl mb-3">Generate Certificate</h2>
 
         <form id="form">
 
@@ -187,6 +112,8 @@
         </form>
     </div>
 </div>
+    </div>
+</div>
 
 <!-- ================= JS ================= -->
 <script src="//unpkg.com/alpinejs" defer></script>
@@ -202,9 +129,9 @@ function openModal(){
     document.getElementById('modal').style.display = 'flex';
 }
 
-function closeModal(){
-    document.getElementById('modal').style.display = 'none';
-}
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
 
 /* LOAD STUDENTS */
 function loadStudents(){
@@ -234,9 +161,9 @@ function loadTemplates(){
     .catch(err => console.error(err));
 }
 
-/* SUBMIT */
-document.getElementById('form').addEventListener('submit', function(e){
-    e.preventDefault();
+        /* SUBMIT */
+        document.getElementById('form').addEventListener('submit', function (e) {
+            e.preventDefault();
 
     fetch('/api/certificates', {
         method:'POST',
@@ -296,19 +223,6 @@ function downloadCert(id){
     window.open(`/certificates/${id}/download`, '_blank');
 }
 
-function deleteCert(id){
-    if(!confirm('Delete certificate?')) return;
-
-    fetch(`/api/certificates/${id}`, {
-        method:'DELETE',
-        headers:{
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-
-function openVerifyPage(){
-    window.open('/verify', '_blank');
-}
-
         function deleteCert(id) {
             if (!confirm('Delete certificate?')) return;
 
@@ -321,9 +235,9 @@ function openVerifyPage(){
                 .then(() => location.reload());
         }
 
-        function openVerifyPage() {
-            window.open('/verify');
-        }
+function openVerifyPage(){
+    window.open('/verify', '_blank');
+}
 
     </script>
 

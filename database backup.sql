@@ -1408,6 +1408,7 @@ CREATE TABLE `payments` (
   `payment_method` enum('cash','gcash','card','bank') NOT NULL,
   `reference_no` varchar(100) DEFAULT NULL,
   `paid_at` datetime NOT NULL,
+  `paid_by_user_id` int(11) DEFAULT NULL,
   `received_by_user_id` int(11) NOT NULL,
   `status` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,

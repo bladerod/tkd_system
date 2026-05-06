@@ -69,11 +69,10 @@ public function isOnline()
     //     return $this->hasOne(Parents::class);
     // }
 
-    public function parent(): HasOne
-    {
-        return $this->hasOne(ParentModel::class);
-    }
-
+    public function parent()
+{
+    return $this->hasOne(\App\Models\Parents::class, 'user_id');
+}
     public function instructor(): HasOne
     {
         return $this->hasOne(Instructor::class);
@@ -234,8 +233,7 @@ public function getNameAttribute()
 
 public function students()
 {
-    // hasMany(RelatedModel, foreignKey, localKey)
-    return $this->hasMany(Student::class, 'primary_parent_id', 'id');
+    // The second argument tells Laravel to use your custom foreign key
+    return $this->hasMany(Student::class, 'primary_parent_id');
 }
-
 }

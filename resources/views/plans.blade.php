@@ -83,7 +83,7 @@
 
                                     <!-- Plans Table -->
                                     <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
-                                        <table id="userTable" class="min-w-full divide-y divide-gray-200 p-3">
+                                        <table id="plansTable" class="min-w-full divide-y divide-gray-200 p-3">
                                             <thead class="bg-gray-50">
                                                 <tr>
                                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Associated Class</th>
@@ -101,16 +101,16 @@
                                                 @forelse($plans as $plan)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 font-medium  text-gray-800">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 font-medium text-gray-800">
                                                                 {{ $plan->relatedClass ? $plan->relatedClass->class_name : 'No Class Assigned' }}
                                                             </span>
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="text-sm font-bold text-gray-900">{{ ucfirst(trim($plan->plan_name ?? '')) }}</div>
                                                         </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="mt-1" >
-                                                                {{ \Illuminate\Support\Str::limit(ucfirst(trim($plan->description ?? '')), 40, '...') }}
+                                                        <td class="px-6 py-4">
+                                                            <div class="text-sm text-gray-600 max-w-xs">
+                                                                {{ \Illuminate\Support\Str::limit(ucfirst(trim($plan->description ?? '')), 60, '...') }}
                                                             </div>
                                                         </td>
                                                         
@@ -135,7 +135,7 @@
                                                         </td>
                                                         
                                                         <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="text-sm font-bold text-gray-900">
+                                                            <div class="text-sm font-bold text-gray-900 text-right">
                                                                 ₱{{ number_format($plan->monthly_price ?? 0, 2) }}
                                                             </div>
                                                         </td>
@@ -144,7 +144,7 @@
                                                             <div class="text-sm text-gray-700">
                                                                 {{ ucfirst(trim($plan->billing_cycle ?? '')) }}
                                                             </div>
-                                                        </td>
+                                                         </td>
                                                         
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center gap-3">
@@ -168,17 +168,17 @@
                                                                     <i class="fa-regular fa-trash-can text-white"></i>
                                                                 </button>
                                                             </div>
-                                                        </td>
+                                                         </td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                                                             <div class="flex flex-col items-center">
                                                                 <i class="fas fa-clipboard-list text-4xl text-gray-300 mb-3"></i>
                                                                 <p class="text-lg font-medium">No Plans found</p>
                                                                 <p class="text-sm">Click the "Add Plan" button to create a new Plan.</p>
                                                             </div>
-                                                        </td>
+                                                         </td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -207,7 +207,7 @@
                 <form id="addPlanForm" method="POST" action="{{ route('plans.store') }}">
                     @csrf
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2 form-group">
+                        <div class="form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Associated Class <span class="text-red-500">*</span>
                             </label>
@@ -220,7 +220,7 @@
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_class_id"></div>
                         </div>
                         <!-- plan_name -->
-                        <div class="col-span-2 form-group">
+                        <div class=" form-group">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Plan Name <span class="text-red-500">*</span>
                             </label>
@@ -315,7 +315,7 @@
                             </label>
                             <input type="number" name="monthly_price" id="monthly_price" step="0.01" min="0" required
                                 value="0.00" placeholder="0.00"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 text-right focus:ring-[#1C1C1D]">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_monthly_price"></div>
                         </div>
 
@@ -481,7 +481,7 @@
                             </label>
                             <input type="number" name="monthly_price" id="edit_monthly_price" step="0.01" min="0"
                                 value="0.00" placeholder="0.00"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D]">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1C1C1D] text-right">
                             <div class="error-message text-red-500 text-xs mt-1 hidden" id="error_edit_monthly_price"></div>
                         </div>
                         
@@ -535,15 +535,5 @@
         crossorigin="anonymous"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     @vite(['resources/js/plans.js', 'resources/js/navbarDrop.js'])
-    <script>
-        @if ($errors->any())
-            document.addEventListener('DOMContentLoaded', function () {
-                // If there are errors, automatically re-open the Add Modal
-                openAddUserModal();
-            });
-        @endif
-    </script>
-
 </body>
-
 </html>

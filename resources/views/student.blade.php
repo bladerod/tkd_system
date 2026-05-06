@@ -1,8 +1,15 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Students</title>
     @vite(['resources/css/app.css'])
     @vite(['resources/css/dashboard.css'])
@@ -13,6 +20,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.css">
     <!-- Add SweetAlert2 for better alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -34,42 +42,56 @@
                 Student List
             </div>
 
-        {{-- <div class="grid grid-cols-4 gap-4 px-4 pt-4">
-            <div class="dropdown">
-                <label for="belt">Belt</label>
-                <select name="belt" id="belt">
-                    <option value="" disabled selected>-- Select a belt --</option>
-                    @foreach ($beltlevels as $belt)
-                        <option value="{{ $belt->id }}">{{ $belt->name }}</option>
-                    @endforeach
-                </select>
+        <form method="GET" action="{{ route('student') }}" class="mb-4 p-4 mx-4 mt-4">
+            <div class="flex items-center gap-2 mb-4">
+                <h1 class="font-semibold text-gray-700">Filter Options</h1>
             </div>
+            
+            <div class="grid grid-cols-12 gap-4 items-end">
+                <div class="col-span-3">
+                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+                    <select name="status" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                        <option value="">All Statuses</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended</option>
+                    </select>
+                </div>
 
-        <div class="content-card mb-6">
-            <div class="bg-[#1C1C1D] p-3 rounded-t-xl text-white font-semibold text-xl text-center">
-                Student List
-            </div>
+                <div class="col-span-3">
+                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Belt Level</label>
+                    <select name="belt" class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                        <option value="">All Belts</option>
+                        @foreach ($beltlevels as $belt)
+                            <option value="{{ $belt->name }}" {{ request('belt') == $belt->name ? 'selected' : '' }}>
+                                {{ $belt->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="col-span-4">
+                    <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Quick Search</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="jqSearchInput" placeholder="Search student name..." class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                        <button type="button" id="jqSearchBtn" class="bg-gray-800 text-white px-4 py-2.5 rounded-lg hover:bg-gray-900 transition-all duration-200 font-medium text-sm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
 
-            <div class="dropdown">
-                <label for="class">Class</label>
-                <select name="class" id="class">
-                    <option value="" disabled selected>-- Select class --</option>
-                    @foreach ($classes as $class)
-                        <option value="{{ $class->id }}">{{ $class->class_name }}</option>
-                    @endforeach
-                </select>
+                <div class="col-span-2">
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-3 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm flex items-center justify-center gap-2">
+                            Filter
+                        </button>
+                        <a href="{{ route('student') }}" class="px-3 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
+                            Clear
+                        </a>
+                    </div>
+                </div>
             </div>
-
-            <div class="dropdown">
-                <label for="instructor">Instructor</label>
-                <select name="instructor" id="instructor">
-                    <option value="" disabled selected>-- Select instructor --</option>
-                    @foreach ($users->where('role', 'instructor') as $user)
-                        <option value="{{ $user->id }}">{{ $user->fname }} {{ $user->lname }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div> --}}
+        </form>
 
         <div class="mt-2">
             <div class="table-content overflow-x-auto">
@@ -193,6 +215,7 @@
 
 <div id="certificatesTab" class="tab-content hidden"></div>
     </div>
+</div>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"></script>
@@ -401,7 +424,11 @@ async function loadBillingData(studentId) {
                 <tr>
                     <td>${new Date(b.created_at).toLocaleDateString()}</td>
                     <td>₱${b.amount}</td>
-                    <td>${b.status}</td>
+                    <td>
+    <span class="status_pay ${b.status.toLowerCase()}">
+        ${b.status}
+    </span>
+</td>
                 </tr>
             `;
         });

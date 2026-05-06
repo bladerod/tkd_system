@@ -1,7 +1,13 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>TrainNova | Billing</title>
     @vite(['resources/css/app.css'])
@@ -48,6 +54,63 @@
                                             Mark Overdue
                                         </button>
                                     </div>
+                                    <form method="GET" action="{{ route('billing.index') }}" class="mb-6 p-4 mx-4 ">
+                                        <div class="flex items-center gap-2 mb-4">
+                                            <h1 class="font-semibold text-gray-700">Filter Options</h1>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-12 gap-4 items-end">
+                                            <div class="col-span-2">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Due From</label>
+                                                <input type="date" name="from_date" value="{{ request('from_date') }}" 
+                                                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                            </div>
+                                            
+                                            <div class="col-span-2">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Due To</label>
+                                                <input type="date" name="to_date" value="{{ request('to_date') }}" 
+                                                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                            </div>
+
+                                            <div class="col-span-2">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+                                                <select name="status" 
+                                                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                                    <option value="">All Statuses</option>
+                                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                    <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial</option>
+                                                    <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue</option>
+                                                    <option value="void" {{ request('status') == 'void' ? 'selected' : '' }}>Void</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-span-3">
+                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Class</label>
+                                                <select name="class_id" 
+                                                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
+                                                    <option value="">All Classes</option>
+                                                    @foreach($classes ?? [] as $class)
+                                                        <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>
+                                                            {{ $class->class_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-span-3">
+                                                <div class="flex gap-2">
+                                                    <button type="submit" class="flex-1 bg-[#1C1C1D] text-white px-4 py-2.5 rounded-lg hover:bg-[#2C2C2D] transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                                                        <i class="fas fa-search"></i> Apply Filters
+                                                    </button>
+                                                    <a href="{{ route('billing.index') }}" class="px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium flex items-center justify-center">
+                                                        Clear
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <!-- Table Section -->
                                     <div class="bg-white rounded-b-xl shadow-sm border border-gray-100 overflow-hidden">
                                         <div class="overflow-x-auto">
                                             <table id="invoiceTable" class="min-w-full divide-y divide-gray-200">
@@ -107,7 +170,11 @@
                                                                 <span class="text-gray-400 italic">N/A</span>
                                                             @endif
                                                         </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₱{{ number_format($invoice->total_due, 2) }}</td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                            <div class="text-right">
+                                                                ₱{{ number_format($invoice->total_due, 2) }}
+                                                            </div>
+                                                        </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($invoice->due_date)->format('F j, Y') }}</td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             @php
@@ -321,7 +388,7 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Applied Discount (₱)</label>
                             <input type="number" id="invoiceDiscount" name="discount" step="0.01" readonly
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none">
+                                class="w-full px-3 py-2 border text-right border-gray-300 rounded-md bg-gray-100 focus:outline-none">
                         </div>
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Base Amount (₱)</label>
@@ -332,12 +399,12 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Penalty (₱)</label>
                             <input type="number" id="invoicePenalty" name="penalty" step="0.01" readonly
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none">
+                                class="w-full px-3 text-right py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none">
                             <p class="text-xs text-gray-500 mt-1">Auto-calculated from billing rules for overdue invoices</p>
                         </div>
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Total Due (₱)</label>
-                            <p id="totalDuePreview" class="text-2xl font-bold text-gray-900 bg-green-50 p-2 rounded-md">₱0.00</p>
+                            <p id="totalDuePreview" class="text-2xl font-bold text-gray-900 bg-green-50 p-2  text-right rounded-md">₱0.00</p>
                         </div>
                     </div>
                 </div>

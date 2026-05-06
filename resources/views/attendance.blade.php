@@ -1,7 +1,13 @@
+@php
+    $branding = \App\Models\Branding::first();
+@endphp
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @if(isset($branding) && $branding->logo_path)
+        <link rel="icon" href="{{ Storage::url($branding->logo_path) }}">
+    @endif
     <title>TrainNova | Attendance</title>
     @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -31,7 +37,7 @@
 
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-4xl font-bold text-[#1C1C1D]">Attendance</h1>
-                        <div class="flex gap-4">
+                        {{-- <div class="flex gap-4">
                             <div class="bg-white rounded-lg shadow-sm px-4 py-2">
                                 <span class="text-sm text-gray-500">Today's Total</span>
                                 <p class="text-2xl font-bold text-[#1C1C1D]">{{ $totalToday ?? 0 }}</p>
@@ -44,7 +50,7 @@
                                 <span class="text-sm text-gray-500">Active Classes</span>
                                 <p class="text-2xl font-bold text-[#1C1C1D]">{{ $activeClasses ?? 0 }}</p>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
 
                     @if(session('success'))
@@ -75,7 +81,14 @@
                                         </button>
                                         
                                         
-                                        <a href="{{ route('attendance.export', request()->all()) }}" class="bg-[#A62809] px-6 py-2.5 rounded-xl hover:bg-[#bf2d0d] text-white font-medium transition-colors inline-block">
+                                        <a href="{{ route('attendance.export', [
+                                            'from_date' => request()->get('from_date'), 
+                                            'to_date' => request()->get('to_date'),
+                                            'class_id' => request()->get('class_id'),
+                                            'instructor_id' => request()->get('instructor_id'),
+                                            'device_id' => request()->get('device_id')
+                                        ]) }}" 
+                                        class="bg-[#A62809] px-6 py-2.5 rounded-xl hover:bg-[#bf2d0d] text-white font-medium transition-colors inline-block">
                                             Export as CSV
                                         </a>
                                     </div>
@@ -87,15 +100,15 @@
                                         
                                         <div class="grid grid-cols-12 gap-4 items-end">
                                             <div class="col-span-2">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">From Date</label>
+                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Due From</label>
                                                 <input type="date" name="from_date" value="{{ $fromDate ?? '' }}" 
-                                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white">
+                                                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
                                             </div>
                                             
                                             <div class="col-span-2">
-                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">To Date</label>
+                                                <label class="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Due To</label>
                                                 <input type="date" name="to_date" value="{{ $toDate ?? '' }}" 
-                                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white">
+                                                    class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1C1C1D] focus:border-transparent transition-all duration-200 bg-white">
                                             </div>
                                             
                                             <div class="col-span-2">
@@ -153,14 +166,14 @@
                                             <table id="userTable" class="w-full text-sm">
                                                 <thead>
                                                     <tr class="border-b border-gray-200 bg-[#1C1C1D] ">
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Time</th>
-                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Branch</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Student Name</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Class</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Branch</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Instructor</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Camera</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Match %</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Method</th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Time</th>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
                                                     </tr>
                                                 </thead>
@@ -168,22 +181,7 @@
                                                 <tbody class="divide-y divide-gray-100">
                                                     @forelse($attendanceLogs as $log)
                                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {{-- format(m=month,d=day, y=year, g=12 hours format, i=minute format, a=AM or PM) --}}
-                                                            {{ optional($log->checkin_time)->format('m-d-y g:i A') ?? 'N/A' }}
-                                                            @if($log->checkout_time)
-                                                                <br><span class="text-xs text-gray-400">out: {{ $log->checkout_time->format('m-d-y g:i A') }}</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap">
-                                                            <div class="flex items-center">
-                                                                <div class="ml-3">
-                                                                    <p class="text-sm font-medium text-gray-800">
-                                                                        {{ $log->branch ?? 'N/A' }}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </td>
+                                                        
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             <div class="flex items-center">
                                                                 <div class="ml-3">
@@ -200,6 +198,16 @@
                                                             {{ $log->class_name ?? 'N/A' }}
                                                             <br>
                                                         </td>
+                                                        
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div class="ml-3">
+                                                                    <p class="text-sm font-medium text-gray-800">
+                                                                        {{ $log->branch ?? 'N/A' }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {{ $log->instructor_name }}
                                                         </td>
@@ -215,6 +223,13 @@
                                                             <span class="px-2 py-1 text-xs font-medium rounded-full">
                                                                 {{ ucfirst($log->method ?? 'manual') }}
                                                             </span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                            {{-- format(m=month,d=day, y=year, g=12 hours format, i=minute format, a=AM or PM) --}}
+                                                            {{ optional($log->checkin_time)->format('m-d-y g:i A') ?? 'N/A' }}
+                                                            @if($log->checkout_time)
+                                                                <br><span class="text-xs text-gray-400">out: {{ $log->checkout_time->format('m-d-y g:i A') }}</span>
+                                                            @endif
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap">
                                                             @if(!$log->checkout_time || $log->checkout_time->format('Y-m-d H:i:s') == '0000-00-00 00:00:00')

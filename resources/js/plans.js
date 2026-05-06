@@ -1,3 +1,39 @@
+// ==================== SIMPLE DATATABLE INITIALIZATION ====================
+// Initialize Simple DataTable when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if table exists and has data
+    const tableElement = document.getElementById('plansTable');
+    if (tableElement) {
+        // Check if there are any rows in tbody besides the "no data" row
+        const tbody = tableElement.querySelector('tbody');
+        const hasData = tbody && tbody.children.length > 0 && !tbody.querySelector('td[colspan="8"]');
+        
+        if (hasData) {
+            try {
+                // Initialize Simple DataTable with configuration
+                const dataTable = new simpleDatatables.DataTable('#plansTable', {
+                    searchable: true,
+                    sortable: true,
+                    paging: true,
+                    perPage: 10,
+                    perPageSelect: [5, 10, 25, 50, 100],
+                    labels: {
+                        placeholder: "Search plans...",
+                        perPage: "Show entries",
+                        noRows: "No plans found",
+                        info: "Showing {start} to {end} of {rows} plans",
+                    }
+                });
+                console.log('DataTable initialized successfully');
+            } catch (error) {
+                console.error('Error initializing DataTable:', error);
+            }
+        } else {
+            console.log('No data in table, DataTable not initialized');
+        }
+    }
+});
+
 // ==================== ADD PLAN MODAL FUNCTIONS ====================
 window.openAddPlanModal = function () {
     document.getElementById('addPlanModal').classList.remove('hidden');

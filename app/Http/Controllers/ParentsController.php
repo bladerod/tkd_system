@@ -23,12 +23,15 @@ class ParentsController extends Controller
         }
         return $value;
     }
-    
+
     /**
      * Display a listing of parents.
      */
     public function index(Request $request)
     {
+    $search = $request->input('search');
+    $date_from = $request->input('date_from');
+    $date_to = $request->input('date_to');
         $status = $request->input('status');
         $verification = $request->input('verification');
 
@@ -45,6 +48,32 @@ class ParentsController extends Controller
         if ($verification !== null && $verification !== '') {
             $query->where('id_verified_flag', $verification);
         }
+
+
+    // Quick search by name, email, or mobile
+    if (!empty($search)) {
+        $query->whereHas('user', function ($q) use ($search) {
+            $q->where(function ($q2) use ($search) {
+                $q2->where('fname', 'like', '%' . $search . '%')
+                   ->orWhere('lname', 'like', '%' . $search . '%')
+                   ->orWhere('email', 'like', '%' . $search . '%')
+                   ->orWhere('mobile', 'like', '%' . $search . '%');
+            });
+        });
+    }
+
+    // Date range filter on created_at (enrolled date)
+    if (!empty($date_from)) {
+        $query->whereHas('user', function ($q) use ($date_from) {
+            $q->whereDate('created_at', '>=', $date_from);
+        });
+    }
+
+    if (!empty($date_to)) {
+        $query->whereHas('user', function ($q) use ($date_to) {
+            $q->whereDate('created_at', '<=', $date_to);
+        });
+    }
 
         $parents = $query->get();
 
@@ -334,15 +363,15 @@ class ParentsController extends Controller
             ->get();
     }
 
-    // =========================
-    // PAYMENTS
-    // =========================
-    public function payments($id)
-    {
-        return DB::table('payments')
-            ->where('parent_id', $id)
-            ->get();
-    }
+// =========================
+// PAYMENTS
+// =========================
+public function payments($id)
+{
+    return DB::table('paymentsview')
+        ->where('parent_id', $id)
+        ->get();
+}
 
     // =========================
     // CHAT

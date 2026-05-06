@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\StudentApiController;
 use App\Http\Controllers\Api\ClassApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\AnnouncementApiController;
-use App\Http\Controllers\Api\BillingApiController;
 use App\Http\Controllers\Api\ParentApiController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\StudentController;
@@ -53,8 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/student/register-face', [StudentApiController::class, 'registerFace']);
 
     Route::post('/student/reset-face', [StudentApiController::class, 'resetFace']);
-
-    // Instructor-specific classes and stats
+    // Instructor-specific na class stats
     Route::get('/instructor/attendance-stats', [ClassApiController::class, 'attendanceStats']);
 
     Route::get('/student/attendance', [StudentApiController::class, 'myAttendance']);
@@ -105,23 +103,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/parent/child/{childId}/attendance', [ParentApiController::class, 'childAttendance']);
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);
-    Route::get('/parents/{id}/children', [ParentsController::class, 'getChildrenDetails']);
-    Route::get('/parents/{id}/billing', [ParentsController::class, 'getFamilyBilling']);
-    Route::get('/parents/{id}/payments', [ParentsController::class, 'getPayments']);
-    Route::get('/parents/{id}/activity', [ParentsController::class, 'getActivityLog']);
-    Route::get('/parents/{id}/notifications', [ParentsController::class, 'getNotifications']);
-    Route::post('/parents/{id}/send-message', [ParentsController::class, 'sendMessage']);
+Route::get('/parents/{id}', [ParentsController::class, 'show']);
+Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
+Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
+Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
+Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
+Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
 
     Route::get('/chat-threads/{id}/messages', [ParentsController::class, 'getThreadMessages']);
 
-    Route::get('/certificates/students', [CertificateController::class, 'getStudentsForDropdown']);
-    Route::post('/certificates/generate', [CertificateController::class, 'generate']);
-    Route::get('/certificates/{id}', [CertificateController::class, 'show']);
-    Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
-    Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
+    // Route::get('/certificates/students', [CertificateController::class, 'getStudentsForDropdown']);
+    // Route::post('/certificates/generate', [CertificateController::class, 'generate']);
+    // Route::get('/certificates/{id}', [CertificateController::class, 'show']);
+    // Route::post('/certificates/{id}/email', [CertificateController::class, 'email']);
+    // Route::post('/certificates/bulk-generate', [CertificateController::class, 'bulkGenerate']);
 
 
-    Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
+Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
 
     //belt promotions
@@ -169,3 +167,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/api/students/{id}', [StudentController::class, 'show']);
     Route::get('/api/students/{id}/attendance', [StudentController::class, 'attendance']);
 });
+

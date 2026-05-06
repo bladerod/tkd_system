@@ -72,7 +72,7 @@ class InvoiceController extends Controller
             ->get();
         $classes = Classes::where('status', 'active')->orderBy('class_name')->get();
         
-        return view('billing', compact('invoices', 'students', 'plans', 'discounts', 'classes', 'fromDate', 'toDate', 'status', 'classId'));
+        return view('billing', compact('invoices', 'students', 'plans', 'discounts', 'classes', 'fromDate', 'toDate', 'status', 'classId', 'billings'));
     }
 
     /**

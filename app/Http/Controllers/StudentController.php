@@ -40,6 +40,7 @@ class StudentController extends Controller
                     'belt' => $student->current_belt ?? 'white',
                     'status' => $student->status ?? 'active',
                     'photo' => $student->photo_url,
+                    'join_date' => $student->join_date,
                     'parent_name' => $student->primaryParent?->user?->name ?? 'N/A',
                     // 'balance' => $this->calculateBalance($student),
                     // 'attendance_rate' => $this->calculateAttendanceRate($student),
@@ -274,7 +275,7 @@ public function certificates($id)
     //     ]);
     // }
 
-public function competitions($studentId)
+public function competitions($id)
 {
     $entries = DB::table('competition_entries as ce')
         ->leftJoin('competitions as c', 'ce.competition_id', '=', 'c.id')
@@ -286,7 +287,7 @@ public function competitions($studentId)
             'c.date as competition_date',
             DB::raw("CONCAT(u.fname, ' ', u.lname) as instructor_name")
         )
-        ->where('ce.student_id', $studentId)
+        ->where('ce.student_id', $id)
         ->orderBy('c.date', 'desc')
         ->get();
 
@@ -318,4 +319,5 @@ public function competitions($studentId)
 
     //     return response()->json($attendance);
     // }
+
 }

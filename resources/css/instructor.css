@@ -58,6 +58,9 @@ table{
 .datatable-table tbody td {
     white-space: nowrap !important;
 }
+.datatable-top{
+    padding: 0 !important;
+}
 .datatable-top, .datatable-bottom {
     background-color: #ffffff !important;
 }
@@ -72,4 +75,7 @@ table{
     border-radius: 0.375rem !important;
     padding: 0.5rem !important;
     margin: 0 0.5rem !important;
+}
+.datatable-dropdown{
+    display: none !important; 
 }

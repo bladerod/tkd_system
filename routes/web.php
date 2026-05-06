@@ -19,6 +19,7 @@ use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Models\BeltLevel;
@@ -40,7 +41,7 @@ Route::middleware(['guest'])->group(function () {
     Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('reset-password', [ForgotPasswordController::class, 'updatePassword'])->name('password.update');
 
-    Route::get('/reset-password', function(){
+    Route::get('/reset-password', function () {
         return view('announcementAttendance');
     });
 });
@@ -66,12 +67,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // PARENTS
     Route::get('/parents', [ParentsController::class, 'index'])->name('parents.index');
-Route::get('/parents/{id}', [ParentsController::class, 'show']);
-Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
-Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
-Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
-Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
-Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
+    Route::get('/parents/{id}', [ParentsController::class, 'show']);
+    Route::get('/parents/{id}/billing', [ParentsController::class, 'billing']);
+    Route::get('/parents/{id}/payments', [ParentsController::class, 'payments']);
+    Route::get('/parents/{id}/chat', [ParentsController::class, 'chat']);
+    Route::get('/parents/{id}/activity', [ParentsController::class, 'activity']);
+    Route::get('/parents/{id}/notifications', [ParentsController::class, 'notifications']);
     Route::get('/parent', function () {
         $parentList = \App\Models\parentview::all();
         return view('parent', compact('parentList'));
@@ -87,9 +88,10 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
     // STUDENTS
     Route::post('/student', [StudentController::class, 'store'])->name('student.create');
     Route::get('/students/{id}', [StudentController::class, 'show']);
+    Route::get('/students/filter', [StudentController::class, 'filter']);
     Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
     Route::get('/students/{id}/billing', [StudentController::class, 'billing']);
-    Route::get('/students/{id}/competition', [StudentController::class, 'competition']);
+    Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
     Route::get('/students/{id}/certificates', [StudentController::class, 'certificates']);
     Route::get('/students/{student}/profile', [StudentController::class, 'profile']);
     Route::get('/students/{student}/attendance', [StudentController::class, 'attendance']);
@@ -201,35 +203,49 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         $users = User::all();
         $classes = Classes::all();
 
-
-       $status = $request->input('status');
-        $belt = $request->input('belt');
-
         $query = DB::table('student_overview')
+            ->orderBy('student_name', 'asc')
             ->select(
                 'id',
+                'branch_name',
                 'student_code',
                 'student_name',
                 'current_belt',
                 'status',
                 'parent_name',
                 'balance',
-                'attendance'
+                'attendance',
+                'join_date'
             );
 
-        if ($status) {
-            $query->where('status', $status);
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
-        if ($belt) {
-            $query->where('current_belt', $belt);
+        // Belt filter
+        if ($request->filled('belt')) {
+            $query->where('current_belt', $request->belt);
         }
 
-        $vwstudents = $query->orderBy('student_name', 'asc')->get();
+        // Quick search
+        if ($request->filled('search')) {
+            $query->where('student_name', 'like', '%' . $request->search . '%')
+                ->orWhere('parent_name', 'like', '%' . $request->search . '%');
+        }
+        // Date From filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('join_date', '>=', $request->date_from);
+        }
+
+        // Date To filter
+        if ($request->filled('date_to')) {
+            $query->whereDate('join_date', '<=', $request->date_to);
+        }
+        $vwstudents = $query->get();
 
         return view('student', compact('vwstudents', 'classes', 'users', 'beltlevels'));
     })->name('student');
-
 
     Route::get('/certificates', [CertificateController::class, 'index']);
 
@@ -244,15 +260,15 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
     /* PREVIEW */
     Route::post('/certificates/preview', [CertificateController::class, 'preview']);
 
-    /* VERIFY */
-    Route::get('/verify/{code}', [CertificateController::class, 'verify']);
-    Route::get('/templates', [CertificateController::class, 'templates']);
-    Route::get('/templates/create', [CertificateController::class, 'createTemplate']);
-    Route::post('/templates/store', [CertificateController::class, 'storeTemplate']);
-    Route::get('/templates/{id}/editor', [CertificateController::class, 'editor']);
-    Route::post('/templates/{id}/save-layout', [CertificateController::class, 'saveLayout']);
-    Route::post('/templates/{id}/upload-image', [CertificateController::class, 'uploadImage']);
-    Route::post('/templates/{id}/upload-bg', [CertificateController::class, 'uploadBackground']);
+    // /* VERIFY */
+    // Route::get('/verify/{code}', [CertificateController::class, 'verify']);
+    // Route::get('/templates', [CertificateController::class, 'templates']);
+    // Route::get('/templates/create', [CertificateController::class, 'createTemplate']);
+    // Route::post('/templates/store', [CertificateController::class, 'storeTemplate']);
+    // Route::get('/templates/{id}/editor', [CertificateController::class, 'editor']);
+    // Route::post('/templates/{id}/save-layout', [CertificateController::class, 'saveLayout']);
+    // Route::post('/templates/{id}/upload-image', [CertificateController::class, 'uploadImage']);
+    // Route::post('/templates/{id}/upload-bg', [CertificateController::class, 'uploadBackground']);
 
     Route::prefix('settings')->group(function () {
 
@@ -324,4 +340,32 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
         }
         return response()->json(['available' => !$query->exists()]);
     })->middleware('permission:users,view')->name('check.username');
+
+    Route::prefix('templates')->name('templates.')->group(function () {
+
+        // ── List all templates
+        Route::get('/',          [TemplateController::class, 'index'])->name('index');
+
+        // ── Create form + store
+        Route::get('/create',    [TemplateController::class, 'create'])->name('create');
+        Route::post('/',         [TemplateController::class, 'store'])->name('store');
+
+        // ── Canvas editor
+        Route::get('/{id}/editor',      [TemplateController::class, 'editor'])->name('editor');
+
+        // ── Save layout (Ajax POST from editor)
+        Route::post('/{id}/save-layout', [TemplateController::class, 'saveLayout'])->name('saveLayout');
+
+        // ── Preview (web view or JSON if ?Accept=application/json)
+        Route::get('/{id}/preview',[TemplateController::class, 'preview'])->name('preview');
+
+        // ── Clone / duplicate
+        Route::post('/{id}/clone',      [TemplateController::class, 'clone'])->name('clone');
+
+        // ── Upload image asset for a template's canvas
+        Route::post('/{id}/upload-image', [TemplateController::class, 'uploadImage'])->name('uploadImage');
+
+        // ── Delete
+        Route::delete('/{id}',          [TemplateController::class, 'destroy'])->name('destroy');
+    });
 });

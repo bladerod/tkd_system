@@ -15,7 +15,6 @@
                 <span class="text-gray-700 font-medium">Skill Checklist</span>
             </nav>
             <h1 class="text-3xl font-bold text-gray-800">Skill Checklist</h1>
-            <p class="text-gray-500 text-sm mt-1">Manage skills per belt level for student evaluations</p>
         </div>
         <button onclick="openAddModal()"
             class="bg-[#1c1c1d] hover:bg-[#3d3d3f] cursor-pointer text-white px-5 py-2.5 rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-sm">
@@ -98,7 +97,6 @@
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
-                    <th class="px-6 py-4 font-semibold text-gray-600">#</th>
                     <th class="px-6 py-4 font-semibold text-gray-600">Belt Level</th>
                     <th class="px-6 py-4 font-semibold text-gray-600">Skill Name</th>
                     <th class="px-6 py-4 font-semibold text-gray-600">Description</th>
@@ -109,7 +107,6 @@
                 @forelse($skills as $index => $skill)
                     <tr class="skill-row border-b border-gray-100 hover:bg-gray-50 transition-colors"
                         data-belt="{{ $skill->belt_level }}">
-                        <td class="px-6 py-4 text-gray-500">{{ $index + 1 }}</td>
                         <td class="px-6 py-4">
                             @php
                                 $belt = $beltLevels->firstWhere('name', $skill->belt_level);
@@ -158,9 +155,6 @@
                 <i class="fas fa-plus text-white"></i>
                 <h3 class="text-lg font-bold text-white">Add New Skill</h3>
             </div>
-            <button onclick="closeAddModal()" class="text-white hover:text-gray-300 cursor-pointer">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
         <div class="p-6">
             <form action="{{ route('settings.skill-checklist.store') }}" method="POST">

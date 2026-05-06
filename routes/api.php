@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\ParentApiController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\Api\CompetitionApiController;
+use App\Http\Controllers\Api\EvaluationApiController;
+use App\Http\Controllers\Api\InstructorApiController;
 
 
 // Public routes (no token needed)
@@ -21,7 +24,7 @@ Route::post('/auth/face-login', [StudentApiController::class, 'faceLogin']);
 Route::post('/auth/face-checkin', [StudentApiController::class, 'faceCheckIn']);
 
 // Test route to verify API is working
-Route::get('/test', function() {
+Route::get('/test', function () {
     return response()->json([
         'success' => true,
         'message' => 'API is working from api.php!',
@@ -52,18 +55,52 @@ Route::middleware('auth:sanctum')->group(function () {
     // Instructor-specific na class stats
     Route::get('/instructor/attendance-stats', [ClassApiController::class, 'attendanceStats']);
 
-    // Students
-    // Route::prefix('students')->group(function () {
-    //     Route::get('/', [StudentApiController::class, 'index']);
-    //     Route::get('/{id}', [StudentApiController::class, 'show']);
-    //     Route::get('/{id}/attendance', [StudentApiController::class, 'attendance']);
-    //     Route::get('/{id}/progress', [StudentApiController::class, 'progress']);
-    // });
+    Route::get('/student/attendance', [StudentApiController::class, 'myAttendance']);
+
+    Route::get('/parent/profile', [ParentApiController::class, 'myProfile']);
+
+    Route::get('/parent/child/{childId}', [ParentApiController::class, 'childProfile']);
+
+    Route::get('/instructor/students-list', [StudentApiController::class, 'studentsList']);
+
+    Route::get('/instructor/parents-list', [StudentApiController::class, 'parentsList']);
+
+    Route::get('/announcements/unread-count', [AnnouncementApiController::class, 'unreadCount']);
+
+    Route::post('/announcements/mark-read', [AnnouncementApiController::class, 'markAllRead']);
+
+    Route::post('/announcements/{id}/mark-read', [AnnouncementApiController::class, 'markOneRead']);
+
+    Route::post('/announcements/{id}/dismiss', [AnnouncementApiController::class, 'dismiss']);
+
+    Route::post('/student/profile/update-photo', [StudentApiController::class, 'updatePhoto']);
+
+    //for billing
+    Route::get('/student/billing', [BillingApiController::class, 'studentBilling']);
+    Route::get('/parent/billing/{studentId}', [BillingApiController::class, 'parentBilling']);
+    Route::post('/invoices/{id}/upload-proof', [BillingApiController::class, 'uploadProof']);
+
+    // Evaluation
+    Route::get('/instructor/evaluation/students', [EvaluationApiController::class, 'getStudents']);
+    Route::get('/instructor/evaluation/skills/{belt}', [EvaluationApiController::class, 'getSkillsByBelt']);
+    Route::post('/instructor/evaluation/save', [EvaluationApiController::class, 'saveEvaluation']);
+    Route::get('/instructor/evaluation/history/{studentId}', [EvaluationApiController::class, 'getHistory']);
+
+    //Student progress
+    Route::get('/student/progress', [EvaluationApiController::class, 'studentProgress']);
+    Route::get('/instructor/evaluation/latest/{studentId}', [EvaluationApiController::class, 'getLatestEvaluation']);
+    Route::get('/instructor/student/{studentId}/progress', [EvaluationApiController::class, 'studentProgressView']);
+
+    // Announcements
+    Route::get('/announcements', [AnnouncementApiController::class, 'index']);
+    Route::get('/announcements/{id}', [AnnouncementApiController::class, 'show']);
+    Route::post('/announcements', [AnnouncementApiController::class, 'store']);
 
     // Attendance
     Route::get('/attendance', [AttendanceApiController::class, 'index']);
     Route::post('/classes/{id}/start-session', [ClassApiController::class, 'startSession']);
     Route::post('/attendance', [AttendanceApiController::class, 'store']);
+    Route::get('/parent/child/{childId}/attendance', [ParentApiController::class, 'childAttendance']);
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);
 Route::get('/parents/{id}', [ParentsController::class, 'show']);
@@ -85,6 +122,15 @@ Route::get('/parents/{id}/notifications', [ParentsController::class, 'notificati
 Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'messages']);
     Route::get('/chat-threads/{id}/messages', [StudentController::class, 'getThreadMessages']);
 
+    //belt promotions
+    Route::get('/instructor/belt-promotion/candidates', [EvaluationApiController::class, 'getBeltPromotionCandidates']);
+    Route::post('/instructor/belt-promotion/approve', [EvaluationApiController::class, 'approvePromotion']);
+
+    //Instructor
+    Route::get('/instructor/reports', [EvaluationApiController::class, 'instructorReports']);
+    Route::get('/instructor/profile', [InstructorApiController::class, 'myProfile']);
+    Route::post('/instructor/profile/update', [InstructorApiController::class, 'updateProfile']);
+    Route::post('/instructor/profile/update-photo', [InstructorApiController::class, 'updatePhoto']);
 
     Route::get('/parents/{id}', [ParentsController::class, 'show']);
     Route::get('/parents/{id}/children', [ParentsController::class, 'getChildrenDetails']);
@@ -96,24 +142,29 @@ Route::get('/chat-threads/{threadId}/messages', [ChatController::class, 'message
 
     Route::get('/chat-threads/{id}/messages', [ParentsController::class, 'getThreadMessages']);
 
+    // Competition
+    Route::get('/instructor/competitions', [CompetitionApiController::class, 'instructorCompetitions']);
+    Route::get('/instructor/competitions/{id}/entries', [CompetitionApiController::class, 'competitionEntries']);
+    Route::post('/instructor/competition-entries/{entryId}/add-note', [CompetitionApiController::class, 'addNote']);
+    Route::get('/student/competitions', [CompetitionApiController::class, 'studentCompetitions']);
+    Route::get('/parent/child/{childId}/competitions', [CompetitionApiController::class, 'parentChildCompetitions']);
+
     // Classes
     Route::prefix('classes')->group(function () {
-    Route::get('/', [ClassApiController::class, 'index']);
-    Route::get('/{id}', [ClassApiController::class, 'show']);
-    Route::get('/{id}/sessions', [ClassApiController::class, 'sessions']);
-});
+        Route::get('/', [ClassApiController::class, 'index']);
+        Route::get('/{id}', [ClassApiController::class, 'show']);
+        Route::get('/{id}/sessions', [ClassApiController::class, 'sessions']);
+    });
 
-Route::get('/instructor/classes', [ClassApiController::class, 'myClasses']);
+    Route::get('/instructor/classes', [ClassApiController::class, 'myClasses']);
 
-Route::get('/classes/{id}/students', [ClassApiController::class, 'classStudents']);
+    Route::get('/classes/{id}/students', [StudentApiController::class, 'getClassStudentsWithLoginType']);
 
-Route::get('/certificates/students', [CertificateController::class,'getStudents']);
-Route::get('/certificate-templates', [CertificateController::class,'getTemplates']);
-Route::post('/certificates/generate', [CertificateController::class,'generate']);
-Route::get('/certificate-templates', [CertificateController::class, 'getTemplates']);
+    Route::get('/certificates/students', [CertificateController::class, 'getStudents']);
+    Route::get('/certificate-templates', [CertificateController::class, 'getTemplates']);
+    Route::post('/certificates/generate', [CertificateController::class, 'generate']);
 
-Route::get('/students/{id}', [StudentController::class, 'show']);
-Route::get('/students/{id}/attendance', [StudentController::class, 'attendance']);
-Route::get('/students/{id}/competition', [StudentController::class, 'competitions']);
+    Route::get('/api/students/{id}', [StudentController::class, 'show']);
+    Route::get('/api/students/{id}/attendance', [StudentController::class, 'attendance']);
 });
 

@@ -29,18 +29,23 @@ CREATE TABLE `active_logins` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_student` (`student_id`),
   CONSTRAINT `fk_active_logins_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `active_logins` */
 
 insert  into `active_logins`(`id`,`student_id`,`login_type`,`logged_in_at`,`expires_at`) values 
-(6,20,'manual','2026-04-28 23:39:58','2026-04-28 23:59:59'),
-(7,15,'manual','2026-04-28 23:14:15','2026-04-28 23:59:59'),
+(6,20,'manual','2026-05-04 17:45:00','2026-05-04 23:59:59'),
+(7,15,'manual','2026-05-06 23:54:44','2026-05-06 23:59:59'),
 (8,22,'face_scan','2026-04-13 22:15:22','2026-04-13 23:59:59'),
-(9,23,'manual','2026-04-28 23:03:52','2026-04-28 23:59:59'),
+(9,23,'manual','2026-04-29 09:45:01','2026-04-29 23:59:59'),
 (10,24,'manual','2026-04-20 11:55:23','2026-04-20 23:59:59'),
 (11,25,'manual','2026-04-21 23:03:18','2026-04-21 23:59:59'),
-(12,21,'manual','2026-04-28 23:51:04','2026-04-28 23:59:59');
+(12,21,'manual','2026-04-30 23:27:50','2026-04-30 23:59:59'),
+(13,26,'manual','2026-04-29 23:00:16','2026-04-29 23:59:59'),
+(14,28,'manual','2026-04-30 23:13:38','2026-04-30 23:59:59'),
+(15,27,'manual','2026-05-07 00:29:50','2026-05-07 23:59:59'),
+(16,32,'manual','2026-05-06 23:41:44','2026-05-06 23:59:59'),
+(17,33,'manual','2026-05-07 00:24:13','2026-05-07 23:59:59');
 
 /*Table structure for table `announcement_reads` */
 
@@ -57,7 +62,7 @@ CREATE TABLE `announcement_reads` (
   KEY `fk_ann_reads_user` (`user_id`),
   CONSTRAINT `fk_ann_reads_announcement` FOREIGN KEY (`announcement_id`) REFERENCES `announcements` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_ann_reads_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=385 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `announcement_reads` */
 
@@ -216,7 +221,147 @@ insert  into `announcement_reads`(`id`,`announcement_id`,`user_id`,`read_at`,`is
 (172,42,43,'2026-04-28 22:55:10',0),
 (173,43,43,'2026-04-28 22:55:10',0),
 (174,44,43,'2026-04-28 22:55:10',0),
-(175,45,43,'2026-04-28 22:55:10',0);
+(175,45,43,'2026-04-28 22:55:10',0),
+(185,9,50,'2026-04-29 09:13:47',0),
+(186,10,50,'2026-04-29 09:13:47',0),
+(187,11,50,'2026-04-29 09:13:47',0),
+(188,12,50,'2026-04-29 09:13:47',0),
+(189,13,50,'2026-04-29 09:13:47',0),
+(190,24,50,'2026-04-29 09:13:47',0),
+(191,25,50,'2026-04-29 09:13:47',0),
+(192,26,50,'2026-04-29 09:13:47',0),
+(193,27,50,'2026-04-29 09:13:47',0),
+(194,28,50,'2026-04-29 09:13:47',0),
+(195,29,50,'2026-04-29 09:13:47',0),
+(196,30,50,'2026-04-29 09:13:47',0),
+(197,31,50,'2026-04-29 09:13:47',0),
+(198,32,50,'2026-04-29 09:13:47',0),
+(199,33,50,'2026-04-29 09:13:47',0),
+(200,34,50,'2026-04-29 09:13:47',0),
+(201,35,50,'2026-04-29 09:13:47',0),
+(202,36,50,'2026-04-29 09:13:47',0),
+(203,37,50,'2026-04-29 09:13:47',0),
+(204,38,50,'2026-04-29 09:13:47',0),
+(205,39,50,'2026-04-29 09:13:47',0),
+(206,40,50,'2026-04-29 09:13:47',0),
+(207,41,50,'2026-04-29 09:13:47',0),
+(208,42,50,'2026-04-29 09:13:47',0),
+(209,43,50,'2026-04-29 09:13:47',0),
+(210,44,50,'2026-04-29 09:13:47',0),
+(211,45,50,'2026-04-29 09:13:47',0),
+(220,9,53,'2026-04-29 09:38:09',0),
+(221,10,53,'2026-04-29 09:38:09',0),
+(222,11,53,'2026-04-29 09:38:09',0),
+(223,12,53,'2026-04-29 09:38:09',0),
+(224,13,53,'2026-04-29 09:38:09',0),
+(225,24,53,'2026-04-29 09:38:09',0),
+(226,25,53,'2026-04-29 09:38:09',0),
+(227,26,53,'2026-04-29 09:38:09',0),
+(228,27,53,'2026-04-29 09:38:09',0),
+(229,28,53,'2026-04-29 09:38:09',0),
+(230,29,53,'2026-04-29 09:38:09',0),
+(231,30,53,'2026-04-29 09:38:09',0),
+(232,31,53,'2026-04-29 09:38:09',0),
+(233,32,53,'2026-04-29 09:38:09',0),
+(234,33,53,'2026-04-29 09:38:09',0),
+(235,34,53,'2026-04-29 09:38:09',0),
+(236,35,53,'2026-04-29 09:38:09',0),
+(237,36,53,'2026-04-29 09:38:09',0),
+(238,37,53,'2026-04-29 09:38:09',0),
+(239,38,53,'2026-04-29 09:38:09',0),
+(240,39,53,'2026-04-29 09:38:09',0),
+(241,40,53,'2026-04-29 09:38:09',0),
+(242,41,53,'2026-04-29 09:38:09',0),
+(243,42,53,'2026-04-29 09:38:09',0),
+(244,43,53,'2026-04-29 09:38:09',0),
+(245,44,53,'2026-04-29 09:38:09',0),
+(246,45,53,'2026-04-29 09:38:09',0),
+(282,9,54,'2026-05-04 15:51:05',0),
+(283,10,54,'2026-05-04 15:51:05',0),
+(284,11,54,'2026-05-04 15:51:05',0),
+(285,12,54,'2026-05-04 15:51:05',0),
+(286,13,54,'2026-05-04 15:51:05',0),
+(287,24,54,'2026-05-04 15:51:05',0),
+(288,25,54,'2026-05-04 15:51:05',0),
+(289,26,54,'2026-05-04 15:51:05',0),
+(290,27,54,'2026-05-04 15:51:05',0),
+(291,28,54,'2026-05-04 15:51:05',0),
+(292,29,54,'2026-05-04 15:51:05',0),
+(293,30,54,'2026-05-04 15:51:05',0),
+(294,31,54,'2026-05-04 15:51:05',0),
+(295,32,54,'2026-05-04 15:51:05',0),
+(296,33,54,'2026-05-04 15:51:05',0),
+(297,34,54,'2026-05-04 15:51:05',0),
+(298,35,54,'2026-05-04 15:51:05',0),
+(299,36,54,'2026-05-04 15:51:05',0),
+(300,37,54,'2026-05-04 15:51:05',0),
+(301,38,54,'2026-05-04 15:51:05',0),
+(302,39,54,'2026-05-04 15:51:05',0),
+(303,40,54,'2026-05-04 15:51:05',0),
+(304,41,54,'2026-05-04 15:51:05',0),
+(305,42,54,'2026-05-04 15:51:05',0),
+(306,43,54,'2026-05-04 15:51:05',0),
+(307,44,54,'2026-05-04 15:51:05',0),
+(308,45,54,'2026-05-04 15:51:05',0),
+(317,9,52,'2026-05-04 16:40:39',0),
+(318,10,52,'2026-05-04 16:40:39',0),
+(319,11,52,'2026-05-04 16:40:39',0),
+(320,12,52,'2026-05-04 16:40:39',0),
+(321,13,52,'2026-05-04 16:40:39',0),
+(322,24,52,'2026-05-04 16:40:39',0),
+(323,25,52,'2026-05-04 16:40:39',0),
+(324,26,52,'2026-05-04 16:40:39',0),
+(325,27,52,'2026-05-04 16:40:39',0),
+(326,28,52,'2026-05-04 16:40:39',0),
+(327,29,52,'2026-05-04 16:40:39',0),
+(328,30,52,'2026-05-04 16:40:39',0),
+(329,31,52,'2026-05-04 16:40:39',0),
+(330,32,52,'2026-05-04 16:40:39',0),
+(331,33,52,'2026-05-04 16:40:39',0),
+(332,34,52,'2026-05-04 16:40:39',0),
+(333,35,52,'2026-05-04 16:40:39',0),
+(334,36,52,'2026-05-04 16:40:39',0),
+(335,37,52,'2026-05-04 16:40:39',0),
+(336,38,52,'2026-05-04 16:40:39',0),
+(337,39,52,'2026-05-04 16:40:39',0),
+(338,40,52,'2026-05-04 16:40:39',0),
+(339,41,52,'2026-05-04 16:40:39',0),
+(340,42,52,'2026-05-04 16:40:39',0),
+(341,43,52,'2026-05-04 16:40:39',0),
+(342,44,52,'2026-05-04 16:40:39',0),
+(343,45,52,'2026-05-04 16:40:39',0),
+(352,41,44,'2026-05-06 00:34:54',0),
+(353,42,44,'2026-05-06 00:34:54',0),
+(354,43,44,'2026-05-06 00:34:54',0),
+(355,44,44,'2026-05-06 00:34:54',0),
+(356,45,44,'2026-05-06 00:34:54',0),
+(358,9,59,'2026-05-06 23:52:52',0),
+(359,10,59,'2026-05-06 23:52:52',0),
+(360,11,59,'2026-05-06 23:52:52',0),
+(361,12,59,'2026-05-06 23:52:52',0),
+(362,13,59,'2026-05-06 23:52:52',0),
+(363,24,59,'2026-05-06 23:52:52',0),
+(364,25,59,'2026-05-06 23:52:52',0),
+(365,26,59,'2026-05-06 23:52:52',0),
+(366,27,59,'2026-05-06 23:52:52',0),
+(367,28,59,'2026-05-06 23:52:52',0),
+(368,29,59,'2026-05-06 23:52:52',0),
+(369,30,59,'2026-05-06 23:52:52',0),
+(370,31,59,'2026-05-06 23:52:52',0),
+(371,32,59,'2026-05-06 23:52:52',0),
+(372,33,59,'2026-05-06 23:52:52',0),
+(373,34,59,'2026-05-06 23:52:52',0),
+(374,35,59,'2026-05-06 23:52:52',0),
+(375,36,59,'2026-05-06 23:52:52',0),
+(376,37,59,'2026-05-06 23:52:52',0),
+(377,38,59,'2026-05-06 23:52:52',0),
+(378,39,59,'2026-05-06 23:52:52',0),
+(379,40,59,'2026-05-06 23:52:52',0),
+(380,41,59,'2026-05-06 23:52:52',0),
+(381,42,59,'2026-05-06 23:52:52',0),
+(382,43,59,'2026-05-06 23:52:52',0),
+(383,44,59,'2026-05-06 23:52:52',0),
+(384,45,59,'2026-05-06 23:52:52',0);
 
 /*Table structure for table `announcement_recipients` */
 
@@ -327,7 +472,7 @@ CREATE TABLE `attendance_logs` (
   `status` int(1) NOT NULL DEFAULT 1,
   `attendance_status` enum('present','late','absent','excused') NOT NULL DEFAULT 'present',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `attendance_logs` */
 
@@ -378,7 +523,22 @@ insert  into `attendance_logs`(`id`,`student_id`,`class_session_id`,`checkin_tim
 (61,15,36,'2026-04-13 13:31:15','2026-04-13 13:31:15','face_scan','100',24,0,1,'present'),
 (62,22,36,'2026-04-13 22:18:00','2026-04-13 22:18:00','face_scan','100',24,0,1,'present'),
 (63,15,38,'2026-04-14 21:29:41','2026-04-14 21:29:41','manual','100',24,0,1,'late'),
-(64,15,43,'2026-04-28 14:03:45','2026-04-28 14:03:45','manual','100',24,0,1,'present');
+(64,15,43,'2026-04-28 14:03:45','2026-04-28 14:03:45','manual','100',24,0,1,'present'),
+(65,26,44,'2026-04-29 10:02:38','2026-04-29 10:02:38','face_scan','100',24,0,1,'present'),
+(66,15,45,'2026-05-04 11:09:52','2026-05-04 11:09:52','face_scan','100',24,0,1,'present'),
+(67,6,45,'2026-05-04 11:10:30','2026-05-04 11:10:30','manual','100',24,0,1,'absent'),
+(68,5,45,'2026-05-04 11:10:30','2026-05-04 11:10:30','manual','100',24,0,1,'absent'),
+(70,20,46,'2026-05-04 12:59:44','2026-05-04 12:59:44','manual','100',24,0,1,'present'),
+(72,27,46,'2026-05-04 16:43:35','2026-05-04 16:43:35','manual','100',24,0,1,'present'),
+(73,28,46,'2026-05-04 16:43:35','2026-05-04 16:43:35','manual','100',24,0,1,'present'),
+(74,26,47,'2026-05-05 15:00:01','2026-05-05 15:00:01','manual','100',24,0,1,'present'),
+(75,27,47,'2026-05-05 15:00:01','2026-05-05 15:00:01','manual','100',24,0,1,'present'),
+(76,21,47,'2026-05-05 15:03:55','2026-05-05 15:03:55','manual','100',24,0,1,'late'),
+(77,20,47,'2026-05-05 15:03:55','2026-05-05 15:03:55','manual','100',24,0,1,'late'),
+(78,28,47,'2026-05-05 15:04:15','2026-05-05 15:04:15','manual','100',24,0,1,'absent'),
+(79,9,47,'2026-05-05 15:44:53','2026-05-05 15:44:53','manual','100',24,0,1,'absent'),
+(80,15,49,'2026-05-06 23:19:53','2026-05-06 23:19:53','face_scan','100',24,0,1,'present'),
+(81,33,50,'2026-05-07 00:25:26','2026-05-07 00:25:26','manual','100',60,0,1,'present');
 
 /*Table structure for table `audit_logs` */
 
@@ -704,7 +864,7 @@ CREATE TABLE `class_schedules` (
   PRIMARY KEY (`id`),
   KEY `class_schedules_class_id_foreign` (`class_id`),
   CONSTRAINT `class_schedules_class_id_foreign` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `class_schedules` */
 
@@ -718,10 +878,14 @@ insert  into `class_schedules`(`id`,`class_id`,`day_of_week`,`start_time`,`end_t
 (23,14,'tuesday','22:38:00','23:25:00','2026-03-31 14:37:40','2026-03-31 14:37:40'),
 (26,7,'monday','00:12:00','14:12:00','2026-04-06 16:23:25','2026-04-06 16:23:25'),
 (35,6,'monday','22:10:00','23:30:00','2026-04-13 22:13:51','2026-04-13 22:13:51'),
-(36,13,'monday','10:15:00','11:50:00','2026-04-14 21:28:31','2026-04-14 21:28:31'),
-(37,13,'sunday','23:23:00','23:55:00','2026-04-14 21:28:31','2026-04-14 21:28:31'),
-(38,13,'tuesday','21:28:00','23:30:00','2026-04-14 21:28:31','2026-04-14 21:28:31'),
-(39,9,'monday','11:59:00','12:25:00','2026-04-20 11:02:54','2026-04-20 11:02:54');
+(39,9,'monday','11:59:00','12:25:00','2026-04-20 11:02:54','2026-04-20 11:02:54'),
+(40,13,'monday','10:15:00','11:50:00','2026-04-29 09:20:23','2026-04-29 09:20:23'),
+(41,13,'tuesday','21:28:00','23:30:00','2026-04-29 09:20:23','2026-04-29 09:20:23'),
+(42,13,'wednesday','09:15:00','11:30:00','2026-04-29 09:20:23','2026-04-29 09:20:23'),
+(43,15,'monday','07:15:00','09:15:00','2026-05-07 00:16:35','2026-05-07 00:16:35'),
+(44,15,'tuesday','07:15:00','09:15:00','2026-05-07 00:16:35','2026-05-07 00:16:35'),
+(45,15,'wednesday','15:15:00','22:15:00','2026-05-07 00:16:35','2026-05-07 00:16:35'),
+(46,15,'thursday','19:15:00','22:15:00','2026-05-07 00:16:35','2026-05-07 00:16:35');
 
 /*Table structure for table `class_sessions` */
 
@@ -742,7 +906,7 @@ CREATE TABLE `class_sessions` (
   KEY `class_sessions_class_id_foreign` (`class_id`),
   KEY `class_sessions_instructor_id_foreign` (`instructor_id`),
   CONSTRAINT `class_sessions_class_id_foreign` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `class_sessions` */
 
@@ -763,7 +927,14 @@ insert  into `class_sessions`(`id`,`class_id`,`session_date`,`start_time`,`end_t
 (40,13,'2026-04-20','10:37:03','11:37:03',6,'ongoing',NULL,'2026-04-20 10:37:03','2026-04-20 10:37:03'),
 (41,14,'2026-04-27','17:18:45','18:18:45',6,'ongoing',NULL,'2026-04-27 17:18:45','2026-04-27 17:18:45'),
 (42,6,'2026-04-27','17:18:53','18:18:53',6,'ongoing',NULL,'2026-04-27 17:18:53','2026-04-27 17:18:53'),
-(43,13,'2026-04-28','12:54:17','13:54:17',6,'ongoing',NULL,'2026-04-28 12:54:17','2026-04-28 12:54:17');
+(43,13,'2026-04-28','12:54:17','13:54:17',6,'ongoing',NULL,'2026-04-28 12:54:17','2026-04-28 12:54:17'),
+(44,13,'2026-04-29','10:02:11','11:02:11',6,'ongoing',NULL,'2026-04-29 10:02:11','2026-04-29 10:02:11'),
+(45,13,'2026-05-04','11:09:37','12:09:37',6,'ongoing',NULL,'2026-05-04 11:09:37','2026-05-04 11:09:37'),
+(46,6,'2026-05-04','12:59:37','13:59:37',6,'ongoing',NULL,'2026-05-04 12:59:37','2026-05-04 12:59:37'),
+(47,13,'2026-05-05','14:46:25','15:46:25',6,'ongoing',NULL,'2026-05-05 14:46:25','2026-05-05 14:46:25'),
+(48,14,'2026-05-05','22:21:51','23:21:51',6,'ongoing',NULL,'2026-05-05 22:21:51','2026-05-05 22:21:51'),
+(49,13,'2026-05-06','00:40:21','01:40:21',6,'ongoing',NULL,'2026-05-06 00:40:21','2026-05-06 00:40:21'),
+(50,15,'2026-05-07','00:25:20','01:25:20',10,'ongoing',NULL,'2026-05-07 00:25:20','2026-05-07 00:25:20');
 
 /*Table structure for table `class_students` */
 
@@ -777,7 +948,7 @@ CREATE TABLE `class_students` (
   `end_date` date DEFAULT NULL,
   `status` enum('active','completed','dropped') DEFAULT 'active',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `class_students` */
 
@@ -794,9 +965,7 @@ insert  into `class_students`(`id`,`class_id`,`student_id`,`start_date`,`end_dat
 (16,12,2,'2026-03-28',NULL,'active'),
 (17,12,1,'2026-03-28',NULL,'active'),
 (18,12,6,'2026-03-28',NULL,'active'),
-(19,13,2,'2026-03-30',NULL,'active'),
 (20,13,6,'2026-03-30',NULL,'active'),
-(21,13,5,'2026-03-30',NULL,'active'),
 (22,13,13,'2026-03-30',NULL,'active'),
 (24,14,7,'2026-03-30',NULL,'active'),
 (25,13,15,'2026-03-31',NULL,'active'),
@@ -808,7 +977,14 @@ insert  into `class_students`(`id`,`class_id`,`student_id`,`start_date`,`end_dat
 (31,6,20,'2026-04-13',NULL,'active'),
 (32,6,22,'2026-04-13',NULL,'active'),
 (33,6,23,'2026-04-13',NULL,'active'),
-(34,9,24,'2026-04-20',NULL,'active');
+(34,9,24,'2026-04-20',NULL,'active'),
+(35,13,26,'2026-04-29',NULL,'active'),
+(36,13,27,'2026-04-29',NULL,'active'),
+(37,13,28,'2026-04-29',NULL,'active'),
+(38,6,27,'2026-05-04',NULL,'active'),
+(39,6,28,'2026-05-04',NULL,'active'),
+(40,13,32,'2026-05-06',NULL,'active'),
+(41,15,33,'2026-05-06',NULL,'active');
 
 /*Table structure for table `classes` */
 
@@ -827,7 +1003,7 @@ CREATE TABLE `classes` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `classes` */
 
@@ -841,7 +1017,8 @@ insert  into `classes`(`id`,`branch_id`,`class_name`,`age_group`,`level`,`max_st
 (9,1,'Intermediate Training','10-15','White-Yellow',10,6,9,'active','2026-03-27 02:22:16','2026-04-20 11:02:54'),
 (12,1,'Master Training','18-22','Red-Black',10,6,9,'active','2026-03-28 07:54:23','2026-03-28 07:54:23'),
 (13,1,'Master Training','18-22','Black',10,6,8,'active','2026-03-30 04:41:01','2026-04-06 16:54:07'),
-(14,2,'Fundamental Training','7-10','Blue-Red',10,6,8,'active','2026-03-30 14:56:55','2026-03-30 14:56:55');
+(14,2,'Fundamental Training','7-10','Blue-Red',10,6,8,'active','2026-03-30 14:56:55','2026-03-30 14:56:55'),
+(15,2,'Kids Training','10','Yellow',10,10,7,'active','2026-05-07 00:16:35','2026-05-07 00:16:35');
 
 /*Table structure for table `club_profiles` */
 
@@ -891,12 +1068,17 @@ CREATE TABLE `competition_entries` (
   KEY `competition_id` (`competition_id`),
   KEY `student_id` (`student_id`),
   KEY `instructor_id` (`instructor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `competition_entries` */
 
 insert  into `competition_entries`(`id`,`competition_id`,`student_id`,`instructor_id`,`category`,`division`,`result`,`medal`,`remarks`,`updated_at`,`created_at`) values 
-(1,1,20,2,'Sparring','20','draw','gold','testing','2026-04-17 16:13:41','2026-04-17');
+(1,1,20,2,'Sparring','20','draw','gold','testing','2026-04-17 16:13:41','2026-04-17'),
+(2,1,27,6,'Sparring','20','pending','none','test','2026-05-04 11:35:22','2026-05-04'),
+(3,2,20,6,'Sparring','20','win','silver','Good Work!','2026-05-04 12:55:59','2026-05-04'),
+(4,2,20,6,'Sparring','20','loss','bronze','Nice Try!','2026-05-04 12:57:08','2026-05-04'),
+(5,2,20,6,'Sparring','20','win','gold','Good','2026-05-04 12:57:50','2026-05-04'),
+(6,2,20,6,'Sparring','20','win','gold','Verry Good','2026-05-04 12:58:25','2026-05-04');
 
 /*Table structure for table `competitions` */
 
@@ -913,12 +1095,13 @@ CREATE TABLE `competitions` (
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
   `status` enum('active','inactive') DEFAULT 'active',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `competitions` */
 
 insert  into `competitions`(`id`,`name`,`location`,`date`,`organizer`,`level`,`created_at`,`updated_at`,`status`) values 
-(1,'Metro Manila Taekwondo Open','Quezon City Sports Complex, Quezon City','2026-06-16','Philippine Taekwondo Association','regional','2026-04-01 01:08:22','2026-04-01 01:36:28','active');
+(1,'Metro Manila Taekwondo Open','Quezon City Sports Complex, Quezon City','2026-06-16','Philippine Taekwondo Association','regional','2026-04-01 01:08:22','2026-04-01 01:36:28','active'),
+(2,'Thailand Taekwondo Open','Bangkok Thailand','2026-05-03','International Taekwondo Association','international','2026-05-04 12:53:39','2026-05-04 12:53:39','active');
 
 /*Table structure for table `devices` */
 
@@ -1011,7 +1194,7 @@ CREATE TABLE `instructors` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `instructors` */
 
@@ -1020,10 +1203,11 @@ insert  into `instructors`(`id`,`user_id`,`fname`,`lname`,`photo`,`email`,`conta
 (3,0,'Jisoo','Kim','instructors/bF9UegHz4yt4se35xe6ZjYe8dtvr5TPqYBZTRyN4.jpg','resshin240@gmail.com','0938292812','1234admin','$2y$12$pO9ee169WnJpr0MQJY4P1udaTs0cYJbe8O9sLwoYzqjNqCKdE4HQC','Black Belt','Head Instructor','ewan','2026-03-25 01:50:43','awdwadasd','active',1,'2026-03-18 04:34:24','2026-03-18 04:34:24'),
 (4,0,'John','Doe','instructors/Ievw56S3lHOTmOubm8G4jidqP154ljrmplrp4N9X.jpg','interimpink@talemarketing.com','0938292321','1_IQ','$2y$12$Go1NSoyNDez0vRsDYZDnRu1soZD0wvzTg/GBdWl5L47Jt/OJ/SuO2','Black Belt','Head Instructor','dsad','2026-03-18 00:00:00','2wdawdawdawd','active',1,'2026-03-18 04:44:53','2026-03-18 04:44:53'),
 (5,0,'Taeyang','Choi',NULL,'porras@porrs','09171234567','dwadwadawd','$2y$12$34ZbxYWrK327SfZ7VTtlTuZqtV1E./na3AQnsxIvzffWpeh.rlZYa','Red Belt','Assistant Instructor','kick boxing','2026-03-25 01:50:50','loremipsum','active',1,'2026-03-24 17:11:38','2026-03-24 17:11:38'),
-(6,24,'Eduard','Estareja','instructors/iBUw9NVsFVLPObp40hA8Jo7T81tHddnNuCY9euXc.png','eduardestarejajr@gmail.com','09826717854','testing@gmail.com','$2y$12$gLhLdEEjfhL1i1a7i0RFb.xEBEL.einOX3jXlVHcsEsZwP5JBZgOm','Black Belt','Head Instructor','flying kick','2026-03-26 22:13:31','trust the process','active',1,'2026-03-26 13:40:09','2026-03-26 13:40:09'),
+(6,24,'Eduard','Estareja','/storage/instructor_photos/eFHVHpiUhXgepXezoIHD6JAeoLceKRq0P27mIVYK.png','eduardestarejajr@gmail.com','09826717854','testing@gmail.com','$2y$12$gLhLdEEjfhL1i1a7i0RFb.xEBEL.einOX3jXlVHcsEsZwP5JBZgOm','Black Belt','Head Instructor','flying kick','2026-05-05 23:04:36','trust the process','active',1,'2026-03-26 13:40:09','2026-03-26 13:40:09'),
 (7,25,'john','alvior','instructors/ekceucBRTf40SSg9awHumCiMRsOA2hwUyeXLZpbF.png','john@gmail.com','09874783672','janjan','$2y$12$12Ph/MScgQTzwM0.JeQGYO1xK1En4dB1fwVTxp6kPmXjAmbzClBz6','Red Belt','Head Instructor','flying kick','2026-03-26 22:40:36','hard working','active',1,'2026-03-26 14:34:39','2026-03-26 14:34:39'),
 (8,26,'triever','ruga','instructors/LQt3BlhWasQ5jZlSoaLXOYGHmtfwWhtAQvFgrfZJ.png','triever@gmail.com','0987462713','everr','$2y$12$oji7lQPPuc.nErUsrW/N8O7WMyQPzyMVNLzZ76SGk4MEvDUJmAcaO','Red Belt','Head Instructor','flying kick','2026-03-26 23:10:13','intellegence','active',1,'2026-03-26 15:10:13','2026-03-26 15:10:13'),
-(9,27,'Mica','Barrientos','instructors/8NFkFD653sqjw7p0Ihn4A8zgpze13w5md0MPgDq6.png','mica@gmail.com','0987462713','micah','$2y$12$dOH4T5KvpX2JlYTqC85TGeOyhl7EgQq0Jba0ZstQkcgRL9NjhQTMm','Black Belt','Head Instructor','flying kick','2026-03-27 23:28:30','hard working','active',1,'2026-03-27 15:28:30','2026-03-27 15:28:30');
+(9,27,'Mica','Barrientos','instructors/8NFkFD653sqjw7p0Ihn4A8zgpze13w5md0MPgDq6.png','mica@gmail.com','0987462713','micah','$2y$12$dOH4T5KvpX2JlYTqC85TGeOyhl7EgQq0Jba0ZstQkcgRL9NjhQTMm','Black Belt','Head Instructor','flying kick','2026-03-27 23:28:30','hard working','active',1,'2026-03-27 15:28:30','2026-03-27 15:28:30'),
+(10,60,'Lee','Sin','/storage/instructor_photos/Mq0iF8YuY7XU43yGKLL12SEbNpvNXTFpFVd3zxPi.png','lee@gmail.com','09860283764','Lee','$2y$12$Nq5PbYRyPxRQ9ZiexE6TaOW5nak2vyuxJda.BWtwl2.0OXUZBFNzC','Black Belt','Head Instructor','flying kick','2026-05-07 00:00:41','Good trainor','active',1,'2026-05-07 00:00:10','2026-05-07 00:00:10');
 
 /*Table structure for table `invoices` */
 
@@ -1049,7 +1233,7 @@ CREATE TABLE `invoices` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `invoice_no` (`invoice_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `invoices` */
 
@@ -1063,7 +1247,13 @@ insert  into `invoices`(`id`,`student_id`,`parent_id`,`subscription_id`,`invoice
 (41,18,16,3,'INV-202605-0007','2026-05-01','2026-05-31',1000.00,0.00,0.00,1000.00,'2026-05-05','pending',NULL,NULL,'2026-05-01 00:00:00','2026-05-01 00:00:00'),
 (42,19,17,2,'INV-202605-0008','2026-05-01','2026-05-31',1000.00,0.00,0.00,1000.00,'2026-05-05','pending',NULL,NULL,'2026-05-01 00:00:00','2026-05-01 00:00:00'),
 (43,23,18,6,'INV-202605-0009','2026-05-01','2026-05-31',1499.97,0.00,0.00,1499.97,'2026-05-05','pending',NULL,NULL,'2026-05-01 00:00:00','2026-05-01 00:00:00'),
-(44,25,47,4,'INV-202605-0010','2026-05-01','2026-05-31',500.00,0.00,0.00,500.00,'2026-05-05','pending',NULL,NULL,'2026-05-01 00:00:00','2026-05-01 00:00:00');
+(44,25,47,4,'INV-202605-0010','2026-05-01','2026-05-31',500.00,0.00,0.00,500.00,'2026-05-05','pending',NULL,NULL,'2026-05-01 00:00:00','2026-05-01 00:00:00'),
+(49,28,51,7,'INV-202604-0011','2026-04-01','2026-04-30',1000.00,0.00,0.00,1000.00,'2026-04-05','paid','payment-proofs/a3c6nB5rrDADL7V0cfoGvk10osgnYCfbqlIAzE2s.jpg','2026-04-29 09:58:44','2026-04-29 09:40:51','2026-04-29 10:13:21'),
+(50,27,51,8,'INV-202604-0012','2026-04-01','2026-04-30',1000.00,0.00,0.00,1000.00,'2026-04-05','paid','payment-proofs/iZ2EKDq8K44HB32MJBMdh1IC8GLPo0z7GQ6tGImA.jpg','2026-05-04 15:53:34','2026-04-29 09:41:09','2026-05-04 15:53:56'),
+(51,27,51,8,'INV-202605-0013','2026-05-01','2026-05-31',1000.00,0.00,0.00,1000.00,'2026-05-05','paid','payment-proofs/ER0PGsoyVnt0ZAeEc2gUe04eZD2WRHU1gHlnotDI.jpg','2026-05-04 15:54:07','2026-05-01 00:00:00','2026-05-04 15:54:22'),
+(53,28,51,7,'INV-202605-0014','2026-05-01','2026-05-31',1000.00,0.00,0.00,1000.00,'2026-05-05','paid','payment-proofs/RQeNNaHLh1eef1uHWQCh0L2QuLTTCnL5tTTp26FG.jpg','2026-04-29 20:38:01','2026-05-01 00:00:00','2026-04-29 20:38:28'),
+(55,32,18,9,'INV-202605-0015','2026-05-01','2026-05-31',1000.00,0.00,0.00,1000.00,'2026-05-05','paid','payment-proofs/RHxuHS5oDpw5v0VH5t3vEYkwqLhNHqDFZx7eKNIE.jpg','2026-05-06 23:00:35','2026-05-06 22:57:30','2026-05-06 23:00:52'),
+(56,33,20,10,'INV-202605-0016','2026-05-01','2026-05-31',500.00,0.00,0.00,500.00,'2026-06-05','paid','payment-proofs/kEVd243Z3US24ZFzWBhYeUG7VCjuhVg6Hejacvny.jpg','2026-05-07 00:19:11','2026-05-07 00:18:45','2026-05-07 00:19:21');
 
 /*Table structure for table `jobs` */
 
@@ -1133,7 +1323,7 @@ CREATE TABLE `parent_students` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `parent_students` */
 
@@ -1141,7 +1331,34 @@ insert  into `parent_students`(`id`,`parent_id`,`student_id`,`relationship`,`is_
 (1,12,1,'father',0,'2026-03-26 13:38:56',NULL),
 (2,13,22,'guardian',0,'2026-04-15 22:13:21',NULL),
 (3,13,23,'guardian',0,'2026-04-15 22:13:21',NULL),
-(4,16,23,'father',0,'2026-04-23 21:34:40',NULL);
+(4,16,23,'father',0,'2026-04-23 21:34:40',NULL),
+(5,18,27,'guardian',0,'2026-04-29 20:35:16',NULL),
+(6,18,28,'guardian',0,'2026-04-29 20:35:16',NULL),
+(7,19,29,'father',0,'2026-05-06 21:08:31',NULL),
+(8,19,30,'father',0,'2026-05-06 21:08:31',NULL),
+(9,54,31,'mother',0,'2026-05-06 21:16:04',NULL),
+(10,10,2,'mother',0,'2026-05-06 21:18:26',NULL),
+(11,17,4,'mother',0,'2026-05-06 21:18:26',NULL),
+(12,22,5,'mother',0,'2026-05-06 21:18:26',NULL),
+(13,19,6,'mother',0,'2026-05-06 21:18:26',NULL),
+(14,10,7,'mother',0,'2026-05-06 21:18:26',NULL),
+(15,19,8,'mother',0,'2026-05-06 21:18:26',NULL),
+(16,20,9,'mother',0,'2026-05-06 21:18:26',NULL),
+(17,10,10,'mother',0,'2026-05-06 21:18:26',NULL),
+(18,16,11,'mother',0,'2026-05-06 21:18:26',NULL),
+(19,10,12,'mother',0,'2026-05-06 21:18:26',NULL),
+(20,16,13,'mother',0,'2026-05-06 21:18:26',NULL),
+(21,16,15,'mother',0,'2026-05-06 21:18:26',NULL),
+(22,20,17,'mother',0,'2026-05-06 21:18:26',NULL),
+(23,16,18,'mother',0,'2026-05-06 21:18:26',NULL),
+(24,17,19,'mother',0,'2026-05-06 21:18:26',NULL),
+(25,16,20,'mother',0,'2026-05-06 21:18:26',NULL),
+(26,10,21,'mother',0,'2026-05-06 21:18:26',NULL),
+(27,45,24,'mother',0,'2026-05-06 21:18:26',NULL),
+(28,47,25,'mother',0,'2026-05-06 21:18:26',NULL),
+(29,44,26,'mother',0,'2026-05-06 21:18:26',NULL),
+(41,18,32,'mother',0,'2026-05-06 22:53:39',NULL),
+(42,20,33,'mother',0,'2026-05-07 00:09:51',NULL);
 
 /*Table structure for table `parents` */
 
@@ -1159,7 +1376,7 @@ CREATE TABLE `parents` (
   PRIMARY KEY (`id`),
   KEY `parents_user_id_foreign` (`user_id`),
   CONSTRAINT `parents_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `parents` */
 
@@ -1174,7 +1391,10 @@ insert  into `parents`(`id`,`user_id`,`emergency_contact`,`relationship_note`,`a
 (13,44,'09699623018','Guardian','camarin caloocan city',1,'2026-04-15 22:13:21',NULL),
 (14,45,'091010982037','Legal Guardian','Alcoy Cebu',1,'2026-04-20 10:59:17',NULL),
 (15,47,'09109853927','Mother','Camarin',1,'2026-04-21 17:13:48',NULL),
-(16,49,'09698372017','Father','Lupang arienda sta ana taytay rizal',1,'2026-04-23 21:34:40',NULL);
+(16,49,'09698372017','Father','Lupang arienda sta ana taytay rizal',1,'2026-04-23 21:34:40',NULL),
+(18,54,'09123456789','Guardian','camarin caloocan city',1,'2026-04-29 20:35:16',NULL),
+(19,57,'09283921843','Father','bagong silang caloocan city',1,'2026-05-06 21:08:31',NULL),
+(20,61,'09387834785','Mother','bagong silang caloocan city',1,'2026-05-07 00:05:29',NULL);
 
 /*Table structure for table `payments` */
 
@@ -1195,7 +1415,7 @@ CREATE TABLE `payments` (
   PRIMARY KEY (`id`),
   KEY `invoice_id` (`invoice_id`),
   KEY `received_by_user_id` (`received_by_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `payments` */
 
@@ -1208,7 +1428,13 @@ insert  into `payments`(`id`,`invoice_id`,`transaction_reference`,`amount`,`paym
 (6,11,'payment-proofs/yylv4Wt1hayDKrBdzC2r6llIMjpIpRUDyKl3TItZ.jpg',1499.97,'',NULL,'2026-04-23 22:33:59',0,'completed','2026-04-23 22:33:59','2026-04-23 22:33:59'),
 (7,30,'payment-proofs/Otd0Csk1SwlQeTu0ehkgK96ADzVwXynwfWjEsOs9.jpg',1499.97,'',NULL,'2026-04-23 23:12:06',0,'completed','2026-04-23 23:12:06','2026-04-23 23:12:06'),
 (8,33,'payment-proofs/wIQRQh3yAjlJtfgtgJyrybhnNInxIA0ALVTOj33b.jpg',1499.97,'',NULL,'2026-04-23 23:22:19',0,'completed','2026-04-23 23:22:19','2026-04-23 23:22:19'),
-(9,39,'payment-proofs/gd19s73bGkw6cstrg9B0Dkf1Cz7OfOg6v2CwbpMr.jpg',1000.00,'',NULL,'2026-04-28 13:36:50',0,'completed','2026-04-28 13:36:50','2026-04-28 13:36:50');
+(9,39,'payment-proofs/gd19s73bGkw6cstrg9B0Dkf1Cz7OfOg6v2CwbpMr.jpg',1000.00,'',NULL,'2026-04-28 13:36:50',0,'completed','2026-04-28 13:36:50','2026-04-28 13:36:50'),
+(10,49,'payment-proofs/a3c6nB5rrDADL7V0cfoGvk10osgnYCfbqlIAzE2s.jpg',1000.00,'',NULL,'2026-04-29 10:13:21',0,'completed','2026-04-29 10:13:21','2026-04-29 10:13:21'),
+(11,53,'payment-proofs/RQeNNaHLh1eef1uHWQCh0L2QuLTTCnL5tTTp26FG.jpg',1000.00,'',NULL,'2026-04-29 20:38:28',0,'completed','2026-04-29 20:38:28','2026-04-29 20:38:28'),
+(12,50,'payment-proofs/iZ2EKDq8K44HB32MJBMdh1IC8GLPo0z7GQ6tGImA.jpg',1000.00,'',NULL,'2026-05-04 15:53:56',0,'completed','2026-05-04 15:53:56','2026-05-04 15:53:56'),
+(13,51,'payment-proofs/ER0PGsoyVnt0ZAeEc2gUe04eZD2WRHU1gHlnotDI.jpg',1000.00,'',NULL,'2026-05-04 15:54:22',0,'completed','2026-05-04 15:54:22','2026-05-04 15:54:22'),
+(14,55,'payment-proofs/RHxuHS5oDpw5v0VH5t3vEYkwqLhNHqDFZx7eKNIE.jpg',1000.00,'',NULL,'2026-05-06 23:00:52',0,'completed','2026-05-06 23:00:52','2026-05-06 23:00:52'),
+(15,56,'payment-proofs/kEVd243Z3US24ZFzWBhYeUG7VCjuhVg6Hejacvny.jpg',500.00,'',NULL,'2026-05-07 00:19:21',0,'completed','2026-05-07 00:19:21','2026-05-07 00:19:21');
 
 /*Table structure for table `personal_access_tokens` */
 
@@ -1229,7 +1455,7 @@ CREATE TABLE `personal_access_tokens` (
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`),
   KEY `personal_access_tokens_expires_at_index` (`expires_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=357 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=498 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `personal_access_tokens` */
 
@@ -1589,7 +1815,148 @@ insert  into `personal_access_tokens`(`id`,`tokenable_type`,`tokenable_id`,`name
 (353,'App\\Models\\User',24,'flutter-mobile-app','edd237d772924332d9601fa190ac1ebc83278409e847cd34ab947f32900f9046','[\"*\"]','2026-04-28 23:49:12',NULL,'2026-04-28 23:36:03','2026-04-28 23:49:12'),
 (354,'App\\Models\\User',40,'flutter-mobile-app','57497712dd09856e2bb0164432c08a3a45cea010c7afca89b9e3325ecd19fb90','[\"*\"]','2026-04-28 23:40:08',NULL,'2026-04-28 23:39:58','2026-04-28 23:40:08'),
 (355,'App\\Models\\User',24,'flutter-mobile-app','b6cfb488b18cd53ab43b5a22a9f5921cae54b6e97c8f37da1976f105a383d87e','[\"*\"]','2026-04-28 23:40:43',NULL,'2026-04-28 23:40:33','2026-04-28 23:40:43'),
-(356,'App\\Models\\User',41,'flutter-mobile-app','dea345b2d58e5846566a2abc09b5e2592fac0643e193ea925dd78b100c36ebcf','[\"*\"]','2026-04-28 23:51:06',NULL,'2026-04-28 23:51:04','2026-04-28 23:51:06');
+(356,'App\\Models\\User',41,'flutter-mobile-app','dea345b2d58e5846566a2abc09b5e2592fac0643e193ea925dd78b100c36ebcf','[\"*\"]','2026-04-28 23:51:06',NULL,'2026-04-28 23:51:04','2026-04-28 23:51:06'),
+(357,'App\\Models\\User',50,'flutter-mobile-app','ba990b4f7669396fb116d7368b1ad493f61aa02933f44e6f9270356a866a9e87','[\"*\"]','2026-04-29 09:15:15',NULL,'2026-04-29 09:13:41','2026-04-29 09:15:15'),
+(358,'App\\Models\\User',50,'face-login','7039f90d48ff2898bb98dbdc9fd800f62426a0e367e45e05ec896c643f96f0ce','[\"*\"]','2026-04-29 09:16:14',NULL,'2026-04-29 09:15:49','2026-04-29 09:16:14'),
+(359,'App\\Models\\User',50,'face-login','377f8a672e69c4bf18ec9b5a0aa13d98bd13dfa188f8a6207bb94f431c967e41','[\"*\"]','2026-04-29 09:24:48',NULL,'2026-04-29 09:21:16','2026-04-29 09:24:48'),
+(360,'App\\Models\\User',33,'flutter-mobile-app','ea52a1bcdd6a7810deb3eea19d624413b6eb219b6eacefb722dc0d0e9b65fca2','[\"*\"]','2026-04-29 09:27:59',NULL,'2026-04-29 09:27:53','2026-04-29 09:27:59'),
+(361,'App\\Models\\User',53,'flutter-mobile-app','83c780ebec429c118a8c2139ed7a38ccfe49cee1d8adfa6e82872cbc8f55e01c','[\"*\"]','2026-04-29 09:39:24',NULL,'2026-04-29 09:38:04','2026-04-29 09:39:24'),
+(362,'App\\Models\\User',51,'flutter-mobile-app','39495abce057fca788330f53c7ef4c45b2a2171fb214bba9172b9dfb9eb922cc','[\"*\"]','2026-04-29 09:41:43',NULL,'2026-04-29 09:41:31','2026-04-29 09:41:43'),
+(363,'App\\Models\\User',44,'flutter-mobile-app','cf5c663c623bf73d31db6d311d4c176caf6a3fc6c93c01d0f93a3b6482779c95','[\"*\"]','2026-04-29 09:42:17',NULL,'2026-04-29 09:42:03','2026-04-29 09:42:17'),
+(364,'App\\Models\\User',43,'flutter-mobile-app','7aed706aa803f7e39bdd52c6493990841eff891e502ff83d4ae2a3ea1e9e85e5','[\"*\"]','2026-04-29 09:45:21',NULL,'2026-04-29 09:45:01','2026-04-29 09:45:21'),
+(365,'App\\Models\\User',51,'flutter-mobile-app','6e7d6ad3751b67ef00dfd06c93ec9b2eafe62a1299dc27ab10bd990b9d6e6a87','[\"*\"]','2026-04-29 09:45:51',NULL,'2026-04-29 09:45:50','2026-04-29 09:45:51'),
+(366,'App\\Models\\User',33,'flutter-mobile-app','06bc0ca509af6ccafce8e34518417451e12f17756bc80069bce53bc6a8bf8365','[\"*\"]','2026-04-29 09:47:04',NULL,'2026-04-29 09:46:58','2026-04-29 09:47:04'),
+(367,'App\\Models\\User',53,'flutter-mobile-app','154c3c5b1532838c03c85ad3532d5a7f0e6439f769708c28e556afe6224597e6','[\"*\"]','2026-04-29 09:54:38',NULL,'2026-04-29 09:47:26','2026-04-29 09:54:38'),
+(368,'App\\Models\\User',50,'face-login','49df46c58224ba14078fbcd3c1194271d424fe7b44da34d6c54271976993a3f3','[\"*\"]','2026-04-29 09:57:35',NULL,'2026-04-29 09:54:59','2026-04-29 09:57:35'),
+(369,'App\\Models\\User',53,'flutter-mobile-app','b18b35dfb8066617aaa94b49b5b17213c36d80be616d957059b16e67de2ba566','[\"*\"]','2026-04-29 09:58:45',NULL,'2026-04-29 09:58:00','2026-04-29 09:58:45'),
+(370,'App\\Models\\User',44,'flutter-mobile-app','49bb500ad59427e0d158c6188a5bab6ee1daf3b2dc9e538d3345fb76746edd20','[\"*\"]','2026-04-29 10:01:08',NULL,'2026-04-29 09:59:19','2026-04-29 10:01:08'),
+(371,'App\\Models\\User',24,'flutter-mobile-app','5029ce27e30bf789256d0e4d801dfdbc2156aedd6c05f68c1456f32a52549ae8','[\"*\"]','2026-04-29 10:04:19',NULL,'2026-04-29 10:01:36','2026-04-29 10:04:19'),
+(372,'App\\Models\\User',50,'flutter-mobile-app','a34a7e4fa704c93e44872a6ec5d7e09855a2f72b9993d597662707b54297e251','[\"*\"]','2026-04-29 10:04:38',NULL,'2026-04-29 10:04:33','2026-04-29 10:04:38'),
+(373,'App\\Models\\User',50,'face-login','714f8b024e99d541e358d1e940d477ca6a2316ab815ab6571c97f95bb1f3ac05','[\"*\"]','2026-04-29 20:24:45',NULL,'2026-04-29 20:24:32','2026-04-29 20:24:45'),
+(374,'App\\Models\\User',51,'flutter-mobile-app','63fce5e41819a1a5f8f433ca68a5fa4347d66f69dcc1aff2812f5dbb6a4abdeb','[\"*\"]','2026-04-29 20:25:52',NULL,'2026-04-29 20:25:03','2026-04-29 20:25:52'),
+(375,'App\\Models\\User',51,'flutter-mobile-app','c7e9b5e0040db1da855d8c9f31c2940f757e91d89ad28c022963db5713b54452','[\"*\"]',NULL,NULL,'2026-04-29 20:26:11','2026-04-29 20:26:11'),
+(376,'App\\Models\\User',54,'flutter-mobile-app','e03b833778016ff0d71756bd910af41fbcc2f4d821f3d45ae1089304a07f6ece','[\"*\"]','2026-04-29 20:39:34',NULL,'2026-04-29 20:36:33','2026-04-29 20:39:34'),
+(377,'App\\Models\\User',24,'flutter-mobile-app','6cd0361651348150e117a7c69d5fc359e546699bf44c94bc4418df07deba56ea','[\"*\"]','2026-04-29 22:00:43',NULL,'2026-04-29 21:58:16','2026-04-29 22:00:43'),
+(378,'App\\Models\\User',40,'flutter-mobile-app','e368b54773787e978fb69eace9eaaa9f07499ce16ed44908bd273a6f3ee7d194','[\"*\"]','2026-04-29 22:05:35',NULL,'2026-04-29 22:01:12','2026-04-29 22:05:35'),
+(379,'App\\Models\\User',40,'flutter-mobile-app','3675bf7f5ab7a793e3c9adc414f1cd97e0853e587fd24af4b3b830d8cd6007fc','[\"*\"]','2026-04-29 22:39:51',NULL,'2026-04-29 22:03:16','2026-04-29 22:39:51'),
+(380,'App\\Models\\User',50,'face-login','2864405b60257c81e075940dfe71378c2a8fc7107a00a5ae07c5fd111d44f0f7','[\"*\"]','2026-04-29 22:07:55',NULL,'2026-04-29 22:07:51','2026-04-29 22:07:55'),
+(381,'App\\Models\\User',40,'flutter-mobile-app','468f1db3a17f9788d25172d5ce92ad7c54f23f2e4e42083043ec6ff719dc9a7b','[\"*\"]','2026-04-29 22:40:39',NULL,'2026-04-29 22:40:17','2026-04-29 22:40:39'),
+(382,'App\\Models\\User',24,'flutter-mobile-app','15edeab1f5cf8e4527ebc25c2ad75e8ca20bc071f2a5f8a666f2f439f157558d','[\"*\"]','2026-04-29 22:58:53',NULL,'2026-04-29 22:41:19','2026-04-29 22:58:53'),
+(383,'App\\Models\\User',40,'flutter-mobile-app','535cf9934be5ecb9fb68e0f6034aa1aa1069d999f6eb4a71d2f17e6b651372e1','[\"*\"]','2026-04-29 22:59:21',NULL,'2026-04-29 22:59:19','2026-04-29 22:59:21'),
+(384,'App\\Models\\User',50,'flutter-mobile-app','0b09be5c60bdb300264bdc27de61bbc8fed2a5eb11bdf1e1e6e95267c0ca789c','[\"*\"]','2026-04-29 23:00:18',NULL,'2026-04-29 23:00:16','2026-04-29 23:00:18'),
+(385,'App\\Models\\User',24,'flutter-mobile-app','c33bc659acac806bb1d6a56b06f41a0e0d3b6630a179d1aeafd3fe2033771eb5','[\"*\"]','2026-04-29 23:04:53',NULL,'2026-04-29 23:00:39','2026-04-29 23:04:53'),
+(386,'App\\Models\\User',24,'flutter-mobile-app','f31000968977d6f7278249662f16fc8e6f2799257d20fdd7d38e15bbaf4a82f4','[\"*\"]','2026-04-30 23:03:50',NULL,'2026-04-30 23:01:53','2026-04-30 23:03:50'),
+(387,'App\\Models\\User',40,'flutter-mobile-app','215401a3ab67262bfceed026ef0c4e203ec29cb967e81b81c753a6c2aacfdfba','[\"*\"]','2026-04-30 23:04:19',NULL,'2026-04-30 23:04:16','2026-04-30 23:04:19'),
+(388,'App\\Models\\User',24,'flutter-mobile-app','0cc80d50bcce2f8f14928f74a596579ee302d7ca56fd3987275fd77ac09c5962','[\"*\"]','2026-04-30 23:05:18',NULL,'2026-04-30 23:04:53','2026-04-30 23:05:18'),
+(389,'App\\Models\\User',40,'flutter-mobile-app','a6b9168b0339f0ffe8af462fa605bc6c6defff4a23e3c822990358b36e5ece6e','[\"*\"]','2026-04-30 23:06:10',NULL,'2026-04-30 23:05:47','2026-04-30 23:06:10'),
+(390,'App\\Models\\User',24,'flutter-mobile-app','53286e7dca2c14849c044e9b42e49a8e2e48a1ff0fe059f9b74ff756c2dd3d6f','[\"*\"]','2026-04-30 23:07:27',NULL,'2026-04-30 23:06:21','2026-04-30 23:07:27'),
+(391,'App\\Models\\User',40,'flutter-mobile-app','17e4179a126b1fdeea1e5619bc6523cec25bd40f72d64a09837cb83666878330','[\"*\"]','2026-04-30 23:08:01',NULL,'2026-04-30 23:07:58','2026-04-30 23:08:01'),
+(392,'App\\Models\\User',24,'flutter-mobile-app','6b557efaece5070941e8cae3effc4977e20f2ca2ab1257e5b1577ed48f6d915b','[\"*\"]','2026-04-30 23:09:10',NULL,'2026-04-30 23:08:27','2026-04-30 23:09:10'),
+(393,'App\\Models\\User',53,'flutter-mobile-app','3374357fad9d151c4a80cc90244db35e40c0e137c57341d44aff295526725df2','[\"*\"]','2026-04-30 23:09:43',NULL,'2026-04-30 23:09:39','2026-04-30 23:09:43'),
+(394,'App\\Models\\User',24,'flutter-mobile-app','8edb09dfd7ecd0eb3df7d066a228befef5cba998112adddb001741d4e9883030','[\"*\"]','2026-04-30 23:10:19',NULL,'2026-04-30 23:10:02','2026-04-30 23:10:19'),
+(395,'App\\Models\\User',53,'flutter-mobile-app','961e6e39fc288357f98cf80d607d0b0f9fedd212b62d04e9c7b69aec155a04d4','[\"*\"]','2026-04-30 23:13:42',NULL,'2026-04-30 23:13:38','2026-04-30 23:13:42'),
+(396,'App\\Models\\User',52,'flutter-mobile-app','44884897d088452fb83dd237fce1976442d0d6a3b1c76faa19a09e4dffe781ac','[\"*\"]','2026-04-30 23:21:01',NULL,'2026-04-30 23:20:58','2026-04-30 23:21:01'),
+(397,'App\\Models\\User',24,'flutter-mobile-app','bfe68c2f14632a015f6f3b7893770cf43ba8bdff90e1457f512f5bb2835c8ecc','[\"*\"]','2026-04-30 23:23:10',NULL,'2026-04-30 23:22:27','2026-04-30 23:23:10'),
+(398,'App\\Models\\User',52,'flutter-mobile-app','d25dc9333fe545d5afbb4a5c149732025db01a89a12c08b78b7c494133e67c54','[\"*\"]','2026-04-30 23:23:46',NULL,'2026-04-30 23:23:43','2026-04-30 23:23:46'),
+(399,'App\\Models\\User',24,'flutter-mobile-app','7ca99de957e646160d11854b256c48fdcbbe13f6edcea76af3b0b21613a367a1','[\"*\"]','2026-04-30 23:25:10',NULL,'2026-04-30 23:24:19','2026-04-30 23:25:10'),
+(400,'App\\Models\\User',41,'flutter-mobile-app','82530eebc94cb88630d9fbe088b3a354f43dfb8ea1f0b7739569ee69925454fe','[\"*\"]','2026-04-30 23:25:40',NULL,'2026-04-30 23:25:37','2026-04-30 23:25:40'),
+(401,'App\\Models\\User',24,'flutter-mobile-app','7b59854bf676e01002f745681d409f9a4c4745f336ad51d04fe4f28de754fa65','[\"*\"]','2026-04-30 23:27:13',NULL,'2026-04-30 23:26:47','2026-04-30 23:27:13'),
+(402,'App\\Models\\User',41,'flutter-mobile-app','d8b6225215dfaf979713885224ba93a064ad5bc55c7cc172a7f305f506cd8129','[\"*\"]','2026-04-30 23:27:54',NULL,'2026-04-30 23:27:50','2026-04-30 23:27:54'),
+(403,'App\\Models\\User',24,'flutter-mobile-app','d6f3365cdc2d34d319988d7051527dffdb5a8fad07888a5df82f9a6f04048531','[\"*\"]','2026-05-04 11:08:12',NULL,'2026-05-04 11:05:57','2026-05-04 11:08:12'),
+(404,'App\\Models\\User',33,'flutter-mobile-app','1db6a1f6f9eacf8bee2c7bf3f95ce77211ac768ecc6fc0819684297027ae3266','[\"*\"]','2026-05-04 11:08:34',NULL,'2026-05-04 11:08:31','2026-05-04 11:08:34'),
+(405,'App\\Models\\User',33,'face-login','93d230ccc99d9f5cba77cc6fa0730115e782181a987f77d9b7fd2cce6707e864','[\"*\"]','2026-05-04 11:09:04',NULL,'2026-05-04 11:09:02','2026-05-04 11:09:04'),
+(406,'App\\Models\\User',24,'flutter-mobile-app','7b2aa472deb76fa84e618d39e8ef1e7d1f21b6f0bfbc80d9c1d0d4addced481e','[\"*\"]','2026-05-04 11:37:11',NULL,'2026-05-04 11:09:28','2026-05-04 11:37:11'),
+(407,'App\\Models\\User',24,'flutter-mobile-app','cd789ba534ad84935aa39bfa7f3400fa95ee1024909b8a6bbe07b304b6fa0bc6','[\"*\"]','2026-05-04 11:43:07',NULL,'2026-05-04 11:37:20','2026-05-04 11:43:07'),
+(408,'App\\Models\\User',24,'flutter-mobile-app','ba8df26807813f505dddaf40860c1c229e6163c21fbdfbfc7c6f31e79b542685','[\"*\"]','2026-05-04 12:26:20',NULL,'2026-05-04 11:57:14','2026-05-04 12:26:20'),
+(409,'App\\Models\\User',24,'flutter-mobile-app','018bdc188ebde5f0c686bb3c3087832bfdc72a0d11b7c132e7abb19e937c45e3','[\"*\"]','2026-05-04 12:34:04',NULL,'2026-05-04 12:33:58','2026-05-04 12:34:04'),
+(410,'App\\Models\\User',33,'flutter-mobile-app','7135d1626a27ae920e269fc58a248c83536122ef30b57f51d1fbfa83b988e324','[\"*\"]','2026-05-04 12:40:41',NULL,'2026-05-04 12:40:39','2026-05-04 12:40:41'),
+(411,'App\\Models\\User',33,'flutter-mobile-app','72af404488389d6ca904bee360c016d1f6b37e4c72d954889cc37b6638b092a1','[\"*\"]','2026-05-04 12:48:35',NULL,'2026-05-04 12:48:32','2026-05-04 12:48:35'),
+(412,'App\\Models\\User',40,'flutter-mobile-app','80c21ef04ac194451c3079f6422f37ff184557cda903607b352e59d7b5ed13fd','[\"*\"]','2026-05-04 12:59:05',NULL,'2026-05-04 12:49:08','2026-05-04 12:59:05'),
+(413,'App\\Models\\User',24,'flutter-mobile-app','79de40076dc1d9f8a34c6f274b236b736f04d5df66c2de3c586185b38b014e9c','[\"*\"]','2026-05-04 12:59:44',NULL,'2026-05-04 12:59:24','2026-05-04 12:59:44'),
+(414,'App\\Models\\User',40,'flutter-mobile-app','8732f801f71aafa42a6140a86468124c8708e2aef1f8f6a10c116743639c4b92','[\"*\"]','2026-05-04 13:01:02',NULL,'2026-05-04 13:00:10','2026-05-04 13:01:02'),
+(415,'App\\Models\\User',24,'flutter-mobile-app','76e2ac013de9ff41506984cfd6774df8979d0ad1b0deb7b24b79fe9061237662','[\"*\"]','2026-05-04 13:02:59',NULL,'2026-05-04 13:01:56','2026-05-04 13:02:59'),
+(416,'App\\Models\\User',33,'flutter-mobile-app','893ab07654e3de618670e2a6b54c15f6e71596897839002340f5fce5c86e6249','[\"*\"]','2026-05-04 13:04:51',NULL,'2026-05-04 13:03:31','2026-05-04 13:04:51'),
+(417,'App\\Models\\User',40,'flutter-mobile-app','376b71cc67c03d2faad167eaefc090ac4f30a87d884827cba153ead670b89aa9','[\"*\"]','2026-05-04 13:06:14',NULL,'2026-05-04 13:05:10','2026-05-04 13:06:14'),
+(418,'App\\Models\\User',40,'flutter-mobile-app','b46ca41d9feea03c817e3eab6d5a0b5a3313fc5c40d684db1bdc0983d6c1a20b','[\"*\"]','2026-05-04 15:48:18',NULL,'2026-05-04 15:45:57','2026-05-04 15:48:18'),
+(419,'App\\Models\\User',54,'flutter-mobile-app','3d0812ed3fee74812899ad3990884c16aedb9fc496855556e4ae06788320a3f1','[\"*\"]','2026-05-04 15:54:30',NULL,'2026-05-04 15:50:57','2026-05-04 15:54:30'),
+(420,'App\\Models\\User',54,'flutter-mobile-app','f32a187d3b7e5a5b4274f1048bfce80e43bfe1d25af032cef49fcef521ec50a7','[\"*\"]','2026-05-04 16:14:08',NULL,'2026-05-04 15:57:59','2026-05-04 16:14:08'),
+(421,'App\\Models\\User',54,'flutter-mobile-app','89bc407760a77a53afedde39f7443d4e7ff2298d32256742a598f82c41bc692d','[\"*\"]','2026-05-04 16:40:11',NULL,'2026-05-04 16:19:40','2026-05-04 16:40:11'),
+(422,'App\\Models\\User',52,'flutter-mobile-app','a5ef901e8d9cc9e14fc29baee48776f1b14c1064f79e2d0e2acbf6410deff23f','[\"*\"]','2026-05-04 16:40:48',NULL,'2026-05-04 16:40:33','2026-05-04 16:40:48'),
+(423,'App\\Models\\User',24,'flutter-mobile-app','e35e73b6aafeae5210e373576965b6637b5d61b7a36c91fd445687f17bffc694','[\"*\"]','2026-05-04 16:43:35',NULL,'2026-05-04 16:41:11','2026-05-04 16:43:35'),
+(424,'App\\Models\\User',54,'flutter-mobile-app','eb1922f02ed9f10eaaba9794e9345c7f4043d0d3b5fa8c39fb42cbe25931ee49','[\"*\"]','2026-05-04 16:44:19',NULL,'2026-05-04 16:44:14','2026-05-04 16:44:19'),
+(425,'App\\Models\\User',54,'flutter-mobile-app','15198414400cdd18953fb195abac7bfb6ccba3418288c2660e4eeecad285bb00','[\"*\"]','2026-05-04 16:48:58',NULL,'2026-05-04 16:47:36','2026-05-04 16:48:58'),
+(426,'App\\Models\\User',52,'flutter-mobile-app','e159d9c0b49be42ab4f46f1ca7f014364bb0616d3962dfd4c1baa971a43aa6cd','[\"*\"]','2026-05-04 16:50:24',NULL,'2026-05-04 16:50:18','2026-05-04 16:50:24'),
+(427,'App\\Models\\User',54,'flutter-mobile-app','1a7596385cc1ac547bf40482aac9d000b55c8e1afc142665fb098a1600f3d3ba','[\"*\"]','2026-05-04 16:56:44',NULL,'2026-05-04 16:51:29','2026-05-04 16:56:44'),
+(428,'App\\Models\\User',54,'flutter-mobile-app','253d1e4edf3f942011bec3228cfadcccf2112c84bc702fcba7cbb0c63811369b','[\"*\"]','2026-05-04 17:06:26',NULL,'2026-05-04 16:57:03','2026-05-04 17:06:26'),
+(429,'App\\Models\\User',54,'flutter-mobile-app','9a6aba433f786038fc82a325071b2fb3aaeff28f92389f1b735aa3f62cb3427d','[\"*\"]','2026-05-04 17:24:30',NULL,'2026-05-04 17:18:34','2026-05-04 17:24:30'),
+(430,'App\\Models\\User',54,'flutter-mobile-app','caa02d968a7656c8406120fff3012aaee9d1cee25ba0180143cef5eadc1d54fd','[\"*\"]','2026-05-04 17:29:05',NULL,'2026-05-04 17:28:24','2026-05-04 17:29:05'),
+(431,'App\\Models\\User',54,'flutter-mobile-app','724583415e2c286f8145491f82096a99cf1f24573832e8147cc5d2ba3ab781f6','[\"*\"]','2026-05-04 17:44:24',NULL,'2026-05-04 17:38:50','2026-05-04 17:44:24'),
+(432,'App\\Models\\User',24,'flutter-mobile-app','9c7de5c3578f29fa8263c8557dabfc882a3e1ba6651c63266d5afcf14af992a4','[\"*\"]','2026-05-04 17:41:53',NULL,'2026-05-04 17:41:45','2026-05-04 17:41:53'),
+(433,'App\\Models\\User',40,'flutter-mobile-app','62b16db053b0c5ff93f5cb4bb729c78a2ce5444faa616657a9ce93945fbdc803','[\"*\"]','2026-05-04 17:45:04',NULL,'2026-05-04 17:45:00','2026-05-04 17:45:04'),
+(434,'App\\Models\\User',24,'flutter-mobile-app','a8666c84b73175a1113ee4e4177e5cce519774e16cd649e276ca127551c245ea','[\"*\"]','2026-05-05 14:16:12',NULL,'2026-05-05 14:15:32','2026-05-05 14:16:12'),
+(435,'App\\Models\\User',24,'flutter-mobile-app','2dea2bc00106843a1eaf5b9ee727ad044e47f6c449d8b72fd7fbdd091e843556','[\"*\"]','2026-05-05 15:45:08',NULL,'2026-05-05 14:32:15','2026-05-05 15:45:08'),
+(436,'App\\Models\\User',24,'flutter-mobile-app','bbac5a673a3136840b831e673fe1f01a281989532bb349dea771849f8d97cddb','[\"*\"]','2026-05-05 21:28:21',NULL,'2026-05-05 21:28:01','2026-05-05 21:28:21'),
+(437,'App\\Models\\User',24,'flutter-mobile-app','7bdccbf67e056252a0cc96e401de9eb21a2c1794ab493009f91a5d0fe72e02a2','[\"*\"]','2026-05-05 21:38:59',NULL,'2026-05-05 21:32:09','2026-05-05 21:38:59'),
+(438,'App\\Models\\User',54,'flutter-mobile-app','f39cb6f2111091005357e8d9de97aab7e6b84006f0d2e04fb56a6b2448244593','[\"*\"]','2026-05-05 21:41:53',NULL,'2026-05-05 21:40:37','2026-05-05 21:41:53'),
+(439,'App\\Models\\User',52,'flutter-mobile-app','e88d6a4a770bb9692a3e5e215e6ed989f1780ebf5458b4ba123f7504bbd54039','[\"*\"]','2026-05-05 21:42:37',NULL,'2026-05-05 21:42:30','2026-05-05 21:42:37'),
+(440,'App\\Models\\User',24,'flutter-mobile-app','4aaf855b23670fbb39e0daddd2eecf9a2783dd1df4ed0352551321b5f509dc03','[\"*\"]','2026-05-05 21:49:59',NULL,'2026-05-05 21:49:28','2026-05-05 21:49:59'),
+(441,'App\\Models\\User',24,'flutter-mobile-app','c7a95665b85b828d2d8b6b276b05feb2a15dfbbd2e995a3a32537384061d01e2','[\"*\"]','2026-05-05 22:46:51',NULL,'2026-05-05 22:03:21','2026-05-05 22:46:51'),
+(442,'App\\Models\\User',24,'flutter-mobile-app','11f7cadee152beb9944b7561985367262f7d04e9194518da3cd3d02dd75bf497','[\"*\"]','2026-05-05 22:49:39',NULL,'2026-05-05 22:12:28','2026-05-05 22:49:39'),
+(443,'App\\Models\\User',24,'flutter-mobile-app','c43191b5c48f4357335026be6b263aba6d0261ab4ef32e5614d6611be9a7382a','[\"*\"]','2026-05-05 23:05:54',NULL,'2026-05-05 22:50:25','2026-05-05 23:05:54'),
+(444,'App\\Models\\User',54,'flutter-mobile-app','beec6ba5251f42f02d1ebe096626b9216fde26e38aa5bd19bc446e4d23c81f2a','[\"*\"]','2026-05-05 23:07:10',NULL,'2026-05-05 23:06:10','2026-05-05 23:07:10'),
+(445,'App\\Models\\User',52,'flutter-mobile-app','290d8175ce9c26ae69dad5dfa58f98f4d711913cd44e1d142304d0ac3ba7d30b','[\"*\"]','2026-05-05 23:09:13',NULL,'2026-05-05 23:07:43','2026-05-05 23:09:13'),
+(446,'App\\Models\\User',24,'flutter-mobile-app','f20e345bcc2f761a1edea3a9070155bd50724d03c83accd478098ec7b7c71c12','[\"*\"]','2026-05-05 23:10:36',NULL,'2026-05-05 23:10:08','2026-05-05 23:10:36'),
+(447,'App\\Models\\User',24,'flutter-mobile-app','e7155a0baa42bcc458e3fa2aa8422660fb62e01c28f45cef8136a5dd64e9b571','[\"*\"]','2026-05-05 23:41:08',NULL,'2026-05-05 23:40:23','2026-05-05 23:41:08'),
+(448,'App\\Models\\User',54,'flutter-mobile-app','c7bf060894f47203ca9110ce515d9d3e04c87464d11fa09cbe45c25fa9439544','[\"*\"]','2026-05-05 23:48:13',NULL,'2026-05-05 23:41:34','2026-05-05 23:48:13'),
+(449,'App\\Models\\User',33,'flutter-mobile-app','c41a70d166d8d620e6a4d8b889abcc6b64214d38ce4c0643e2ebaea34523a19d','[\"*\"]','2026-05-05 23:48:42',NULL,'2026-05-05 23:48:38','2026-05-05 23:48:42'),
+(450,'App\\Models\\User',54,'flutter-mobile-app','f51bafd6e6da041485aa04a145243f9b8a94eb00f897b4966f89f23c2faaba34','[\"*\"]','2026-05-06 00:30:05',NULL,'2026-05-05 23:51:39','2026-05-06 00:30:05'),
+(451,'App\\Models\\User',54,'flutter-mobile-app','8427fe1b43a4d9ce5f6d46a4192c493565b04228f6034f144e2128b31bcaae66','[\"*\"]','2026-05-06 00:15:40',NULL,'2026-05-06 00:15:28','2026-05-06 00:15:40'),
+(452,'App\\Models\\User',44,'flutter-mobile-app','d05a03566f500c4d636e4fd0f7d6d57780f6c25ba8ef6e696f062c2cf2055be5','[\"*\"]','2026-05-06 00:35:21',NULL,'2026-05-06 00:34:29','2026-05-06 00:35:21'),
+(453,'App\\Models\\User',52,'flutter-mobile-app','86b59309793c7af85d614e6ecd78c1df44f8e1a0b81947e1dc32e9db5fdbc504','[\"*\"]','2026-05-06 00:36:38',NULL,'2026-05-06 00:35:47','2026-05-06 00:36:38'),
+(454,'App\\Models\\User',52,'flutter-mobile-app','30800db0dc64baced2f91dd6842b644a0af68863d852c66bd3ff44b8196310be','[\"*\"]','2026-05-06 00:36:58',NULL,'2026-05-06 00:36:56','2026-05-06 00:36:58'),
+(455,'App\\Models\\User',54,'flutter-mobile-app','6f485a1426ee76aaa318e811e54d6103b2ff16d3c10218cfc8063d90cc1db207','[\"*\"]','2026-05-06 00:37:20',NULL,'2026-05-06 00:37:18','2026-05-06 00:37:20'),
+(456,'App\\Models\\User',52,'flutter-mobile-app','d8f9a110181d69f18da3662c77659c4aebf78a0254cb609765085a88aa8edd84','[\"*\"]','2026-05-06 00:39:28',NULL,'2026-05-06 00:39:25','2026-05-06 00:39:28'),
+(457,'App\\Models\\User',24,'flutter-mobile-app','64fed4452ccac67785855d003556b824de9aa03ce1d0a88380310439d6cbc32d','[\"*\"]','2026-05-06 00:40:48',NULL,'2026-05-06 00:39:43','2026-05-06 00:40:48'),
+(458,'App\\Models\\User',54,'flutter-mobile-app','731c4b10f6332348eaee6af74a95560fa5efd79c3845da55a40ae943b92c5204','[\"*\"]','2026-05-06 00:41:56',NULL,'2026-05-06 00:41:21','2026-05-06 00:41:56'),
+(459,'App\\Models\\User',24,'flutter-mobile-app','e021add4278d057a244b5316a9843e57f0cebf798a0eeddb85b95e95290285c0','[\"*\"]','2026-05-06 00:54:53',NULL,'2026-05-06 00:53:45','2026-05-06 00:54:53'),
+(460,'App\\Models\\User',54,'flutter-mobile-app','7bcbba511503a206aee0302973c871ea74b98954f2f81235ef00ced5401a99b6','[\"*\"]','2026-05-06 00:56:01',NULL,'2026-05-06 00:55:06','2026-05-06 00:56:01'),
+(461,'App\\Models\\User',24,'flutter-mobile-app','44d8c155b1ec77f1e5e6e80d2fe497ea6ec70bcb8c0a67dd1b4713617f358f2a','[\"*\"]','2026-05-06 16:19:27',NULL,'2026-05-06 16:19:08','2026-05-06 16:19:27'),
+(462,'App\\Models\\User',54,'flutter-mobile-app','b8ab6d977b45b82a49a27a8f4995d1c8fd36ef859b726cb1cceccb8c9190ccf8','[\"*\"]','2026-05-06 16:25:34',NULL,'2026-05-06 16:19:51','2026-05-06 16:25:34'),
+(463,'App\\Models\\User',54,'flutter-mobile-app','343ab4ed29bd783003208eddc85414ebc05f63782af589bddbc1f9ff1d90837c','[\"*\"]','2026-05-06 16:31:27',NULL,'2026-05-06 16:26:42','2026-05-06 16:31:27'),
+(464,'App\\Models\\User',33,'flutter-mobile-app','3b3dcc4d815eb21224bddd21e976292bb3d97b4b42d697f23616bbd6a223732b','[\"*\"]','2026-05-06 16:33:19',NULL,'2026-05-06 16:33:00','2026-05-06 16:33:19'),
+(465,'App\\Models\\User',54,'flutter-mobile-app','b4936994082c99385672c4b2a1ec4deafaba1f022580de655a1341f61ee6a731','[\"*\"]','2026-05-06 16:38:31',NULL,'2026-05-06 16:33:58','2026-05-06 16:38:31'),
+(466,'App\\Models\\User',54,'flutter-mobile-app','e17ca14e8d5e3f05c8b2a8e2663099af43f3965c33f987ff2f0f1ff21d8cef7e','[\"*\"]','2026-05-06 17:27:14',NULL,'2026-05-06 17:13:10','2026-05-06 17:27:14'),
+(467,'App\\Models\\User',52,'flutter-mobile-app','d3b29fef38d1ccd264bf14398905cb830dd6a66b6190c932b7e50b9c2a4e4359','[\"*\"]','2026-05-06 17:27:39',NULL,'2026-05-06 17:27:37','2026-05-06 17:27:39'),
+(468,'App\\Models\\User',24,'flutter-mobile-app','06a699fb8b699955e52791fde540f1f8abe83045f4088713303ebae4c47f3ddb','[\"*\"]','2026-05-06 17:39:16',NULL,'2026-05-06 17:32:55','2026-05-06 17:39:16'),
+(469,'App\\Models\\User',52,'flutter-mobile-app','aac75ed62236c3d77ab14361547053c2b891086cc604a0b225ef12cbcc32a992','[\"*\"]','2026-05-06 17:50:10',NULL,'2026-05-06 17:39:40','2026-05-06 17:50:10'),
+(470,'App\\Models\\User',52,'flutter-mobile-app','3da5e5f2805c1d1cb50598d1fbbc389b5323db41935ed1c5f0f9d4e55ad9c3fe','[\"*\"]','2026-05-06 20:39:41',NULL,'2026-05-06 20:36:03','2026-05-06 20:39:41'),
+(471,'App\\Models\\User',54,'flutter-mobile-app','d2e9a80459a16a481346af09437662f441a8d24a469f446a7f10005e64713545','[\"*\"]','2026-05-06 21:05:47',NULL,'2026-05-06 21:01:13','2026-05-06 21:05:47'),
+(472,'App\\Models\\User',57,'flutter-mobile-app','9c114d40fd195032fcaf176e9eb12d7b07fcf13351f5c8572bdbe0f54ca1e74f','[\"*\"]','2026-05-06 21:16:29',NULL,'2026-05-06 21:08:56','2026-05-06 21:16:29'),
+(473,'App\\Models\\User',54,'flutter-mobile-app','ffb5609445a1fa1f114844200fbf0c22c02cbe0a151ce9521d79616acda56bc9','[\"*\"]','2026-05-06 22:58:34',NULL,'2026-05-06 21:16:44','2026-05-06 22:58:34'),
+(474,'App\\Models\\User',24,'flutter-mobile-app','4ac1065290d69cc4bf9b608f256c179e925d89ef64300e74f6cc40db346d31aa','[\"*\"]','2026-05-06 22:59:14',NULL,'2026-05-06 22:59:06','2026-05-06 22:59:14'),
+(475,'App\\Models\\User',54,'flutter-mobile-app','4cc252f46ab187de61ba755e46c49e8264b12103c828590efa5c7679c658eca8','[\"*\"]','2026-05-06 23:01:08',NULL,'2026-05-06 22:59:50','2026-05-06 23:01:08'),
+(476,'App\\Models\\User',52,'flutter-mobile-app','c7994dbb8d9089906db61dbb5ccb8fe7bee8f1090820e5d3f147043784a6138b','[\"*\"]','2026-05-06 23:01:31',NULL,'2026-05-06 23:01:29','2026-05-06 23:01:31'),
+(477,'App\\Models\\User',52,'flutter-mobile-app','17eb5010038672b7d04bc513d2a43eb920e8745d44b523893496eef01d37d1fe','[\"*\"]','2026-05-06 23:17:07',NULL,'2026-05-06 23:14:22','2026-05-06 23:17:07'),
+(478,'App\\Models\\User',33,'face-login','b9c9938485c4769868b768c20c2284ae64bb8c99e93b9ed72e13d162c5cbd5a6','[\"*\"]','2026-05-06 23:17:56',NULL,'2026-05-06 23:17:54','2026-05-06 23:17:56'),
+(479,'App\\Models\\User',33,'face-login','14b9fa7580e978089431b0dd1102b4de0b8b92e437226536a95334f011bea783','[\"*\"]','2026-05-06 23:18:48',NULL,'2026-05-06 23:18:46','2026-05-06 23:18:48'),
+(480,'App\\Models\\User',33,'face-login','53a108f9a0f73797ab493cf46451aefd20cfe19aa3e137148e6151cb8037303d','[\"*\"]','2026-05-06 23:19:23',NULL,'2026-05-06 23:19:21','2026-05-06 23:19:23'),
+(481,'App\\Models\\User',24,'flutter-mobile-app','d16b881b7595c972e9efde11f5b71165175da41cc24f7a7b80a0281e5bdccc26','[\"*\"]','2026-05-06 23:20:00',NULL,'2026-05-06 23:19:41','2026-05-06 23:20:00'),
+(482,'App\\Models\\User',33,'flutter-mobile-app','a60c346a2c9e7911bcbfbb1b48863269218bba6ab33d6904c90ca9441d89082e','[\"*\"]','2026-05-06 23:24:58',NULL,'2026-05-06 23:20:12','2026-05-06 23:24:58'),
+(483,'App\\Models\\User',33,'flutter-mobile-app','14b9ce5c3d86a6808bf8a33776316c5ebb12afb2676b059271135a95286f09e8','[\"*\"]','2026-05-06 23:36:48',NULL,'2026-05-06 23:27:26','2026-05-06 23:36:48'),
+(484,'App\\Models\\User',33,'face-login','d2923e5cc4382fe17ef6d6782b7789352947b3b0c4e38267835be21928579b0a','[\"*\"]','2026-05-06 23:39:50',NULL,'2026-05-06 23:37:12','2026-05-06 23:39:50'),
+(485,'App\\Models\\User',33,'flutter-mobile-app','b3d285f3e16c5dc7776e90e64c4fc11278b8b4217b6f6a011ad6a954644aeb28','[\"*\"]','2026-05-06 23:40:19',NULL,'2026-05-06 23:40:16','2026-05-06 23:40:19'),
+(486,'App\\Models\\User',59,'flutter-mobile-app','3477b34fe63f6c6480535512f43151ba8a180be1bc26b2896f08c5c818ea8d99','[\"*\"]','2026-05-06 23:52:53',NULL,'2026-05-06 23:41:44','2026-05-06 23:52:53'),
+(487,'App\\Models\\User',33,'flutter-mobile-app','dfb4d7ec49dde1959a6e99298cef6cb7d9087f09b8f81cc5a6fac111e5e7d10b','[\"*\"]','2026-05-06 23:57:37',NULL,'2026-05-06 23:54:44','2026-05-06 23:57:37'),
+(488,'App\\Models\\User',60,'flutter-mobile-app','59d9de419319e9be9486728d6c1d62650268a055d7621d6d86d8e76282f62dd8','[\"*\"]','2026-05-07 00:05:34',NULL,'2026-05-07 00:00:32','2026-05-07 00:05:34'),
+(489,'App\\Models\\User',61,'flutter-mobile-app','378ba8373b311deec80a79974d0444e5af51531fd9977b0f6f233150b8b16f3a','[\"*\"]','2026-05-07 00:19:39',NULL,'2026-05-07 00:05:50','2026-05-07 00:19:39'),
+(490,'App\\Models\\User',62,'flutter-mobile-app','8c7e0e89eb3d7aa37a2b0f2d03031cc8a3a407ce042eb65efff301de0d688c8f','[\"*\"]','2026-05-07 00:22:20',NULL,'2026-05-07 00:20:36','2026-05-07 00:22:20'),
+(491,'App\\Models\\User',62,'flutter-mobile-app','9b47aeb1b80d550181a1c81b78716928e21b4a891dc5b52031b46d6f23b3522b','[\"*\"]','2026-05-07 00:23:31',NULL,'2026-05-07 00:22:41','2026-05-07 00:23:31'),
+(492,'App\\Models\\User',62,'flutter-mobile-app','5ff840fafc73997b7f6a372b01ce7c2206cb2a8c5d3be68cb25b75b81f44c35c','[\"*\"]','2026-05-07 00:24:41',NULL,'2026-05-07 00:24:13','2026-05-07 00:24:41'),
+(493,'App\\Models\\User',60,'flutter-mobile-app','a1fdac46b026c160fc58a80de918d9c599cc22a7965f8db6832b2188cf13db48','[\"*\"]','2026-05-07 00:28:11',NULL,'2026-05-07 00:25:10','2026-05-07 00:28:11'),
+(494,'App\\Models\\User',52,'flutter-mobile-app','f7a553c3315a1407538f4c21accfd6286a3dc93b0f18e834f3bdb34d3db89794','[\"*\"]','2026-05-07 00:28:50',NULL,'2026-05-07 00:28:27','2026-05-07 00:28:50'),
+(495,'App\\Models\\User',52,'flutter-mobile-app','0e853f9f72353b62d5ebd3784113b6d7d86def109953440df73d781ea79ca4e1','[\"*\"]','2026-05-07 00:30:10',NULL,'2026-05-07 00:29:50','2026-05-07 00:30:10'),
+(496,'App\\Models\\User',24,'flutter-mobile-app','aebb717ecf36db6f24492d6ac464080a92c8a28a81bf1a99170773f633e02812','[\"*\"]','2026-05-07 00:31:21',NULL,'2026-05-07 00:30:23','2026-05-07 00:31:21'),
+(497,'App\\Models\\User',54,'flutter-mobile-app','a69320e9c76653ef5edc04e6b7e68b9dc40ecd438f762343d5ec0c7a17a2789f','[\"*\"]','2026-05-07 00:31:46',NULL,'2026-05-07 00:31:44','2026-05-07 00:31:46');
 
 /*Table structure for table `plans` */
 
@@ -1612,7 +1979,7 @@ CREATE TABLE `plans` (
   `created_at` date DEFAULT NULL,
   `updated_at` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `plans` */
 
@@ -1628,7 +1995,8 @@ insert  into `plans`(`id`,`class_id`,`plan_name`,`description`,`session_type`,`s
 (12,1,'beginner','beginner','limited',4,2,'months',0,1000.00,0,'monthly',1,'2026-04-21','2026-04-21'),
 (13,14,'Basic','Learn fundamentals skills','limited',5,2,'months',0,500.00,0,'monthly',1,'2026-04-21','2026-04-21'),
 (14,13,'Premium','More advance skills','limited',8,2,'months',0,1000.00,0,'monthly',1,'2026-04-21','2026-04-21'),
-(15,6,'Premium','Acquired more skills','limited',8,1,'months',0,1499.97,0,'monthly',1,'2026-04-23','2026-04-23');
+(15,6,'Premium','Acquired more skills','limited',8,1,'months',0,1499.97,0,'monthly',1,'2026-04-23','2026-04-23'),
+(16,15,'Elite','Acquired fundamentals skills','limited',8,2,'months',0,500.00,0,'monthly',1,'2026-05-07','2026-05-07');
 
 /*Table structure for table `role_permissions` */
 
@@ -1699,8 +2067,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('lxzNkzx8mGm8N1KfABNy4EDP5L90mqVpVBPZuI5N',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoiOW5rc1BqQUltVkduZWFNdnc5QklUcjFCcGZYN0RxdkdCV1hsNm1sUiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjQ2OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvc2V0dGluZ3Mvc2tpbGwtY2hlY2tsaXN0IjtzOjU6InJvdXRlIjtzOjI0OiJzZXR0aW5ncy5za2lsbC1jaGVja2xpc3QiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo3O30=',1777385527),
-('muMFQHReyj6lmljW4aKuX68qsfaXfj4J8sZYkxTN',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiZTVkZDRBOGE2clVDVmFBVU1pRlFNTHdYdUZzYnRGYWxSdlg5Yk9ndyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jb21wZXRpdGlvbi8xIjtzOjU6InJvdXRlIjtzOjE2OiJjb21wZXRpdGlvbi5zaG93Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Nzt9',1777357298);
+('c6tVMuAwFMVv9eKyWghP6sOn5cQIVQFU8ghudJUi',7,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0','YTo1OntzOjY6Il90b2tlbiI7czo0MDoieHpYNGJZeVRQcVN4ckNIVGlpWEpPWEpPUnVZUHlFQ0xLOVFSWndIRCI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjI5OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYmlsbGluZyI7czo1OiJyb3V0ZSI7czoxMzoiYmlsbGluZy5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjc7fQ==',1778084362);
 
 /*Table structure for table `skill_checklist` */
 
@@ -1782,7 +2149,7 @@ CREATE TABLE `student_evaluations` (
   KEY `student_id` (`student_id`),
   KEY `instructor_id` (`instructor_id`),
   KEY `class_id` (`class_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `student_evaluations` */
 
@@ -1803,7 +2170,30 @@ insert  into `student_evaluations`(`id`,`student_id`,`instructor_id`,`class_id`,
 (14,9,6,NULL,'2026-04-28',10,10,10,10,NULL,0),
 (15,9,6,NULL,'2026-04-28',10,10,10,10,NULL,1),
 (16,9,6,NULL,'2026-04-28',10,10,10,10,NULL,1),
-(17,21,6,NULL,'2026-04-28',10,10,10,10,NULL,0);
+(17,21,6,NULL,'2026-04-28',10,10,10,10,NULL,0),
+(18,26,6,NULL,'2026-04-29',7,6,8,5,'Pretty auntie',0),
+(19,20,6,NULL,'2026-04-29',9,9,8,10,'Good Job',0),
+(20,20,6,NULL,'2026-04-29',10,8,9,5,'Pretty Auntie',1),
+(21,9,6,NULL,'2026-04-29',9,10,10,10,NULL,0),
+(22,20,6,NULL,'2026-04-29',10,10,10,10,NULL,1),
+(23,26,6,NULL,'2026-04-29',10,10,10,10,NULL,1),
+(24,26,6,NULL,'2026-04-29',10,10,10,10,NULL,1),
+(25,20,6,NULL,'2026-04-29',10,10,10,10,NULL,1),
+(26,26,6,NULL,'2026-04-29',10,10,10,10,NULL,1),
+(27,20,6,NULL,'2026-04-30',10,10,10,10,'Good Work',0),
+(28,20,6,NULL,'2026-04-30',10,10,10,10,'Good Job',1),
+(29,20,6,NULL,'2026-04-30',0,0,0,0,NULL,0),
+(30,20,6,NULL,'2026-04-30',10,10,10,10,'Good Job',1),
+(31,28,6,NULL,'2026-04-30',10,10,10,9,'Good job',0),
+(32,27,6,NULL,'2026-04-30',10,10,10,10,NULL,0),
+(33,21,6,NULL,'2026-04-30',10,10,10,10,'Good Job',0),
+(34,20,6,NULL,'2026-05-04',10,10,10,10,NULL,0),
+(35,28,6,NULL,'2026-05-05',7,5,7,5,NULL,0),
+(36,26,6,NULL,'2026-05-05',10,10,10,10,NULL,0),
+(37,27,6,NULL,'2026-05-05',10,10,10,10,NULL,0),
+(38,28,6,NULL,'2026-05-05',10,10,10,10,NULL,1),
+(39,33,10,NULL,'2026-05-07',8,8,8,5,'Good Job',0),
+(40,27,6,NULL,'2026-05-07',8,7,7,5,'Good Job',0);
 
 /*Table structure for table `student_skill_progress` */
 
@@ -1820,7 +2210,7 @@ CREATE TABLE `student_skill_progress` (
   KEY `student_id` (`student_id`),
   KEY `skill_id` (`skill_id`),
   KEY `instructor_id` (`instructor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `student_skill_progress` */
 
@@ -1829,14 +2219,18 @@ insert  into `student_skill_progress`(`id`,`student_id`,`skill_id`,`instructor_i
 (2,5,10,6,'completed','2026-04-27 21:44:57'),
 (3,5,11,6,'in_progress','2026-04-27 21:44:57'),
 (4,5,12,6,'in_progress','2026-04-27 21:44:57'),
-(21,20,17,6,'completed','2026-04-28 23:38:37'),
-(22,20,18,6,'completed','2026-04-28 23:38:37'),
-(23,20,19,6,'completed','2026-04-28 23:38:37'),
-(24,20,20,6,'completed','2026-04-28 23:38:37'),
-(29,9,21,6,'completed','2026-04-28 23:44:03'),
-(30,9,22,6,'completed','2026-04-28 23:44:03'),
-(31,9,23,6,'completed','2026-04-28 23:44:03'),
-(32,9,24,6,'completed','2026-04-28 23:44:03');
+(61,28,21,6,'completed','2026-05-05 22:20:56'),
+(62,28,22,6,'completed','2026-05-05 22:20:56'),
+(63,28,23,6,'completed','2026-05-05 22:20:56'),
+(64,28,24,6,'completed','2026-05-05 22:20:56'),
+(69,33,9,10,'completed','2026-05-07 00:25:44'),
+(70,33,10,10,'completed','2026-05-07 00:25:45'),
+(71,33,11,10,'in_progress','2026-05-07 00:25:45'),
+(72,33,12,10,'in_progress','2026-05-07 00:25:45'),
+(73,27,25,6,'completed','2026-05-07 00:30:49'),
+(74,27,26,6,'in_progress','2026-05-07 00:30:49'),
+(75,27,27,6,'completed','2026-05-07 00:30:49'),
+(76,27,28,6,'in_progress','2026-05-07 00:30:49');
 
 /*Table structure for table `student_subscriptions` */
 
@@ -1851,7 +2245,7 @@ CREATE TABLE `student_subscriptions` (
   `status` enum('active','expired','cancelled','suspended') DEFAULT 'active',
   `auto_renew_flag` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `student_subscriptions` */
 
@@ -1860,7 +2254,11 @@ insert  into `student_subscriptions`(`id`,`student_id`,`plan_id`,`start_date`,`e
 (3,18,12,'2026-04-01','2026-04-30','active',0),
 (4,25,13,'2026-04-01','2026-04-30','active',0),
 (5,15,14,'2026-04-01','2026-04-30','active',0),
-(6,23,15,'2026-04-01','2026-04-30','active',0);
+(6,23,15,'2026-04-01','2026-04-30','active',0),
+(7,28,14,'2026-04-01','2026-04-30','active',0),
+(8,27,14,'2026-04-01','2026-04-30','active',0),
+(9,32,14,'2026-05-01','2026-05-31','active',0),
+(10,33,16,'2026-05-01','2026-05-31','active',0);
 
 /*Table structure for table `students` */
 
@@ -1891,34 +2289,41 @@ CREATE TABLE `students` (
   `last_promoted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `student_code` (`student_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `students` */
 
 insert  into `students`(`id`,`user_id`,`branch_id`,`student_code`,`first_name`,`last_name`,`middle_name`,`birthdate`,`gender`,`photo_url`,`face_photo`,`luxand_person_id`,`current_belt`,`join_date`,`status`,`medical_notes`,`allergies`,`emergency_contact_name`,`emergency_contact_mobile`,`primary_parent_id`,`created_at`,`last_promoted_at`) values 
 (1,NULL,1,'tkd-00001','Mechelle','Stoneman','Malakas','2026-03-13','male',NULL,NULL,NULL,'1','2026-03-13','active',NULL,NULL,'Tyesha Freitag','0915-123-4567',10,'2026-03-13 10:42:11',NULL),
 (2,NULL,1,'tkd-00002','Hyunwoo','Lee',NULL,'2026-04-07','male',NULL,NULL,NULL,'4','2026-03-24','active','testing','testing','dwajhduwyhaddfiuopghwascliugjkbhvdawbkljvdfwa','09499374690',10,'2026-03-24 15:49:41',NULL),
-(3,NULL,4,'tkd-00003','Juan','Dela Cruz',NULL,'2008-06-11','male',NULL,NULL,NULL,'11','2026-03-24','active','testing','allergic to peanuts','Mr. Asimo','0999999999',20,'2026-03-24 16:03:29',NULL),
 (4,NULL,4,'tkd-00004','Nicky','Minaj',NULL,'2005-03-24','female',NULL,NULL,NULL,'10','2026-03-24','active','Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.','blha blah blha blha','eddu manzano','09207020903',17,'2026-03-24 16:25:33',NULL),
 (5,NULL,1,NULL,'Juna','reyes',NULL,'2003-06-19','female',NULL,NULL,NULL,'3','2026-03-27','active','fracture','N/A','Roberto Reyes','09287364831',22,'2026-03-27 12:01:12',NULL),
 (6,NULL,1,NULL,'joselito','Reyes',NULL,'2002-03-12','male',NULL,NULL,NULL,'3','2026-03-28','active','N/A','N/A','Menard Cruz','09287364831',19,'2026-03-28 17:30:03',NULL),
 (7,NULL,2,NULL,'Harith','Requestas',NULL,'2018-07-13','male',NULL,NULL,NULL,'3','2026-03-30','active','N/A','N/A','Menard Cruz','09287364831',10,'2026-03-30 20:42:57',NULL),
 (8,NULL,1,NULL,'Melai','Alvior',NULL,'2015-02-03','female',NULL,NULL,NULL,'3','2026-03-30','active','N/A','N/A','Menard Cruz','09287364831',19,'2026-03-30 21:14:36',NULL),
-(9,NULL,1,NULL,'Lenard','Cruz',NULL,'2015-06-24','male',NULL,NULL,NULL,'6','2026-03-30','active','N/A','N/A','Menard Cruz','09287364831',20,'2026-03-30 21:21:29','2026-04-28 23:42:59'),
+(9,NULL,1,NULL,'Lenard','Cruz',NULL,'2015-06-24','male',NULL,NULL,NULL,'7','2026-03-30','active','N/A','N/A','Menard Cruz','09287364831',20,'2026-03-30 21:21:29','2026-04-29 22:54:04'),
 (10,NULL,1,NULL,'Berto','Cruz',NULL,'2014-02-06','male',NULL,NULL,NULL,'7','2026-03-30','active','N/A','N/A','Menard Cruz','09287364831',10,'2026-03-30 21:25:32',NULL),
 (11,29,1,'TKD-0CWXF','benedick1','Caber',NULL,'2014-02-20','male',NULL,NULL,NULL,'4','2026-03-30','active','N/A','N/A','Roberto Reyes','09287364831',16,'2026-03-30 13:48:47',NULL),
 (12,30,1,'TKD-KDDI5','Cyril','maldives',NULL,'2012-03-30','female',NULL,NULL,NULL,'2','2026-03-30','active','N/A','N/A','Dwayne wade','09218734930',10,'2026-03-30 14:11:24',NULL),
 (13,31,1,'TKD-RZDVA','Lester','Reyes',NULL,'2017-05-17','male',NULL,NULL,NULL,'7','2026-03-30','active','N/A','N/A','kelson dee','09283743892',16,'2026-03-30 14:21:45',NULL),
-(15,33,1,'TKD-DPMSM','Triever','Estareja',NULL,'2015-11-27','male',NULL,'face-photos/tPDDXZS3cU7SPsqo7RvuywWpCKoX8KNMhHNduPbn.jpg','2726409','11','2026-03-31','active','N/A','N/A','Emmalyn Ruga','09283948172',16,'2026-03-31 14:35:10',NULL),
+(15,33,1,'TKD-DPMSM','Triever','Estareja',NULL,'2015-11-27','male','student-photos/acqdKbye3MbWsOZH2xhrDmUyrqFstvpvWuFwGY9l.png','face-photos/tPDDXZS3cU7SPsqo7RvuywWpCKoX8KNMhHNduPbn.jpg','2726409','11','2026-03-31','active','N/A','N/A','Emmalyn Ruga','09283948172',16,'2026-03-31 14:35:10',NULL),
 (17,35,5,'TKD-I9FFF','Dennis','Cruz',NULL,'2026-04-01','male',NULL,NULL,NULL,'1','2026-04-01','active',NULL,NULL,'Mr. Asimo','09399012345',20,'2026-04-01 01:07:01',NULL),
 (18,36,1,'26-00001','Princess Dianne','Garay',NULL,'2003-08-24','female',NULL,NULL,NULL,'11','2026-04-01','active',NULL,NULL,'Mr. Asimo','0999999999',16,'2026-04-01 01:47:23',NULL),
 (19,37,2,'26-00002','Nathaniel','Custodio',NULL,'2003-08-03','male',NULL,NULL,NULL,'11','2026-04-01','active',NULL,NULL,'Mr. Asimo','0999999999',17,'2026-04-01 01:51:02',NULL),
-(20,40,1,'TKD-WRNZF','edrich','carmello',NULL,'2015-02-11','male',NULL,'face-photos/SqafxfM774GH9SJOwvD4dfwtY3uQcG4hIBxcEE6z.jpg','2723962','5','2026-04-10','active','N/A','N/A','Jonas Lopez','09182739482',16,'2026-04-10 15:05:06',NULL),
-(21,41,1,'TKD-4V3TK','kawhi','leonard',NULL,'2016-02-09','male',NULL,NULL,NULL,'3','2026-04-10','active','N/A','N/A','Mikey Delacruz','09281762836',10,'2026-04-10 15:07:37','2026-04-28 23:44:51'),
+(20,40,1,'TKD-WRNZF','edrich','carmello',NULL,'2015-02-11','male',NULL,'face-photos/SqafxfM774GH9SJOwvD4dfwtY3uQcG4hIBxcEE6z.jpg','2723962','8','2026-04-10','active','N/A','N/A','Jonas Lopez','09182739482',16,'2026-04-10 15:05:06','2026-05-04 13:02:59'),
+(21,41,1,'TKD-4V3TK','kawhi','leonard',NULL,'2016-02-09','male',NULL,NULL,NULL,'4','2026-04-10','active','N/A','N/A','Mikey Delacruz','09281762836',10,'2026-04-10 15:07:37','2026-04-30 23:27:13'),
 (22,42,1,'TKD-DHFQ3','Daniel','Vibar',NULL,'2010-06-15','male',NULL,'face-photos/B2odymx5CmaXcfAdZrWIR6lUBu3Ky5EHuriLtZdE.jpg','2725405','8','2026-04-13','active','N/A','N/A','Maria cruz','09298712398',16,'2026-04-13 22:10:48',NULL),
 (23,43,1,'TKD-VARZE','Donald','Crumps',NULL,'1995-02-16','male',NULL,NULL,NULL,'11','2026-04-13','active','Asthma','Food allergy','Ana Crumps','09281692301',18,'2026-04-13 22:37:37','2026-04-28 22:56:02'),
 (24,46,1,'TKD-E7PP4','Rene','Baterbonia',NULL,'2010-10-11','male',NULL,NULL,NULL,'2','2026-04-20','active','N/A','N/A','Donny Baterbonia','09291019273',45,'2026-04-20 11:01:12',NULL),
-(25,48,1,'26-00003','Jomar','Bentonisis',NULL,'2001-10-23','male',NULL,NULL,NULL,'9','2026-04-21','active','N/A','N/A','Vivian Bentonisis','09180321091',47,'2026-04-21 17:14:49',NULL);
+(25,48,1,'26-00003','Jomar','Bentonisis',NULL,'2001-10-23','male',NULL,NULL,NULL,'9','2026-04-21','active','N/A','N/A','Vivian Bentonisis','09180321091',47,'2026-04-21 17:14:49',NULL),
+(26,50,1,'26-00004','mark','reyes',NULL,'2008-07-10','male',NULL,'face-photos/Asswl2IatNx4YrVJAbFAXFKj5X9YmW7CDkY9vGel.jpg','2743850','7','2026-04-29','active','N/A','N/A','keneth reyes','09382010078',44,'2026-04-29 09:12:47','2026-05-05 22:18:59'),
+(27,52,1,'26-00005','jonard','dela Cruz',NULL,'2012-05-16','male','student-photos/t31BClTFy6bOZ7M9iYacrPSEPSUSoN0idHBstd39.jpg','face-photos/XlROoLLatjJqWOp6mh2ae2WN17CSOOpUOXVM9ajM.jpg','2750574','7','2026-04-29','active','N/A','N/A','maria dela cruz','09123456789',54,'2026-04-29 09:34:26','2026-05-05 22:20:06'),
+(28,53,1,'26-00006','juan','dela Cruz',NULL,'2011-02-10','male',NULL,'face-photos/bkiJcWapLbGEOZJxPkguGxLrgP95h3gnpIOBoaI8.jpg','2743864','6','2026-04-29','active','N/A','N/A','maria dela cruz','09384952937',54,'2026-04-29 09:37:42','2026-04-30 23:10:13'),
+(29,55,1,'26-00007','Carlo','dela cruz',NULL,'2010-10-12','male','student-photos/elXPYm0EeeqywEnvitRi7T5Fo3pi49nTsA86Hpkb.png',NULL,NULL,'3','2026-05-06','active','N/A','N/A','Rowena dela cruz','09882019032',54,'2026-05-06 20:54:51',NULL),
+(30,56,1,'26-00008','Johnny','dela cruz',NULL,'2017-02-01','male','student-photos/2YsqpLPanp2ADblbjcuFmL6CI56Y4EGwS9ytxktB.png',NULL,NULL,'3','2026-05-06','active','N/A','N/A','Rowena dela cruz','09872831927',54,'2026-05-06 21:05:20',NULL),
+(31,58,1,'26-00009','Bernard','dela cruz',NULL,'2012-06-12','male','student-photos/Cd0DyqUnOJTjKoNt0FC9eixOl0G8EStHMzDOzQy0.png',NULL,NULL,'4','2026-05-06','active','N/A','N/A','Rowena','09873782901',54,'2026-05-06 21:16:04',NULL),
+(32,59,1,'26-00010','joner','dela cruz',NULL,'2016-06-29','male','student-photos/YRhg80mhtsWXwRhp4rvLZ6g1llujoqoOiOGuGuhd.jpg',NULL,NULL,'4','2026-05-06','active','N/A','N/A','Rowena guanzon','09872039013',18,'2026-05-06 22:53:39',NULL),
+(33,62,2,'26-00011','Caryl','Santos',NULL,'2016-01-12','female','student-photos/iFX3c49VJQOtOZLEWlYPVQlB40DMcJJmZ7WFeT2d.jpg',NULL,NULL,'3','2026-05-07','active','N/A','N/A','Annie Sanntos','09873902910',20,'2026-05-07 00:09:51',NULL);
 
 /*Table structure for table `users` */
 
@@ -1943,12 +2348,12 @@ CREATE TABLE `users` (
   UNIQUE KEY `email` (`email`),
   KEY `fk_branch` (`branch_id`),
   CONSTRAINT `fk_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,`mobile`,`password`,`photo_url`,`status`,`last_login_at`,`created_at`,`updated_at`) values 
-(7,2,'admin','1234admin','Nataniel','Herras','testing@gmail.com','09499333000','$2y$12$93a4KdYWPG1OSuQe0DtOyOzD7dW5HLaVLEMslAQGuV8Hq.knHl9Dq','profile-photos/1774326137_h9uoElzpCo.png',1,'2026-04-28 22:12:05','2026-03-03 06:58:17','2026-04-28 22:12:05'),
+(7,2,'admin','1234admin','Nataniel','Herras','testing@gmail.com','09499333000','$2y$12$93a4KdYWPG1OSuQe0DtOyOzD7dW5HLaVLEMslAQGuV8Hq.knHl9Dq','profile-photos/1774326137_h9uoElzpCo.png',1,'2026-05-06 20:52:45','2026-03-03 06:58:17','2026-05-06 20:52:45'),
 (8,2,'staff','admin','Princess','Valdez','Valdez@gmail.com','09444444444','$2y$12$TX1QJw1.7///Sj0I93nSgOpr2rCLkDGo6Am.sPbOxtIYW3SSmxPTm','profile-photos/1775534251_LJ7GSmkN6T.jpg',1,'2026-04-12 15:31:46','2026-03-03 07:02:26','2026-04-12 15:31:46'),
 (10,1,'parent','parent1234','Cletus','Christopher','magulang123@gmail.com','09329329939','$2y$12$I8ofrlo50mdWeSWCOxac8.7T4AKyJILkquPZJS5KqxrR7i4AoLP5q',NULL,1,'2026-03-11 03:58:31','2026-03-10 08:48:46','2026-03-25 02:19:21'),
 (11,1,'instructor','jdoe','John','Doe','jdoe@example.com','09171234567','hashed_pw1','',0,NULL,'2026-03-17 11:55:06','2026-03-18 16:57:47'),
@@ -1964,7 +2369,7 @@ insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,
 (21,5,'instructor','dwadwadawd','Lady Joy','Porrs','porras@porrs','09171234567','$2y$12$dvFe7NxBRoycJBI22wY0eenI/EWHoeYRqpGnls1u9tTvOOEZcq5YO',NULL,1,NULL,'2026-03-24 17:11:38','2026-03-25 03:09:32'),
 (22,1,'parent','','Roberto','Magdangal','roberto@gmail.com','09876521465','$2y$12$aFdvkK8AAqqxbzujur.N2umCcB6gdPBYm7wRrSBBw7EtBkZZCNAlW',NULL,1,NULL,'2026-03-26 13:29:58','2026-03-26 13:29:58'),
 (23,1,'parent','','Julious','Magdangal','magdangal@gmail.com','09876521465','$2y$12$QOXNjpOolI3hwi5b7HMyRu3Fm51dRzSSvySi4skxWUWEHZwQH2jxS',NULL,1,NULL,'2026-03-26 13:38:56','2026-04-06 10:14:35'),
-(24,1,'instructor','Draken','Eduard','Estareja','eduardestarejajr@gmail.com','09826717854','$2y$12$cmVhWkunC.vtJXlnp9s7aem1.OuqCGbF5nmSL.nUnYK2VO84Nb9i.',NULL,1,NULL,'2026-03-26 13:40:09','2026-03-26 22:06:58'),
+(24,1,'instructor','Draken','Eduard','Estareja','eduardestarejajr@gmail.com','09826717854','$2y$12$cmVhWkunC.vtJXlnp9s7aem1.OuqCGbF5nmSL.nUnYK2VO84Nb9i.','/storage/instructor_photos/eFHVHpiUhXgepXezoIHD6JAeoLceKRq0P27mIVYK.png',1,NULL,'2026-03-26 13:40:09','2026-05-05 23:04:36'),
 (25,2,'instructor','janjan','john','alvior','john@gmail.com','09874783672','$2y$12$ZFbpX2RZJy2dRBGBp1r0AeJ.cZY8A0TDSr0dYJKNONBnoM03/sgVm',NULL,1,NULL,'2026-03-26 14:34:39','2026-03-26 14:34:39'),
 (26,3,'instructor','everr','triever','ruga','triever@gmail.com','0987462713','$2y$12$Q1iuc99JEMX7.4f4aofFM.D8b3OS7BtCkHnt5z2auYJalZyadhMcG',NULL,1,NULL,'2026-03-26 15:10:13','2026-03-26 15:10:13'),
 (27,1,'instructor','micah','Mica','Barrientos','mica@gmail.com','0987462713','$2y$12$UOzLdBD3Sw1j0hb6ADHCyuCPIyETKlGivemR0mX47SOXlOqkAz4Ue',NULL,1,NULL,'2026-03-27 15:28:29','2026-03-27 15:28:29'),
@@ -1972,9 +2377,8 @@ insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,
 (29,1,'','ben@gmail.com','benedick1','Caber','ben@gmail.com',NULL,'$2y$12$ARrJNOobw2B0k2vMT0LxDumeBtYQo3hcmjHWT82tQ7WRQkGU3rLw2',NULL,0,NULL,'2026-03-30 13:48:47','2026-03-30 13:48:47'),
 (30,1,'','cyril@gmail.com','Cyril','maldives','cyril@gmail.com',NULL,'$2y$12$.eP1IrTKEj/ZM9/bcKxED.dnybf4KT163gFT42sb/XtmJEEwvFUjC',NULL,0,NULL,'2026-03-30 14:11:24','2026-03-30 14:11:24'),
 (31,1,'student','lester@gmail.com','Lester','Reyes','lester@gmail.com',NULL,'$2y$12$jLU9r/ASwj.R.SAZe5TG3ewjdgNydYSDBdxH5KzJVQue6.DfMIHdO',NULL,0,NULL,'2026-03-30 14:21:45','2026-03-30 14:21:45'),
-(33,1,'student','triever.estareja356','Triever','Estareja','triever2015@gmail.com',NULL,'$2y$12$ppjllEgwXbFYNJZO0FpvEO.Z0kV8Tkrwh56xIuDWKJuI1QxsWouWu',NULL,0,NULL,'2026-03-31 14:35:10','2026-03-31 14:35:10'),
+(33,1,'student','triever.estareja356','Triever','Estareja','triever2015@gmail.com',NULL,'$2y$12$ppjllEgwXbFYNJZO0FpvEO.Z0kV8Tkrwh56xIuDWKJuI1QxsWouWu','student-photos/acqdKbye3MbWsOZH2xhrDmUyrqFstvpvWuFwGY9l.png',0,NULL,'2026-03-31 14:35:10','2026-05-06 23:54:58'),
 (34,7,'student','testing.testing968','testing','testing','testing123@gmail.com','0999999999','$2y$12$2UMyyNk/DrQhPdM/XKnFKeaqj42Yz/baLysGC8oobAU01ye2ttp82',NULL,1,NULL,'2026-04-01 01:00:00','2026-04-01 01:00:00'),
-(35,5,'student','dennis.cruz939','Dennis','Cruz','dennis.cruz85@domain.ph','09399012345','$2y$12$rX5CpaKJDqJagH123SJKKeOeapbA6J5PqzQI8ddXgXbmM0xbPdSG6',NULL,1,NULL,'2026-04-01 01:07:01','2026-04-01 01:07:01'),
 (36,1,'student','princess dianne.garay161','Princess Dianne','Garay','DiannePrincess@gmail.com','0999999999','$2y$12$v3zed601e19jfrowK.ZCg.jTpJ5fPoG00lnrXFZtmrt5w6J813RtC',NULL,1,NULL,'2026-04-01 01:47:22','2026-04-01 01:47:22'),
 (37,2,'student','nathaniel.custodio815','Nathaniel','Custodio','Nathaniel@gmail.com','0999999999','$2y$12$7O.mtCLHVbwOjMTcdkTVPuBPfcFyyTgxm43Y7qCw/.I5f//Lf/xe.',NULL,1,NULL,'2026-04-01 01:51:02','2026-04-01 01:51:02'),
 (38,5,'admin','','Garay','Princess','Princess@gmail.com','09473258232','$2y$12$9P5OQRWVYIpV8RRrZq3/QeDthaJLTTqhh20aVnl56DWf4pZ/4AjS2','profile-photos/1775030025_MHmDaGY8El.jpg',1,NULL,'2026-04-01 15:53:45','2026-04-01 15:53:45'),
@@ -1987,7 +2391,19 @@ insert  into `users`(`id`,`branch_id`,`role`,`username`,`fname`,`lname`,`email`,
 (46,1,'student','rene.baterbonia543','Rene','Baterbonia','rene@gmail.com',NULL,'$2y$12$YcZYD5DAeMjfvnUDilfN9.TNC888gxujj5wCjY.KYOmqBJbxvXegC',NULL,0,NULL,'2026-04-20 11:01:12','2026-04-20 11:01:12'),
 (47,1,'parent','','Vivian','Bentonisis','vivian@gmail.com','09109853927','$2y$12$JSpc/x4af2gfgEPPc001m.wuNhYl6iInKUaDBl/f3B.YTymQOdQ2m',NULL,1,NULL,'2026-04-21 17:13:48','2026-04-21 17:13:48'),
 (48,1,'student','jomar.bentonisis430','Jomar','Bentonisis','jomar@gmail.com',NULL,'$2y$12$Z/9B0b9Pj0ZCnw9PDjxseOphhYUGHUZGvXYvOZkNa7LxfS13E7mW.',NULL,0,NULL,'2026-04-21 17:14:49','2026-04-21 17:14:49'),
-(49,1,'parent','','Edwin','Mananabas','edwin@gmail.com','09698372017','$2y$12$W5wECJe1fw1hX14Bj0PBvefx.iXTJAVZezcyfkqhXsJLGFMhiLOFG',NULL,1,NULL,'2026-04-23 21:34:40','2026-04-23 21:34:40');
+(49,1,'parent','','Edwin','Mananabas','edwin@gmail.com','09698372017','$2y$12$W5wECJe1fw1hX14Bj0PBvefx.iXTJAVZezcyfkqhXsJLGFMhiLOFG',NULL,1,NULL,'2026-04-23 21:34:40','2026-04-23 21:34:40'),
+(50,1,'student','mark.reyes436','mark','reyes','mark@gmail.com',NULL,'$2y$12$pBNSWoK9S3QJEnLOAcHA7eVN/9Z28h8zy664OEGydJSN/LT2oAyfC',NULL,0,NULL,'2026-04-29 09:12:47','2026-04-29 09:12:47'),
+(52,1,'student','jonard.delacruz183','jonard','dela Cruz','jonard@gmail.com',NULL,'$2y$12$QaJzrTmMjc/9ouHn.bkw2uP2ctnSVJZEIjkQAe0mxDO5j8/UAv3XK','student-photos/t31BClTFy6bOZ7M9iYacrPSEPSUSoN0idHBstd39.jpg',0,NULL,'2026-04-29 09:34:26','2026-05-07 00:29:57'),
+(53,1,'student','juan.delacruz113','juan','dela Cruz','juan@gmail.com',NULL,'$2y$12$KruwB16FcgvzsZczJijFSuo4uQNzAEZtLN4dKLYnXMsfsInJYu8JG',NULL,0,NULL,'2026-04-29 09:37:42','2026-04-29 09:37:42'),
+(54,1,'parent','','Rowena','Guanzon','rowena@gmail.com','09123456789','$2y$12$OzXchDr6i3DlaBKsiy0h8uRD.VL3vbOFA2krkh/.rpmr/1rhWXFyC',NULL,1,NULL,'2026-04-29 20:35:16','2026-04-29 20:35:16'),
+(55,1,'student','carlo.delacruz217','Carlo','dela cruz','carlo@gmail.com',NULL,'$2y$12$r2SBiuSpIVsHCl8iha9tbeRhf1Lu196HH.039LFQ5dVRp6gcgP7Om',NULL,0,NULL,'2026-05-06 20:54:51','2026-05-06 20:54:51'),
+(56,1,'student','johnny.delacruz748','Johnny','dela cruz','johnny@gmail.com',NULL,'$2y$12$BOGu9JvSdXJmql/II25e4uOJ2nebXDvX9ZptWyTp391JZtBF7mzB.','student-photos/2YsqpLPanp2ADblbjcuFmL6CI56Y4EGwS9ytxktB.png',0,NULL,'2026-05-06 21:05:20','2026-05-06 21:05:20'),
+(57,1,'parent','','Jona','dela cruz','jona@gmail.com','09283921843','$2y$12$rfgsbk8pf9j4DelaRM4nX.zT7zcSH4CD37irdY04Ny806MAeQtWtW',NULL,1,NULL,'2026-05-06 21:08:31','2026-05-06 21:08:31'),
+(58,1,'student','bernard.delacruz269','Bernard','dela cruz','bernard@gmail.com',NULL,'$2y$12$Ehq5mpy3v4adOfAu7aP.J.vntq0EtKmKBTx3MBrVLIpYHOoykUzPi','student-photos/Cd0DyqUnOJTjKoNt0FC9eixOl0G8EStHMzDOzQy0.png',0,NULL,'2026-05-06 21:16:04','2026-05-06 21:16:04'),
+(59,1,'student','joner.delacruz191','joner','dela cruz','joner@gmail.com',NULL,'$2y$12$kn.u5inD/yV6tu1V/Xlo0ehdbiqaTuD2elOslA22paNfkbr8hogyO','student-photos/YRhg80mhtsWXwRhp4rvLZ6g1llujoqoOiOGuGuhd.jpg',0,NULL,'2026-05-06 22:53:39','2026-05-06 23:47:43'),
+(60,2,'instructor','Lee','Lee','Sin','lee@gmail.com','09860283764','$2y$12$1GxI6ghl.5g0rDkvq188D.vdO0qyhk2bw2yBQoYFoWJlqXwG7kN9e','/storage/instructor_photos/Mq0iF8YuY7XU43yGKLL12SEbNpvNXTFpFVd3zxPi.png',1,NULL,'2026-05-07 00:00:09','2026-05-07 00:00:41'),
+(61,1,'parent','','Annie','Santos','annie@gmail.com','09387834785','$2y$12$LEJ7y6EKbmCcSE87EegewujSVeEaJfWudcgsx3vETM9c.jBZJ8BQi',NULL,1,NULL,'2026-05-07 00:05:29','2026-05-07 00:05:29'),
+(62,2,'student','caryl.santos166','Caryl','Santos','caryl@gmail.com',NULL,'$2y$12$CWvSKSxOHd/kbyF58HTj.uaQnKZoyWl4jJr05t83DTQsloXApmLPm','student-photos/iFX3c49VJQOtOZLEWlYPVQlB40DMcJJmZ7WFeT2d.jpg',0,NULL,'2026-05-07 00:09:51','2026-05-07 00:22:03');
 
 /*Table structure for table `parentviews` */
 

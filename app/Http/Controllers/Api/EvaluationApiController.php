@@ -223,7 +223,7 @@ class EvaluationApiController extends Controller
             $latestEval = DB::table('student_evaluations')
                 ->where('student_id', $student->id)
                 ->when($student->last_promoted_at, function ($query) use ($student) {
-                    return $query->where('evaluated_date', '>', $student->last_promoted_at);
+                    return $query->where('evaluation_date', '>', $student->last_promoted_at);
                 })
                 ->orderBy('evaluation_date', 'desc')
                 ->first();
@@ -466,6 +466,19 @@ class EvaluationApiController extends Controller
                 if (!$student)
                     continue;
 
+                
+                if ($student->last_promoted_at) {
+                    $lastPromotedDate = \Carbon\Carbon::parse($student->last_promoted_at)->toDateString();
+                    $today = now()->toDateString();
+
+                    if ($lastPromotedDate === $today) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'This Student was already promoted today',
+                        ], 422);
+                    }
+                }
+
                 // Get next belt
                 $currentBelt = DB::table('belt_levels')
                     ->where('id', $student->current_belt)
@@ -487,7 +500,7 @@ class EvaluationApiController extends Controller
                     ]);
 
 
-                // Reset belt_ready_flag ng latest evaluation
+                
                 $latestEval = DB::table('student_evaluations')
                     ->where('student_id', $studentId)
                     ->orderBy('evaluation_date', 'desc')
@@ -501,7 +514,6 @@ class EvaluationApiController extends Controller
 
             }
 
-            // Reset din yung student_skill_progress para sa bagong belt
             DB::table('student_skill_progress')
                 ->where('student_id', $studentId)
                 ->delete();
@@ -514,5 +526,209 @@ class EvaluationApiController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    // GET /instructor/student/{studentId}/progress
+public function studentProgressView($studentId)
+{
+    try {
+        $student = DB::table('students as s')
+            ->join('belt_levels as bl', 's.current_belt', '=', 'bl.id')
+            ->where('s.id', $studentId)
+            ->select(
+                's.id',
+                's.first_name',
+                's.last_name',
+                's.current_belt',
+                's.photo_url',
+                'bl.name as current_belt_name',
+                'bl.color_code as belt_color',
+                'bl.rank_order',
+                's.last_promoted_at'
+            )
+            ->first();
+
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+        }
+
+        // Latest evaluation after last promotion
+        $latestEval = DB::table('student_evaluations')
+            ->where('student_id', $studentId)
+            ->when($student->last_promoted_at, function ($q) use ($student) {
+                return $q->where('evaluation_date', '>',
+                    \Carbon\Carbon::parse($student->last_promoted_at)->toDateString());
+            })
+            ->orderBy('evaluation_date', 'desc')
+            ->first();
+
+        // Skill progress
+        $skillProgress = DB::table('student_skill_progress as ssp')
+            ->join('skill_checklist as sc', 'ssp.skill_id', '=', 'sc.id')
+            ->where('ssp.student_id', $studentId)
+            ->select('sc.skill_name', 'sc.belt_level', 'ssp.status', 'ssp.checked_at')
+            ->orderBy('ssp.checked_at', 'desc')
+            ->get();
+
+        // Skill completion
+        $totalSkills = DB::table('skill_checklist')
+            ->where('belt_level', $student->current_belt_name)
+            ->count();
+
+        $completedSkills = DB::table('student_skill_progress as ssp')
+            ->join('skill_checklist as sc', 'ssp.skill_id', '=', 'sc.id')
+            ->where('ssp.student_id', $studentId)
+            ->where('sc.belt_level', $student->current_belt_name)
+            ->where('ssp.status', 'completed')
+            ->count();
+
+        $skillCompletion = $totalSkills > 0
+            ? round(($completedSkills / $totalSkills) * 100)
+            : 0;
+
+        // Readiness score
+        $readinessScore = 0;
+        if ($latestEval) {
+            if ($latestEval->belt_ready_flag) {
+                $readinessScore = 100;
+            } else {
+                $readinessScore = $skillCompletion;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'student' => [
+                    'id'           => $student->id,
+                    'name'         => $student->first_name . ' ' . $student->last_name,
+                    'current_belt' => $student->current_belt_name,
+                    'belt_color'   => $student->belt_color,
+                ],
+                'latest_evaluation' => $latestEval ? [
+                    'date'              => $latestEval->evaluation_date,
+                    'technique_score'   => $latestEval->technique_score,
+                    'discipline_score'  => $latestEval->discipline_score,
+                    'fitness_score'     => $latestEval->fitness_score,
+                    'sparring_score'    => $latestEval->sparring_score,
+                    'notes'             => $latestEval->notes,
+                    'belt_ready_flag'   => (bool) $latestEval->belt_ready_flag,
+                ] : null,
+                'skill_progress'   => $skillProgress,
+                'readiness_score'  => $readinessScore,
+                'skill_completion' => $skillCompletion,
+                'completed_skills' => $completedSkills,
+                'total_skills'     => $totalSkills,
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+}
+
+// GET /instructor/reports
+public function instructorReports(Request $request)
+{
+    try {
+        $instructor = Auth::user();
+        $instructorRecord = DB::table('instructors')
+            ->where('user_id', $instructor->id)
+            ->first();
+
+        if (!$instructorRecord) {
+            return response()->json(['success' => false, 'message' => 'Instructor not found'], 404);
+        }
+
+        // Get all students in instructor's classes
+        $students = DB::table('students as s')
+            ->join('class_students as cs', 's.id', '=', 'cs.student_id')
+            ->join('classes as c', 'cs.class_id', '=', 'c.id')
+            ->where('c.primary_instructor_id', $instructorRecord->id)
+            ->where('s.status', 'active')
+            ->select('s.id', 's.first_name', 's.last_name', 's.current_belt')
+            ->distinct('s.id')
+            ->get()
+            ->unique('id');
+
+        $studentIds = $students->pluck('id')->toArray();
+        $activeStudents = $students->count();
+
+        // Attendance rate
+        $totalLogs = DB::table('attendance_logs')
+            ->whereIn('student_id', $studentIds)
+            ->count();
+
+        $presentLogs = DB::table('attendance_logs')
+            ->whereIn('student_id', $studentIds)
+            ->where('attendance_status', 'present')
+            ->count();
+
+        $attendanceRate = $totalLogs > 0
+            ? round(($presentLogs / $totalLogs) * 100)
+            : 0;
+
+        // Promotion ready
+        $promotionReady = DB::table('student_evaluations')
+            ->whereIn('student_id', $studentIds)
+            ->where('belt_ready_flag', 1)
+            ->distinct('student_id')
+            ->count('student_id');
+
+        // Delinquent — students with overdue or unpaid invoices
+        $delinquent = DB::table('invoices')
+            ->whereIn('student_id', $studentIds)
+            ->whereIn('status', ['overdue', 'unpaid'])
+            ->distinct('student_id')
+            ->count('student_id');
+
+        // Per student data for export
+        $studentReports = $students->map(function ($s) use ($studentIds) {
+            $total = DB::table('attendance_logs')
+                ->where('student_id', $s->id)
+                ->count();
+
+            $present = DB::table('attendance_logs')
+                ->where('student_id', $s->id)
+                ->where('attendance_status', 'present')
+                ->count();
+
+            $rate = $total > 0 ? round(($present / $total) * 100) : 0;
+
+            $belt = DB::table('belt_levels')
+                ->where('id', $s->current_belt)
+                ->value('name');
+
+            $isReady = DB::table('student_evaluations')
+                ->where('student_id', $s->id)
+                ->where('belt_ready_flag', 1)
+                ->exists();
+
+            $hasBalance = DB::table('invoices')
+                ->where('student_id', $s->id)
+                ->whereIn('status', ['overdue', 'unpaid'])
+                ->exists();
+
+            return [
+                'name'             => $s->first_name . ' ' . $s->last_name,
+                'belt'             => $belt ?? 'N/A',
+                'attendance_rate'  => $rate,
+                'promotion_ready'  => $isReady,
+                'delinquent'       => $hasBalance,
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'attendance_rate'  => $attendanceRate,
+                'active_students'  => $activeStudents,
+                'promotion_ready'  => $promotionReady,
+                'delinquent'       => $delinquent,
+                'student_reports'  => $studentReports,
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+}
 
 }

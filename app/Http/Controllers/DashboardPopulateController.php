@@ -18,7 +18,7 @@ class DashboardPopulateController extends Controller
 {
     public function sanitizeInput($value)
     {
-        if(is_string($value)){
+        if (is_string($value)) {
             $value = trim($value);
             $value = strip_tags($value);
             $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -26,7 +26,7 @@ class DashboardPopulateController extends Controller
         return $value;
     }
     public function index()
-    {   
+    {
         $students = DB::table('students')
             ->select('id', DB::raw("CONCAT(first_name, ' ', last_name) as student_name"), 'student_code')
             ->where('status', 'active')
@@ -34,8 +34,11 @@ class DashboardPopulateController extends Controller
         $todayAttendance = AttendanceLog::with(['student', 'classSession.class', 'classSession.instructor'])
             ->whereDate('checkin_time', today())
             ->orderBy('checkin_time', 'desc')
-            ->get();    
-        $parents = User::where('role', 'parent')->get();
+            ->get();
+        $parents = DB::table('parents')
+            ->join('users', 'parents.user_id', '=', 'users.id')
+            ->select('parents.id as parent_id', 'users.fname', 'users.lname')
+            ->get();
         $beltlevels = BeltLevel::all();
         $branches = Branch::all();
         $classes = Classes::all();
@@ -48,25 +51,25 @@ class DashboardPopulateController extends Controller
         // for revenue chart
         $revenueDailyLabels = [];
         $revenueDailyValues = [];
-        for($i=6 ;$i >=0 ;$i-- ){
+        for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDay($i);
             $revenueDailyLabels[] = $date->format('M d');
 
             $dailyTotal = DB::table('payments')
-                            ->whereDate('paid_at', $date->toDateString())
-                            ->sum('amount');
+                ->whereDate('paid_at', $date->toDateString())
+                ->sum('amount');
             $revenueDailyValues[] = (float) $dailyTotal;
         }
         $revenueMonthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         $revenueMonthlyValues = [];
         $currentYear = date('Y');
-        
+
         for ($month = 1; $month <= 12; $month++) {
             $monthlyTotal = DB::table('payments')
-                            ->whereYear('paid_at', $currentYear)
-                            ->whereMonth('paid_at', $month)
-                            ->sum('amount');
-                            
+                ->whereYear('paid_at', $currentYear)
+                ->whereMonth('paid_at', $month)
+                ->sum('amount');
+
             $revenueMonthlyValues[] = (float) $monthlyTotal;
         }
 
@@ -85,23 +88,23 @@ class DashboardPopulateController extends Controller
         // for enrollee's chart
         $dailyLabels = [];
         $dailyValues = [];
-        for ($i = 6; $i >= 0; $i--){
+        for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
             $dailyLabels[] = $date->format('M d');
             $dailyValues[] = DB::table('students')
-                                ->whereDate('created_at', $date->toDateString())
-                                ->count();
+                ->whereDate('created_at', $date->toDateString())
+                ->count();
         }
 
-        $monthlyLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        $monthlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         $monthlyValues = [];
         $currentYear = date('Y');
 
         for ($month = 1; $month <= 12; $month++) {
             $monthlyValues[] = DB::table('students')
-                                ->whereYear('created_at', $currentYear)
-                                ->whereMonth('created_at', $month)
-                                ->count();
+                ->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $month)
+                ->count();
         }
         $enrolleesChartData = [
             'daily' => [
@@ -111,7 +114,7 @@ class DashboardPopulateController extends Controller
             'monthly' => [
                 'labels' => $monthlyLabels,
                 'values' => $monthlyValues
-            ]   
+            ]
         ];
         // for enrollee's chart
 
@@ -125,9 +128,9 @@ class DashboardPopulateController extends Controller
         $daysOfWeek = [1, 2, 3, 4, 5, 6, 7];
 
         $heatmapData = [];
-        foreach($timeBuckets as $time){
-            foreach($daysOfWeek as $day){
-                $heatmapData[$time][$day] = 0;                
+        foreach ($timeBuckets as $time) {
+            foreach ($daysOfWeek as $day) {
+                $heatmapData[$time][$day] = 0;
             }
         }
 
@@ -139,14 +142,22 @@ class DashboardPopulateController extends Controller
             $hour = $date->hour;
 
             $bucket = null;
-            if ($hour >= 7 && $hour < 9) $bucket = 8;
-            elseif ($hour >= 9 && $hour < 11) $bucket = 10;
-            elseif ($hour >= 11 && $hour < 13) $bucket = 12;
-            elseif ($hour >= 13 && $hour < 15) $bucket = 14;
-            elseif ($hour >= 15 && $hour < 17) $bucket = 16;
-            elseif ($hour >= 17 && $hour < 19) $bucket = 18;
-            elseif ($hour >= 19 && $hour < 21) $bucket = 20;
-            elseif ($hour >= 21 || $hour < 7) $bucket = 22; // Groups late night classes
+            if ($hour >= 7 && $hour < 9)
+                $bucket = 8;
+            elseif ($hour >= 9 && $hour < 11)
+                $bucket = 10;
+            elseif ($hour >= 11 && $hour < 13)
+                $bucket = 12;
+            elseif ($hour >= 13 && $hour < 15)
+                $bucket = 14;
+            elseif ($hour >= 15 && $hour < 17)
+                $bucket = 16;
+            elseif ($hour >= 17 && $hour < 19)
+                $bucket = 18;
+            elseif ($hour >= 19 && $hour < 21)
+                $bucket = 20;
+            elseif ($hour >= 21 || $hour < 7)
+                $bucket = 22; // Groups late night classes
 
             if ($bucket !== null && isset($heatmapData[$bucket][$day])) {
                 $heatmapData[$bucket][$day]++;
@@ -156,17 +167,34 @@ class DashboardPopulateController extends Controller
             }
         }
 
-        if ($maxHeatmapCount == 0) $maxHeatmapCount = 1;
+        if ($maxHeatmapCount == 0)
+            $maxHeatmapCount = 1;
 
         $timeLabels = [
-            8 => '8 AM', 10 => '10 AM', 12 => '12 PM', 14 => '2 PM',
-            16 => '4 PM', 18 => '6 PM', 20 => '8 PM', 22 => '10 PM'
+            8 => '8 AM',
+            10 => '10 AM',
+            12 => '12 PM',
+            14 => '2 PM',
+            16 => '4 PM',
+            18 => '6 PM',
+            20 => '8 PM',
+            22 => '10 PM'
         ];
         // for attendance Heatmap chart
 
         return view('dashboard', compact(
-            'branches', 'beltlevels', 'parents', 'students', 'todayAttendance', 
-            'enrolleesChartData', 'heatmapData', 'timeLabels', 'maxHeatmapCount', 'revenueChartData', 'outstandingBalance', 'classes'
+            'branches',
+            'beltlevels',
+            'parents',
+            'students',
+            'todayAttendance',
+            'enrolleesChartData',
+            'heatmapData',
+            'timeLabels',
+            'maxHeatmapCount',
+            'revenueChartData',
+            'outstandingBalance',
+            'classes'
         ));
     }
 
@@ -176,18 +204,18 @@ class DashboardPopulateController extends Controller
 
         $validate = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'first_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\'-]+$/'], 
+            'first_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'last_name' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'birthdate' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'belt_level' => 'required',
             'status' => 'required',
             'medical_notes' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
-            'allergies' => ['nullable', 'string', 'regex:/^[^<>]+$/'], 
+            'allergies' => ['nullable', 'string', 'regex:/^[^<>]+$/'],
             'contact_person' => ['required', 'string', 'regex:/^[a-zA-Z0-9\s\-.,!?\'"]+$/'],
             'contact_number' => ['required', 'string', 'regex:/^[\d\s\-\+\(\)]+$/'],
             'primary_parent_id' => 'nullable',
-            'email' => ['required', 'email', 'unique:users,email'], 
+            'email' => ['required', 'email', 'unique:users,email'],
             'password' => 'required|min:6',
         ]);
 
@@ -201,6 +229,11 @@ class DashboardPopulateController extends Controller
             'email' => filter_var($this->sanitizeInput($request->email), FILTER_SANITIZE_EMAIL)
         ];
 
+        $photoPath = null;
+        if ($request->hasFile('photo_url')) {
+            $photoPath = $request->file('photo_url')->store('student-photos', 'public');
+        }
+
         $user = User::create([
             'branch_id' => $validate['branch_id'],
             'role' => 'student',
@@ -210,22 +243,23 @@ class DashboardPopulateController extends Controller
             'username' => strtolower(str_replace(' ', '', $data['first_name'])) . '.' . strtolower(str_replace(' ', '', $data['last_name'])) . rand(100, 999),
             'password' => \Illuminate\Support\Facades\Hash::make($validate['password']),
             'status' => $validate['status'] === 'active' ? 'active' : 'inactive',
+            'photo_url' => $photoPath,
         ]);
 
-        $currentYear = date('y'); 
-        
+        $currentYear = date('y');
+
         $latestStudent = DB::table('students')
             ->where('student_code', 'LIKE', $currentYear . '-%')
             ->orderBy('student_code', 'desc')
             ->first();
-            
+
         if ($latestStudent) {
             $lastSequence = (int) substr($latestStudent->student_code, 3);
             $nextSequence = $lastSequence + 1;
         } else {
             $nextSequence = 1;
         }
-        
+
         $newStudentCode = sprintf("%s-%05d", $currentYear, $nextSequence);
 
         try {
@@ -245,8 +279,20 @@ class DashboardPopulateController extends Controller
                 'primary_parent_id' => $validate['primary_parent_id'] ?? null,
                 'join_date' => now(),
                 'status' => $validate['status'],
+                'photo_url' => $photoPath,
                 'created_at' => now(),
             ]);
+
+            $newStudent = DB::table('students')->where('user_id', $user->id)->first();
+
+            if ($newStudent && !empty($validate['primary_parent_id'])) {
+                DB::table('parent_students')->insert([
+                    'parent_id' => $validate['primary_parent_id'],
+                    'student_id' => $newStudent->id,
+                    'created_at' => now(),
+                ]);
+            }
+
         } catch (\Exception $e) {
             Log::error('Student insert error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Student created but profile failed: ' . $e->getMessage());
@@ -318,7 +364,7 @@ class DashboardPopulateController extends Controller
             $data['belt_level'] = null;
             $data['branch_id'] = null;
         }
-        
+
 
         $announcement = Announcement::create($data);
         return redirect()->back()->with('success', 'The message has been successfully created.');

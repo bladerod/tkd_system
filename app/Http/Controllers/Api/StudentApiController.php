@@ -146,79 +146,119 @@ class StudentApiController extends Controller
     public function myProfile(Request $request)
     {
         $user = $request->user();
-
-        // Find student linked to this user
+ 
         $student = \DB::table('students')
             ->where('user_id', $user->id)
             ->first();
-
+ 
         if (!$student) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student profile not found'
             ], 404);
         }
-
-        // Get belt name
+ 
         $belt = \DB::table('belt_levels')
             ->where('id', $student->current_belt)
             ->first();
-
-        // Get class info
+ 
         $classStudent = \DB::table('class_students')
             ->where('student_id', $student->id)
             ->where('status', 'active')
             ->first();
-
-        $class = null;
+ 
         $instructor = null;
         $schedule = null;
-
+ 
         if ($classStudent) {
             $class = \DB::table('classes')
                 ->where('id', $classStudent->class_id)
                 ->first();
-
+ 
             if ($class) {
                 $instructorRecord = \DB::table('instructors')
                     ->where('id', $class->primary_instructor_id)
                     ->first();
-
+ 
                 if ($instructorRecord) {
                     $instructorUser = \DB::table('users')
                         ->where('id', $instructorRecord->user_id)
                         ->first();
-                    $instructor = $instructorUser ? trim($instructorUser->fname . ' ' . $instructorUser->lname) : 'TBA';
+                    $instructor = $instructorUser
+                        ? trim($instructorUser->fname . ' ' . $instructorUser->lname)
+                        : 'TBA';
                 }
-
+ 
                 $schedule = \DB::table('class_schedules')
                     ->where('class_id', $class->id)
                     ->first();
             }
         }
-
-        // Get attendance stats
+ 
+        // Format next class with proper time
+        $nextClass = 'No class scheduled';
+        if ($schedule) {
+            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time)->format('g:i A');
+            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time)->format('g:i A');
+            $nextClass = ucfirst($schedule->day_of_week) . ' ' . $startTime . ' - ' . $endTime;
+        }
+ 
+        // Get plan name
+        $subscription = \DB::table('student_subscriptions')
+            ->where('student_id', $student->id)
+            ->where('status', 'active')
+            ->first();
+ 
+        $planName = null;
+        if ($subscription) {
+            $plan = \DB::table('plans')->where('id', $subscription->plan_id)->first();
+            $planName = $plan?->plan_name ?? null;
+        }
+ 
         $totalClasses = \DB::table('attendance_logs')
             ->where('student_id', $student->id)
             ->count();
-
+ 
         $attended = \DB::table('attendance_logs')
             ->where('student_id', $student->id)
             ->whereIn('attendance_status', ['present', 'late'])
             ->count();
-
+ 
+        // Get linked parent
+        $parentRecord = \DB::table('parent_students')
+            ->where('student_id', $student->id)
+            ->join('parents', 'parent_students.parent_id', '=', 'parents.id')
+            ->join('users as parent_users', 'parents.user_id', '=', 'parent_users.id')
+            ->select('parent_users.fname', 'parent_users.lname')
+            ->first();
+ 
+        $linkedParent = $parentRecord
+            ? trim($parentRecord->fname . ' ' . $parentRecord->lname)
+            : null;
+ 
+        // Get branch name
+        $branch = \DB::table('branches')
+            ->where('id', $student->branch_id)
+            ->first();
+ 
         return response()->json([
             'success' => true,
             'data' => [
-                'name' => trim($student->first_name . ' ' . $student->last_name),
-                'belt' => $belt->name ?? 'No Belt',
-                'instructor' => $instructor ?? 'TBA',
-                'next_class' => $schedule ? ucfirst($schedule->day_of_week) . ' ' . $schedule->start_time : 'No class scheduled',
+                'name'             => trim($student->first_name . ' ' . $student->last_name),
+                'email'            => $user->email ?? '',
+                'belt'             => $belt->name ?? 'No Belt',
+                'instructor'       => $instructor ?? 'TBA',
+                'next_class'       => $nextClass,
+                'plan_name'        => $planName,
+                'photo_url'        => $student->photo_url ?? null,
                 'classes_attended' => $attended,
-                'total_classes' => $totalClasses,
-                'branch' => $student->branch_id,
-                'age' => $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->age : 0,
-                'has_face' => !is_null($student->face_photo),
+                'total_classes'    => $totalClasses,
+                'branch'           => $branch->name ?? 'N/A',
+                'age'              => $student->birthdate
+                    ? \Carbon\Carbon::parse($student->birthdate)->age
+                    : 0,
+                'has_face'         => !is_null($student->face_photo),
+                'linked_parent'    => $linkedParent,
             ]
         ]);
     }
@@ -587,6 +627,35 @@ public function parentsList(Request $request)
         });
 
     return response()->json(['success' => true, 'data' => $parents]);
+}
+
+public function updatePhoto(Request $request)
+{
+    $user = $request->user();
+    $student = \DB::table('students')->where('user_id', $user->id)->first();
+
+    if (!$student) {
+        return response()->json(['success' => false, 'message' => 'Student not found'], 404);
+    }
+
+    $request->validate([
+        'photo' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+    ]);
+
+    $path = $request->file('photo')->store('student-photos', 'public');
+
+    \DB::table('students')->where('id', $student->id)->update([
+        'photo_url' => $path,
+    ]);
+
+    \DB::table('users')->where('id', $user->id)->update([
+        'photo_url' => $path,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'photo_url' => '/storage/' . $path,
+    ]);
 }
 
 }

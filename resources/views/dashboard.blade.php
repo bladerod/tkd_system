@@ -477,7 +477,7 @@
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d] text-gray-700">
                                         <option value="" disabled selected>Select Guardian</option>
                                         @foreach ($parents as $parent)
-                                            <option value="{{ $parent->id }}">{{ $parent->fname . ' ' . $parent->lname }}
+                                            <option value="{{ $parent->parent_id }}">{{ $parent->fname . ' ' . $parent->lname }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -524,7 +524,7 @@
                                 <!-- Profile Picture -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
-                                    <input type="file" accept=".png,.jpeg,.jpg" class="w-full text-sm text-gray-500 cursor-pointer 
+                                    <input type="file" name="photo_url" accept=".png,.jpeg,.jpg" class="w-full text-sm text-gray-500 cursor-pointer 
                                             file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
                                             file:text-sm file:font-medium file:bg-[#1c1c1d] file:text-white
                                             hover:file:bg-[#2f2f2f] focus:outline-none focus:ring-1 focus:ring-[#1c1c1d] focus:border-[#1c1c1d]
